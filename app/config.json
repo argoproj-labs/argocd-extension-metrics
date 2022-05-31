@@ -1,0 +1,61 @@
+{
+  "prometheus": {
+    "applications": [
+      {
+        "name": "default",
+        "default": true,
+        "dashboards": [
+          {
+            "group": "v1",
+            "kind": "pod",
+            "rows": [
+              {
+                "name": "first",
+                "graphs": [
+                  {
+                    "name": "http_duration",
+                    "title": "HTTP duration",
+                    "graphType": "pie",
+                    "duration": "1d",
+                    "queryExpression": "rate(container_cpu_user_seconds_total{pod=\"{{.name}}\", namespace={{.namespace}}}[30s])*100"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "test",
+        "dashboards": [
+          {
+            "group": "v1",
+            "kind": "pod",
+            "rows": [
+              {
+                "name": "welcome",
+                "graphs": [
+                  {
+                    "name": "http_duration",
+                    "title": "HTTP duration",
+                    "graphType": "pie",
+                    "duration": "1d",
+                    "queryExpression": "rate(container_cpu_user_seconds_total{pod=\"{{.name}}\", namespace={{.namespace}}}[30s])*100"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "clusters": [
+      {
+        "Name": "default",
+        "default": true,
+        "address": "http://localhost:9001"
+      }
+    ]
+  }
+}
+
