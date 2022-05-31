@@ -1,4 +1,4 @@
-module github.intuit.com/oss-analytics/argocd-metrics-server
+module github.com/sarabala1979/argo-observability/server
 
 go 1.17
 
