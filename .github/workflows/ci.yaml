@@ -1,0 +1,62 @@
+name: test
+on:
+  push:
+    branches:
+      - "main"
+      - "release-*"
+  pull_request:
+    branches: [ main ]
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v3.1.0
+        with:
+          go-version: "1.18"
+        id: go
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v3
+      - name: Restore Go build cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/go-build
+          key: ${{ runner.os }}-go-build-v1-${{ github.run_id }}
+      - name: Get dependencies
+        run: go mod download
+      - name: Install JetStream
+        run: |
+          set -eux -o pipefail
+          JS_VERSION=2.8.2
+          curl -L https://github.com/nats-io/nats-server/releases/download/v$JS_VERSION/nats-server-v$JS_VERSION-linux-amd64.zip -o nats-server.zip
+          sudo unzip nats-server.zip -d nats-server
+          nats-server/nats-server-v$JS_VERSION-linux-amd64/nats-server -js &
+      - name: Insall Redis
+        uses: shogo82148/actions-setup-redis@v1
+        with:
+          redis-version: '6.2'
+      - run: redis-cli ping
+      - name: Test
+        run: make test
+
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GOPATH: /home/runner/go
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Golang
+        uses: actions/setup-go@v3.1.0
+        with:
+          go-version: "1.18"
+      - name: Restore Go build cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/go-build
+          key: ${{ runner.os }}-go-build-v1-${{ github.run_id }}
+      - run: make lint
+      - run: git diff --exit-code
