@@ -9,7 +9,7 @@ type Graph struct {
 	Title           string `json:"title"`
 	Description     string `json:"description"`
 	GraphType       string `json:"graphType"`
-	Duration        string `json: duration`
+	Duration        string `json:"duration"`
 	QueryExpression string `json:"queryExpression"`
 }
 
@@ -45,8 +45,8 @@ func (d *Dashboard) getRow(name string) *Row {
 type Application struct {
 	Name             string       `json:"name"`
 	Cluster          string       `json:"cluster"`
-	Default          bool         `json:default`
-	DefaultDashboard *Dashboard   `json:defaultDashboard`
+	Default          bool         `json:"default"`
+	DefaultDashboard *Dashboard   `json:"defaultDashboard"`
 	Dashboards       []*Dashboard `json:"dashboards"`
 }
 

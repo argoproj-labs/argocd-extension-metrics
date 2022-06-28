@@ -32,12 +32,18 @@ func (ms *O11yServer) Run(ctx context.Context) {
 	}
 	if ms.config.Prometheus != nil {
 		ms.provider = NewPrometheusProvider(ms.config.Prometheus)
-		ms.provider.init()
+		err := ms.provider.init()
+		if err != nil {
+			log.Panic(err)
+		}
 	}
 	r := gin.Default()
 	r.GET("/api/extension/o11y/metrics/:application/:cluster/:group/:kind/:row/:graph", ms.queryMetrics)
 	r.GET("/api/extension/o11y/application/:application/:cluster/:group/:kind", ms.dashboardConfig)
-	r.Run(":9003")
+	err = r.Run(":9003")
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func (ms *O11yServer) queryMetrics(ctx *gin.Context) {

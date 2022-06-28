@@ -57,9 +57,6 @@ func (pp *PrometheusProvider) init() error {
 	return nil
 }
 
-func (pp *PrometheusProvider) dashboardConfig(ctx *gin.Context) {
-
-}
 
 func (pp *PrometheusProvider) getClusterProvideClient(cluster string) v1.API {
 	if prometheusClient, ok := pp.clusterMap[cluster]; ok {
@@ -101,7 +98,11 @@ func (pp *PrometheusProvider) execute(ctx *gin.Context) {
 		}
 		buf := new(bytes.Buffer)
 		err = tmpl.Execute(buf, env)
-		strQuery := fmt.Sprintf("%s", buf)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, err)
+			return
+		}
+		strQuery := buf.String()
 		fmt.Println(strQuery)
 		r := v1.Range{
 			Start: time.Now().Add(-time.Hour),
