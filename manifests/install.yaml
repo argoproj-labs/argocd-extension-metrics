@@ -25,7 +25,7 @@ spec:
           - name: WAVEFRONT_TOKEN
             value: ""
           image: sarabala1979/argocd-o11y-server:v5
-          imagePullPolicy: Never
+          imagePullPolicy: IfNotPresent
           name: argocd-o11y-server
           volumeMounts:
           - name: config-volume
