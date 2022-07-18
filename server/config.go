@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"github.com/prometheus/common/config"
 )
 
@@ -9,12 +10,12 @@ type Graph struct {
 	Title           string `json:"title"`
 	Description     string `json:"description"`
 	GraphType       string `json:"graphType"`
-	Duration        string `json:"duration"`
 	QueryExpression string `json:"queryExpression"`
 }
 
 type Row struct {
-	Name   string
+	Name   string   `json:"name"`
+	Title  string   `json:"title"`
 	Graphs []*Graph `json:"graphs"`
 }
 
@@ -28,9 +29,9 @@ func (r *Row) getGraph(name string) *Graph {
 }
 
 type Dashboard struct {
-	Group string `json:"group"`
-	Kind  string `json:"kind"`
-	Rows  []*Row `json:"rows"`
+	Name      string `json:"name"`
+	GroupKind string `json:"groupKind"`
+	Rows      []*Row `json:"rows"`
 }
 
 func (d *Dashboard) getRow(name string) *Row {
@@ -44,22 +45,31 @@ func (d *Dashboard) getRow(name string) *Row {
 
 type Application struct {
 	Name             string       `json:"name"`
-	Cluster          string       `json:"cluster"`
 	Default          bool         `json:"default"`
 	DefaultDashboard *Dashboard   `json:"defaultDashboard"`
 	Dashboards       []*Dashboard `json:"dashboards"`
 }
 
-func (a Application) getDashBoard(group, kind string) *Dashboard {
+func (a Application) getDashBoardByName(name string) *Dashboard {
 	for _, dash := range a.Dashboards {
-		if dash.Group == group && dash.Kind == kind {
+		if dash.Name == name {
 			return dash
 		}
 	}
 	return a.DefaultDashboard
 }
 
-type cluster struct {
+func (a Application) getDashBoard(groupKind string) *Dashboard {
+	for _, dash := range a.Dashboards {
+		fmt.Println(dash.GroupKind, groupKind)
+		if dash.GroupKind == groupKind {
+			return dash
+		}
+	}
+	return a.DefaultDashboard
+}
+
+type provider struct {
 	Name      string           `json:"name"`
 	Address   string           `json:"address"`
 	Default   bool             `json:"default"`
@@ -68,19 +78,14 @@ type cluster struct {
 
 type MetricsConfigProvider struct {
 	Applications []Application `json:"applications"`
-	Clusters     []cluster     `json:"clusters"`
+	Provider     provider      `json:"provider"`
 }
 
-func (p *MetricsConfigProvider) getApp(name, cluster string) *Application {
+func (p *MetricsConfigProvider) getApp(name string) *Application {
 	var defaultApp Application
 	for _, app := range p.Applications {
 		if app.Name == name {
-			if app.Cluster == "" {
-				return &app
-			}
-			if app.Cluster != "" && app.Cluster == cluster {
-				return &app
-			}
+			return &app
 		}
 		if app.Default {
 			defaultApp = app
@@ -91,4 +96,5 @@ func (p *MetricsConfigProvider) getApp(name, cluster string) *Application {
 
 type O11yConfig struct {
 	Prometheus *MetricsConfigProvider `json:"prometheus"`
+	Wavefront  *MetricsConfigProvider `json:"wavefront"`
 }
