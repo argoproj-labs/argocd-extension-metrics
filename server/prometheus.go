@@ -3,8 +3,9 @@ package server
 import (
 	"bytes"
 	"fmt"
+	"html/template"
 	"net/http"
-	"text/template"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -13,22 +14,19 @@ import (
 )
 
 type PrometheusProvider struct {
-	clusterMap    map[string]v1.API
-	defaultClient v1.API
-	config        *MetricsConfigProvider
+	provider v1.API
+	config   *MetricsConfigProvider
 }
 
 func (pp *PrometheusProvider) getDashboard(ctx *gin.Context) {
 	appName := ctx.Param("application")
-	cluster := ctx.Param("cluster")
-	group := ctx.Param("group")
-	kind := ctx.Param("kind")
-	app := pp.config.getApp(appName, cluster)
+	groupKind := ctx.Param("groupkind")
+	app := pp.config.getApp(appName)
 	if app == nil {
 		ctx.JSON(http.StatusBadRequest, "Requested/Default Application not found")
 		return
 	}
-	dash := app.getDashBoard(group, kind)
+	dash := app.getDashBoard(groupKind)
 	if dash == nil {
 		ctx.JSON(http.StatusBadRequest, "Requested/Default Dashboard not found")
 		return
@@ -37,49 +35,37 @@ func (pp *PrometheusProvider) getDashboard(ctx *gin.Context) {
 }
 
 func NewPrometheusProvider(prometheusConfig *MetricsConfigProvider) *PrometheusProvider {
-	return &PrometheusProvider{config: prometheusConfig, clusterMap: make(map[string]v1.API)}
+	return &PrometheusProvider{config: prometheusConfig}
 }
 
 func (pp *PrometheusProvider) init() error {
-	for _, cluster := range pp.config.Clusters {
-		client, err := api.NewClient(api.Config{
-			Address: cluster.Address,
-		})
-		if err != nil {
-			fmt.Printf("Error creating client: %v\n", err)
-			return err
-		}
-		if cluster.Default {
-			pp.defaultClient = v1.NewAPI(client)
-		}
-		pp.clusterMap[cluster.Name] = v1.NewAPI(client)
+	client, err := api.NewClient(api.Config{
+		Address: pp.config.Provider.Address,
+	})
+	if err != nil {
+		fmt.Printf("Error creating client: %v\n", err)
+		return err
 	}
+	pp.provider = v1.NewAPI(client)
 	return nil
 }
 
-
-func (pp *PrometheusProvider) getClusterProvideClient(cluster string) v1.API {
-	if prometheusClient, ok := pp.clusterMap[cluster]; ok {
-		return prometheusClient
-	}
-	return pp.defaultClient
-}
-
 func (pp *PrometheusProvider) execute(ctx *gin.Context) {
-	cluster := ctx.Param("cluster")
 	app := ctx.Param("application")
-	group := ctx.Param("group")
-	kind := ctx.Param("kind")
+	groupKind := ctx.Param("groupkind")
 	rowName := ctx.Param("row")
 	graphName := ctx.Param("graph")
+	duration := ctx.GetDuration("duration")
+	if duration.String() == "" {
+		duration = 5 * time.Minute
+	}
 	env := ctx.Request.URL.Query()
-	prometheusClient := pp.getClusterProvideClient(cluster)
-	application := pp.config.getApp(app, cluster)
+	application := pp.config.getApp(app)
 	if application == nil {
 		ctx.JSON(http.StatusBadRequest, "Requested/Default Application not found")
 		return
 	}
-	dashboard := application.getDashBoard(group, kind)
+	dashboard := application.getDashBoard(groupKind)
 	if dashboard == nil {
 		ctx.JSON(http.StatusBadRequest, "Requested/Default Dashboard not found")
 		return
@@ -91,25 +77,33 @@ func (pp *PrometheusProvider) execute(ctx *gin.Context) {
 	}
 	graph := row.getGraph(graphName)
 	if graph != nil {
+		fmt.Println(graph.QueryExpression)
 		tmpl, err := template.New("query").Parse(graph.QueryExpression)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, "invalid query")
 			return
 		}
+		env1 := make(map[string]string)
+		for k, v := range env {
+			env1[k] = strings.Join(v, ",")
+		}
 		buf := new(bytes.Buffer)
-		err = tmpl.Execute(buf, env)
+
+		err = tmpl.Execute(buf, env1)
+		fmt.Println(buf.String())
 		if err != nil {
+			fmt.Println(err)
 			ctx.JSON(http.StatusBadRequest, err)
 			return
 		}
 		strQuery := buf.String()
-		fmt.Println(strQuery)
+
 		r := v1.Range{
-			Start: time.Now().Add(-time.Hour),
+			Start: time.Now().Add(duration),
 			End:   time.Now(),
 			Step:  time.Minute,
 		}
-		result, warnings, err := prometheusClient.QueryRange(ctx, strQuery, r)
+		result, warnings, err := pp.provider.QueryRange(ctx, strQuery, r)
 		if err != nil {
 			fmt.Printf("Warnings: %v\n", warnings)
 			ctx.JSON(http.StatusBadRequest, err)
