@@ -24,7 +24,7 @@ spec:
             value: https://intuit.wavefront.com/
           - name: WAVEFRONT_TOKEN
             value: ""
-          image: sarabala1979/argocd-o11y-server:v1
+          image: sarabala1979/argocd-o11y-server:v5
           imagePullPolicy: Never
           name: argocd-o11y-server
           volumeMounts:
