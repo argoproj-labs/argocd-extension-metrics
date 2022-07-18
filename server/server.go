@@ -8,6 +8,7 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
+
 )
 
 type O11yServer struct {
@@ -38,8 +39,8 @@ func (ms *O11yServer) Run(ctx context.Context) {
 		}
 	}
 	r := gin.Default()
-	r.GET("/api/extension/o11y/metrics/:application/:cluster/:group/:kind/:row/:graph", ms.queryMetrics)
-	r.GET("/api/extension/o11y/application/:application/:cluster/:group/:kind", ms.dashboardConfig)
+	r.GET("/api/extension/o11y/applications/:application/groupkinds/:groupkind/rows/:row/graphs/:graph", ms.queryMetrics)
+	r.GET("/api/extension/o11y/applications/:application/groupkinds/:groupkind/dashboards", ms.dashboardConfig)
 	err = r.Run(":9003")
 	if err != nil {
 		fmt.Println(err)

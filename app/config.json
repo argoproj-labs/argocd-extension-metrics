@@ -6,41 +6,36 @@
         "default": true,
         "dashboards": [
           {
-            "group": "v1",
-            "kind": "pod",
+            "groupKind": "pod",
             "rows": [
               {
-                "name": "first",
+                "name": "http",
                 "graphs": [
                   {
                     "name": "http_duration",
                     "title": "HTTP duration",
-                    "graphType": "pie",
-                    "duration": "1d",
-                    "queryExpression": "rate(container_cpu_user_seconds_total{pod=\"{{.name}}\", namespace={{.namespace}}}[30s])*100"
+                    "description": "",
+                    "graphType": "line",
+                    "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
                   }
                 ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "name": "test",
-        "dashboards": [
-          {
-            "group": "v1",
-            "kind": "pod",
-            "rows": [
+              },
               {
-                "name": "welcome",
+                "name": "MEMORY",
                 "graphs": [
                   {
                     "name": "http_duration",
                     "title": "HTTP duration",
                     "graphType": "pie",
                     "duration": "1d",
-                    "queryExpression": "rate(container_cpu_user_seconds_total{pod=\"{{.name}}\", namespace={{.namespace}}}[30s])*100"
+                    "queryExpression": "rate(container_cpu_user_seconds_total [30s])*100"
+                  },
+                  {
+                    "name": "http_duration",
+                    "title": "HTTP duration",
+                    "graphType": "pie",
+                    "duration": "1d",
+                    "queryExpression": "rate(container_cpu_user_seconds_total [30s])*100"
                   }
                 ]
               }
@@ -49,13 +44,10 @@
         ]
       }
     ],
-    "clusters": [
-      {
-        "Name": "default",
-        "default": true,
-        "address": "http://localhost:9001"
-      }
-    ]
+    "provider": {
+      "Name": "default",
+      "default": true,
+      "address": "http://localhost:8081"
+    }
   }
 }
-
