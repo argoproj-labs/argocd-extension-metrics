@@ -58,25 +58,54 @@ data:
   config.json: |
     {
       "prometheus": {
-        "row":{
-        "queries": [
-          "health": {
-            "queryExpression": "rate(container_cpu_usage_seconds_total {namespace=\"{{.name}}\"}[1m])"
-          },
-          "cpu": {
-            "queryExpression": "rate(container_cpu_usage_seconds_total {namespace=\"{{.name}}\"}[1m])"
-          },
-          "memory": {
-            "queryExpression": "rate(container_memory_usage_bytes {namespace=\"{{.name}}\"}[1m])"
-          },
-          "requestrate": {
-            "queryExpression": "rate(container_cpu_usage_seconds_total[1m])"
+        "applications": [
+          {
+            "name": "default",
+            "default": true,
+            "dashboards": [
+              {
+                "groupKind": "pod",
+                "rows": [
+                  {
+                    "name": "http",
+                    "graphs": [
+                      {
+                        "name": "http_duration",
+                        "title": "HTTP duration",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "MEMORY",
+                    "graphs": [
+                      {
+                        "name": "http_duration",
+                        "title": "HTTP duration",
+                        "graphType": "pie",
+                        "duration": "1d",
+                        "queryExpression": "rate(container_cpu_user_seconds_total [30s])*100"
+                      },
+                      {
+                        "name": "http_duration",
+                        "title": "HTTP duration",
+                        "graphType": "pie",
+                        "duration": "1d",
+                        "queryExpression": "rate(container_cpu_user_seconds_total [30s])*100"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
           }
         ],
-    }
-    
-        "clusters": {
-          "default": "http://prometheus-service.monitoring.svc.cluster.local:8080"
+        "provider": {
+          "Name": "default",
+          "default": true,
+          "address": "http://prometheus-service.monitoring.svc.cluster.local:8080"
         }
       }
     }
