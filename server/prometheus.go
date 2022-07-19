@@ -55,10 +55,16 @@ func (pp *PrometheusProvider) execute(ctx *gin.Context) {
 	groupKind := ctx.Param("groupkind")
 	rowName := ctx.Param("row")
 	graphName := ctx.Param("graph")
-	duration := ctx.GetDuration("duration")
-	if duration.String() == "" {
-		duration = 5 * time.Minute
+	durationStr := ctx.Query("duration")
+	if durationStr == "" {
+		durationStr = "1h"
 	}
+	duration, err := time.ParseDuration(durationStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, "Invalid duration format :"+err.Error())
+		return
+	}
+
 	env := ctx.Request.URL.Query()
 	application := pp.config.getApp(app)
 	if application == nil {
@@ -97,12 +103,13 @@ func (pp *PrometheusProvider) execute(ctx *gin.Context) {
 			return
 		}
 		strQuery := buf.String()
-
+		fmt.Println(duration)
 		r := v1.Range{
-			Start: time.Now().Add(duration),
+			Start: time.Now().Add(-duration),
 			End:   time.Now(),
 			Step:  time.Minute,
 		}
+		//fmt.Println(r.Start.String())
 		result, warnings, err := pp.provider.QueryRange(ctx, strQuery, r)
 		if err != nil {
 			fmt.Printf("Warnings: %v\n", warnings)
