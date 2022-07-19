@@ -24,7 +24,7 @@ spec:
             value: https://intuit.wavefront.com/
           - name: WAVEFRONT_TOKEN
             value: ""
-          image: sarabala1979/argo-o11y-server:v6
+          image: sarabala1979/argo-o11y-server:v8
           imagePullPolicy: IfNotPresent
           name: argocd-o11y-server
           volumeMounts:
@@ -56,8 +56,7 @@ metadata:
   name: argocd-o11y-server-configmap
 data:
   config.json: |
-    {
-      "prometheus": {
+     "prometheus": {
         "applications": [
           {
             "name": "default",
@@ -67,33 +66,872 @@ data:
                 "groupKind": "pod",
                 "rows": [
                   {
-                    "name": "http",
+                    "name": "containers",
+                    "title": "Containers",
                     "graphs": [
                       {
-                        "name": "http_duration",
-                        "title": "HTTP duration",
+                        "name": "container_cpu_line",
+                        "title": "CPU",
                         "description": "",
                         "graphType": "line",
                         "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
+                      },
+                      {
+                        "name": "container_cpu_pie",
+                        "title": "CPU Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
+                      },
+                      {
+                        "name": "container_memory_line",
+                        "title": "Memory",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
+                      },
+                      {
+                        "name": "container_memory_pie",
+                        "title": "Mem Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
                       }
                     ]
                   },
                   {
-                    "name": "MEMORY",
+                    "name": "images",
+                    "title": "Images",
                     "graphs": [
                       {
-                        "name": "http_duration",
-                        "title": "HTTP duration",
-                        "graphType": "pie",
-                        "duration": "1d",
-                        "queryExpression": "rate(container_cpu_user_seconds_total [30s])*100"
+                        "name": "image_cpu_line",
+                        "title": "CPU",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (image)"
                       },
                       {
-                        "name": "http_duration",
-                        "title": "HTTP duration",
+                        "name": "image_cpu_pie",
+                        "title": "CPU Avg",
+                        "description": "",
                         "graphType": "pie",
-                        "duration": "1d",
-                        "queryExpression": "rate(container_cpu_user_seconds_total [30s])*100"
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (image)"
+                      },
+                      {
+                        "name": "image_memory_line",
+                        "title": "Memory",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (image)"
+                      },
+                      {
+                        "name": "image_memory_pie",
+                        "title": "Mem Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (image)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "pods",
+                    "title": "Pods",
+                    "graphs": [
+                      {
+                        "name": "pod_cpu_line",
+                        "title": "CPU",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                      },
+                      {
+                        "name": "pod_cpu_pie",
+                        "title": "CPU Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                      },
+                      {
+                        "name": "pod_memory_line",
+                        "title": "Memory",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                      },
+                      {
+                        "name": "pod_memory_pie",
+                        "title": "Mem Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "instances",
+                    "title": "Instances",
+                    "graphs": [
+                      {
+                        "name": "instances_cpu_line",
+                        "title": "CPU",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (instance)"
+                      },
+                      {
+                        "name": "instances_cpu_pie",
+                        "title": "CPU Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (instance)"
+                      },
+                      {
+                        "name": "instances_memory_line",
+                        "title": "Memory",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (instance)"
+                      },
+                      {
+                        "name": "instances_memory_pie",
+                        "title": "Mem Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (instance)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "jobs",
+                    "title": "Jobs",
+                    "graphs": [
+                      {
+                        "name": "jobs_cpu_line",
+                        "title": "CPU",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (job)"
+                      },
+                      {
+                        "name": "jobs_cpu_pie",
+                        "title": "CPU Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (job)"
+                      },
+                      {
+                        "name": "jobs_memory_line",
+                        "title": "Memory",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (job)"
+                      },
+                      {
+                        "name": "jobs_memory_pie",
+                        "title": "Mem Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (job)"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "groupKind": "replicaset",
+                "rows": [
+                  {
+                    "name": "containers",
+                    "title": "Containers",
+                    "graphs": [
+                      {
+                        "name": "container_cpu_line",
+                        "title": "CPU",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
+                      },
+                      {
+                        "name": "container_cpu_pie",
+                        "title": "CPU Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
+                      },
+                      {
+                        "name": "container_memory_line",
+                        "title": "Memory",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
+                      },
+                      {
+                        "name": "container_memory_pie",
+                        "title": "Mem Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "images",
+                    "title": "Images",
+                    "graphs": [
+                      {
+                        "name": "image_cpu_line",
+                        "title": "CPU",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (image)"
+                      },
+                      {
+                        "name": "image_cpu_pie",
+                        "title": "CPU Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (image)"
+                      },
+                      {
+                        "name": "image_memory_line",
+                        "title": "Memory",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (image)"
+                      },
+                      {
+                        "name": "image_memory_pie",
+                        "title": "Mem Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (image)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "pods",
+                    "title": "Pods",
+                    "graphs": [
+                      {
+                        "name": "pod_cpu_line",
+                        "title": "CPU",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                      },
+                      {
+                        "name": "pod_cpu_pie",
+                        "title": "CPU Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                      },
+                      {
+                        "name": "pod_memory_line",
+                        "title": "Memory",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                      },
+                      {
+                        "name": "pod_memory_pie",
+                        "title": "Mem Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "instances",
+                    "title": "Instances",
+                    "graphs": [
+                      {
+                        "name": "instances_cpu_line",
+                        "title": "CPU",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (instance)"
+                      },
+                      {
+                        "name": "instances_cpu_pie",
+                        "title": "CPU Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (instance)"
+                      },
+                      {
+                        "name": "instances_memory_line",
+                        "title": "Memory",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (instance)"
+                      },
+                      {
+                        "name": "instances_memory_pie",
+                        "title": "Mem Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (instance)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "jobs",
+                    "title": "Jobs",
+                    "graphs": [
+                      {
+                        "name": "jobs_cpu_line",
+                        "title": "CPU",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (job)"
+                      },
+                      {
+                        "name": "jobs_cpu_pie",
+                        "title": "CPU Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (job)"
+                      },
+                      {
+                        "name": "jobs_memory_line",
+                        "title": "Memory",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (job)"
+                      },
+                      {
+                        "name": "jobs_memory_pie",
+                        "title": "Mem Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (job)"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "groupKind": "rollout",
+                "rows": [
+                  {
+                    "name": "containers",
+                    "title": "Containers",
+                    "graphs": [
+                      {
+                        "name": "container_cpu_line",
+                        "title": "CPU",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
+                      },
+                      {
+                        "name": "container_cpu_pie",
+                        "title": "CPU Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
+                      },
+                      {
+                        "name": "container_memory_line",
+                        "title": "Memory",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
+                      },
+                      {
+                        "name": "container_memory_pie",
+                        "title": "Mem Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "images",
+                    "title": "Images",
+                    "graphs": [
+                      {
+                        "name": "image_cpu_line",
+                        "title": "CPU",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (image)"
+                      },
+                      {
+                        "name": "image_cpu_pie",
+                        "title": "CPU Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (image)"
+                      },
+                      {
+                        "name": "image_memory_line",
+                        "title": "Memory",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (image)"
+                      },
+                      {
+                        "name": "image_memory_pie",
+                        "title": "Mem Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (image)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "pods",
+                    "title": "Pods",
+                    "graphs": [
+                      {
+                        "name": "pod_cpu_line",
+                        "title": "CPU",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                      },
+                      {
+                        "name": "pod_cpu_pie",
+                        "title": "CPU Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                      },
+                      {
+                        "name": "pod_memory_line",
+                        "title": "Memory",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                      },
+                      {
+                        "name": "pod_memory_pie",
+                        "title": "Mem Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "instances",
+                    "title": "Instances",
+                    "graphs": [
+                      {
+                        "name": "instances_cpu_line",
+                        "title": "CPU",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (instance)"
+                      },
+                      {
+                        "name": "instances_cpu_pie",
+                        "title": "CPU Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (instance)"
+                      },
+                      {
+                        "name": "instances_memory_line",
+                        "title": "Memory",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (instance)"
+                      },
+                      {
+                        "name": "instances_memory_pie",
+                        "title": "Mem Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (instance)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "jobs",
+                    "title": "Jobs",
+                    "graphs": [
+                      {
+                        "name": "jobs_cpu_line",
+                        "title": "CPU",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (job)"
+                      },
+                      {
+                        "name": "jobs_cpu_pie",
+                        "title": "CPU Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (job)"
+                      },
+                      {
+                        "name": "jobs_memory_line",
+                        "title": "Memory",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (job)"
+                      },
+                      {
+                        "name": "jobs_memory_pie",
+                        "title": "Mem Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (job)"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "groupKind": "deployment",
+                "rows": [
+                  {
+                    "name": "containers",
+                    "title": "Containers",
+                    "graphs": [
+                      {
+                        "name": "container_cpu_line",
+                        "title": "CPU",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
+                      },
+                      {
+                        "name": "container_cpu_pie",
+                        "title": "CPU Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
+                      },
+                      {
+                        "name": "container_memory_line",
+                        "title": "Memory",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
+                      },
+                      {
+                        "name": "container_memory_pie",
+                        "title": "Mem Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "images",
+                    "title": "Images",
+                    "graphs": [
+                      {
+                        "name": "image_cpu_line",
+                        "title": "CPU",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (image)"
+                      },
+                      {
+                        "name": "image_cpu_pie",
+                        "title": "CPU Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (image)"
+                      },
+                      {
+                        "name": "image_memory_line",
+                        "title": "Memory",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (image)"
+                      },
+                      {
+                        "name": "image_memory_pie",
+                        "title": "Mem Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (image)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "pods",
+                    "title": "Pods",
+                    "graphs": [
+                      {
+                        "name": "pod_cpu_line",
+                        "title": "CPU",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                      },
+                      {
+                        "name": "pod_cpu_pie",
+                        "title": "CPU Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                      },
+                      {
+                        "name": "pod_memory_line",
+                        "title": "Memory",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                      },
+                      {
+                        "name": "pod_memory_pie",
+                        "title": "Mem Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "instances",
+                    "title": "Instances",
+                    "graphs": [
+                      {
+                        "name": "instances_cpu_line",
+                        "title": "CPU",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (instance)"
+                      },
+                      {
+                        "name": "instances_cpu_pie",
+                        "title": "CPU Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (instance)"
+                      },
+                      {
+                        "name": "instances_memory_line",
+                        "title": "Memory",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (instance)"
+                      },
+                      {
+                        "name": "instances_memory_pie",
+                        "title": "Mem Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (instance)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "jobs",
+                    "title": "Jobs",
+                    "graphs": [
+                      {
+                        "name": "jobs_cpu_line",
+                        "title": "CPU",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (job)"
+                      },
+                      {
+                        "name": "jobs_cpu_pie",
+                        "title": "CPU Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (job)"
+                      },
+                      {
+                        "name": "jobs_memory_line",
+                        "title": "Memory",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (job)"
+                      },
+                      {
+                        "name": "jobs_memory_pie",
+                        "title": "Mem Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (job)"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "groupKind": "application",
+                "rows": [
+                  {
+                    "name": "containers",
+                    "title": "Containers",
+                    "graphs": [
+                      {
+                        "name": "container_cpu_line",
+                        "title": "CPU",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
+                      },
+                      {
+                        "name": "container_cpu_pie",
+                        "title": "CPU Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
+                      },
+                      {
+                        "name": "container_memory_line",
+                        "title": "Memory",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
+                      },
+                      {
+                        "name": "container_memory_pie",
+                        "title": "Mem Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "images",
+                    "title": "Images",
+                    "graphs": [
+                      {
+                        "name": "image_cpu_line",
+                        "title": "CPU",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (image)"
+                      },
+                      {
+                        "name": "image_cpu_pie",
+                        "title": "CPU Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (image)"
+                      },
+                      {
+                        "name": "image_memory_line",
+                        "title": "Memory",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (image)"
+                      },
+                      {
+                        "name": "image_memory_pie",
+                        "title": "Mem Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (image)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "pods",
+                    "title": "Pods",
+                    "graphs": [
+                      {
+                        "name": "pod_cpu_line",
+                        "title": "CPU",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                      },
+                      {
+                        "name": "pod_cpu_pie",
+                        "title": "CPU Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                      },
+                      {
+                        "name": "pod_memory_line",
+                        "title": "Memory",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                      },
+                      {
+                        "name": "pod_memory_pie",
+                        "title": "Mem Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "instances",
+                    "title": "Instances",
+                    "graphs": [
+                      {
+                        "name": "instances_cpu_line",
+                        "title": "CPU",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (instance)"
+                      },
+                      {
+                        "name": "instances_cpu_pie",
+                        "title": "CPU Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (instance)"
+                      },
+                      {
+                        "name": "instances_memory_line",
+                        "title": "Memory",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (instance)"
+                      },
+                      {
+                        "name": "instances_memory_pie",
+                        "title": "Mem Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (instance)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "jobs",
+                    "title": "Jobs",
+                    "graphs": [
+                      {
+                        "name": "jobs_cpu_line",
+                        "title": "CPU",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (job)"
+                      },
+                      {
+                        "name": "jobs_cpu_pie",
+                        "title": "CPU Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (job)"
+                      },
+                      {
+                        "name": "jobs_memory_line",
+                        "title": "Memory",
+                        "description": "",
+                        "graphType": "line",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (job)"
+                      },
+                      {
+                        "name": "jobs_memory_pie",
+                        "title": "Mem Avg",
+                        "description": "",
+                        "graphType": "pie",
+                        "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (job)"
                       }
                     ]
                   }
@@ -102,12 +940,11 @@ data:
             ]
           }
         ],
-        "provider": {
+        "provider":
+        {
           "Name": "default",
           "default": true,
-          "address": "http://prometheus-service.monitoring.svc.cluster.local:8080"
+          "address": "http://localhost:8080"
         }
       }
     }
-    
-    
