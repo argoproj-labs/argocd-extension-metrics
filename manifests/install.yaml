@@ -944,7 +944,7 @@ data:
         {
           "Name": "default",
           "default": true,
-          "address": "http://localhost:8080"
+          "address": "http://prometheus-service.monitoring.svc.cluster.local:8080"
         }
       }
     }
