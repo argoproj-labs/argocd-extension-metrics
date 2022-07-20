@@ -56,6 +56,7 @@ metadata:
   name: argocd-o11y-server-configmap
 data:
   config.json: |
+   {
    "prometheus": {
      "applications": [
        {
@@ -948,3 +949,4 @@ data:
      }
    }
    }
+   
