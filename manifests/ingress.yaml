@@ -1,0 +1,37 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    alb.ingress.kubernetes.io/backend-protocol: HTTPS
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-west-2:926113353675:certificate/cc42f584-9680-49f9-b534-0e937070381e
+    alb.ingress.kubernetes.io/healthcheck-path: /
+    alb.ingress.kubernetes.io/healthcheck-protocol: HTTPS
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/load-balancer-attributes: access_logs.s3.enabled=false
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/security-groups: iks-intuit-cidr-ingress-tcp-443, iks-intuit-ibp-ingress-tcp-443,
+      iks-intuit-app-alb-custom-ingress
+    alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS-1-2-2017-01
+    alb.ingress.kubernetes.io/subnets: IngressSubnetAz1, IngressSubnetAz2, IngressSubnetAz3
+    external-dns.alpha.kubernetes.io/hostname: argocd.numalogicprometheususw2.a.intuit.com
+    kubernetes.io/ingress.class: aws-alb
+  name: argocd-server
+spec:
+ rules:
+   - http:
+       paths:
+         - path: /api/extension/o11y
+           pathType: Prefix
+           backend:
+             service:
+               name: argocd-o11y-server
+               port:
+                 number: 9003
+         - path: /
+           pathType: Prefix
+           backend:
+             service:
+               name: argocd-server
+               port:
+                 number: 80
+

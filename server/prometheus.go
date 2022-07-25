@@ -66,6 +66,7 @@ func (pp *PrometheusProvider) execute(ctx *gin.Context) {
 	}
 
 	env := ctx.Request.URL.Query()
+
 	application := pp.config.getApp(app)
 	if application == nil {
 		ctx.JSON(http.StatusBadRequest, "Requested/Default Application not found")
@@ -91,8 +92,10 @@ func (pp *PrometheusProvider) execute(ctx *gin.Context) {
 		}
 		env1 := make(map[string]string)
 		for k, v := range env {
+			fmt.Println(k,v)
 			env1[k] = strings.Join(v, ",")
 		}
+		fmt.Println("env1", env1)
 		buf := new(bytes.Buffer)
 
 		err = tmpl.Execute(buf, env1)
@@ -109,7 +112,7 @@ func (pp *PrometheusProvider) execute(ctx *gin.Context) {
 			End:   time.Now(),
 			Step:  time.Minute,
 		}
-		//fmt.Println(r.Start.String())
+		fmt.Println(strQuery)
 		result, warnings, err := pp.provider.QueryRange(ctx, strQuery, r)
 		if err != nil {
 			fmt.Printf("Warnings: %v\n", warnings)

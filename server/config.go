@@ -10,6 +10,7 @@ type Graph struct {
 	Title           string `json:"title"`
 	Description     string `json:"description"`
 	GraphType       string `json:"graphType"`
+	MetricName      string `json:"metricName"`
 	QueryExpression string `json:"queryExpression"`
 }
 

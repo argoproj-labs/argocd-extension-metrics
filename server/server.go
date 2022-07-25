@@ -2,12 +2,17 @@ package server
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
+
+	tls2 "github.com/sarabala1979/argo-observability/shared/tls"
+
 
 )
 
@@ -39,11 +44,22 @@ func (ms *O11yServer) Run(ctx context.Context) {
 		}
 	}
 	r := gin.Default()
+	r.GET("/", func(c *gin.Context) {
+		c.String(http.StatusOK, "healthy")
+	})
 	r.GET("/api/extension/o11y/applications/:application/groupkinds/:groupkind/rows/:row/graphs/:graph", ms.queryMetrics)
 	r.GET("/api/extension/o11y/applications/:application/groupkinds/:groupkind/dashboards", ms.dashboardConfig)
-	err = r.Run(":9003")
+	cert, err := tls2.GenerateX509KeyPair()
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
+	}
+	server := http.Server{
+		Addr:      ":9003",
+		Handler:   r,
+		TLSConfig: &tls.Config{Certificates: []tls.Certificate{*cert}, MinVersion: tls.VersionTLS12},
+	}
+	if err := server.ListenAndServeTLS("", ""); err != nil {
+		panic(err)
 	}
 }
 
