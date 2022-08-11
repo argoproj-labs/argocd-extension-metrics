@@ -6,7 +6,6 @@ require (
 	github.com/gin-gonic/gin v1.8.0
 	github.com/prometheus/client_golang v1.12.2
 	github.com/prometheus/common v0.34.0
-	github.com/sirupsen/logrus v1.6.0
 	github.com/stretchr/testify v1.7.1
 )
 
@@ -22,7 +21,6 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/jpillora/backoff v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/konsorten/go-windows-terminal-sequences v1.0.3 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
