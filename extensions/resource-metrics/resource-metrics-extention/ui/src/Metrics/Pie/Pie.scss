@@ -1,0 +1,70 @@
+.metrics-pie {
+  &__chart-label {
+    font-size: .8em;
+    text-align: center;
+    padding-top: 0em;
+  }
+  &__tooltip {
+    padding: .8em 1.1em .9em;
+    z-index: 990;
+    min-width: 240px;
+    font-size: 0.85em;
+    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: 4px;
+    color: #fff;
+    position: relative;
+    transform: translate(-70%, -100%);
+    .item {
+      white-space: nowrap;
+      display: flex;
+
+      .label {
+        white-space: nowrap;
+        font-weight: 400;
+        padding-bottom: 0px;
+      }
+
+      .value {
+        white-space: nowrap;
+        text-align: right;
+        margin-left: auto;
+        padding-left: 1em;
+      }
+    }
+  }
+  &__tooltip_title {
+    color: #ddd;
+    font-size: .85em;
+    text-transform: uppercase;
+  }
+}
+
+.metrics-pie__wrapper {
+  .metrics-pie__tooltip {
+    display: none;
+    right: 0px;
+    transform: translate(-100%);
+    margin-top: -60px;
+    margin-left: 90px;
+  }
+  &:hover .metrics-pie__tooltip {
+    display: block;
+  }
+}
+
+.box-arrow-bottom {
+  margin-bottom: 0px;
+  overflow: visible;
+}
+
+.box-arrow-bottom:after {
+  content: " ";
+  position: absolute;
+  right: 45px;
+  bottom: .1px;
+  transform: translateY(99%);
+  border-bottom: none;
+  border-right: 7px solid transparent;
+  border-left: 7px solid transparent;
+  border-top: 7px solid rgba(0, 0, 0, 0.8);
+}

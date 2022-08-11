@@ -1,0 +1,23 @@
+@import 'node_modules/argo-ui/src/styles/config';
+
+.application-metrics {
+
+    &__MetricsDurationSelector {
+        text-align: right;
+        margin-bottom: -1em;
+    }
+    &__MetricsDuration {
+        padding: 5px 12px;
+        border-radius: 5px;
+        margin-left: 5px;
+        display: inline-block;
+        &.active,
+        &:hover {
+            background-color: rgba(0,0,0,.05);
+        }
+        &.active {
+            font-weight: 600;
+        }
+
+    }
+}
