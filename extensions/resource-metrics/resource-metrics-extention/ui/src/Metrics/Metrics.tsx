@@ -4,11 +4,12 @@ import { useState, useEffect } from 'react'
 import ChartWrapper from './Chart/ChartWrapper'
 import './Metrics.scss'
 
-export const Metrics = ({ application, resource, events, duration }: any) => {
+export const Metrics = ({ application, resource, events, duration, setHasMetrics, isLoading, setIsLoading }: any) => {
   const resourceName = resource.kind === 'Application' ? '' : resource?.metadata?.name
-  const [dashboard, setDashboard] = useState({} as any)
-  const [filterChart, setFilterChart] = useState({})
-  const [highlight, setHighlight] = useState({})
+  const [dashboard, setDashboard] = useState<any>({})
+  const [filterChart, setFilterChart] = useState<any>({})
+  const [highlight, setHighlight] = useState<any>({})
+  const [selectedTab, setSelectedTab] = useState<string>("")
 
   const namespace = resource?.metadata?.namespace || ''
   const application_name = application?.metadata?.name || ''
@@ -18,22 +19,63 @@ export const Metrics = ({ application, resource, events, duration }: any) => {
   useEffect(() => {
     const url = `/api/extension/o11y/applications/${application_name}/groupkinds/${resource.kind.toLowerCase()}/dashboards`
     fetch(url)
-      .then(response => response.json())
+      .then(response => {
+        if (response.status > 399) {
+          throw new Error("No metrics");
+        }
+        return response.json()
+      })
       .then((data: any) => {
+        setIsLoading(false)
+        setHasMetrics(true)
         setDashboard(data)
+        if (data?.tabs?.length) {
+          setSelectedTab(data.tabs[0])
+        }
       }).catch(err => {
+        setHasMetrics(false)
+        setIsLoading(false)
         console.error('res.data', err)
       });
-  }, [application_name, resource.kind])
+  }, [application_name, resource?.kind])
 
   return (
     <div>
-      {dashboard?.rows?.map((row: any) => 
-      {
+      {dashboard?.tabs?.length &&
+        <div className="application-metrics__Tabs" >
+          {dashboard?.tabs?.map((tab: string) => {
+            return <div
+              className={`application-metrics__Tab ${selectedTab === tab ? 'active' : ''}`}
+              onClick={() => { setSelectedTab(tab) }}
+              key={tab}
+            >
+              {tab}
+            </div>
+          })}
+          {dashboard?.rows?.filter((r: any) => !dashboard?.tabs?.includes(r.tab))?.length > 0 &&
+            <div
+              className={`application-metrics__Tab ${selectedTab === 'More' ? 'active' : ''}`}
+              onClick={() => { setSelectedTab('More') }}
+              key={'More'}
+            >
+              More
+            </div>
+          }
+        </div>
+      }
+
+      {!isLoading && !dashboard?.rows?.filter((r: any) => dashboard?.tabs?.includes(r.tab) || selectedTab === 'More')?.length &&
+        <p>No charts assigned to the <strong>{selectedTab}</strong> tab.</p>
+      }
+
+      {dashboard?.rows?.map((row: any) => {
+        if (dashboard?.tabs?.length && row?.tab !== selectedTab && !(!row?.tab && selectedTab === "More")) {
+          return <></>
+        }
         return (
           <>
             <div className='application-metrics'>
-              <span>
+              <span className='application-metrics__RowTitle'>
                 {row.title}
               </span>
             </div>
@@ -50,7 +92,7 @@ export const Metrics = ({ application, resource, events, duration }: any) => {
                     events={events}
                     queryPath={url}
                     resource={resource}
-                    groupBy={graph.metricName||row.name}
+                    groupBy={graph.metricName || row.name}
                     name={resourceName}
                     yUnit={''}
                     labelKey={graph.title}

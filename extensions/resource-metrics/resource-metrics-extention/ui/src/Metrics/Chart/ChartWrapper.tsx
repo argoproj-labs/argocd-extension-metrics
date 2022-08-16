@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import CustomPie from '../Pie/Pie'
+import AnomalyChart from './AnomalyChart'
 import TimeSeriesChart from './Chart'
 
 export const colorArray = [
@@ -57,10 +58,17 @@ export const ChartWrapper = ({
       }
       const metricObj: any = {
         ...obj,
-        name: obj?.metric?.[groupBy],
+        name: obj?.metric && Object.values(obj?.metric).join(":"),
         data: []
       }
       obj?.values?.map((kp: any, i: any) => {
+        if(obj?.values?.length && (metricObj.data?.[i-1]?.x < (kp[0] - 61)) ) {
+          metricObj.data.push({
+            x: obj?.values?.[i-1]?.x + 60,
+            y: null
+          })
+          return
+        }
         metricObj.data.push({
           x: xFormatter(kp[0]),
           y: yFormatter(kp[1])
@@ -89,6 +97,22 @@ export const ChartWrapper = ({
   
   return useMemo(() => (
     <>
+      {graphType === "anomaly" && 
+        <AnomalyChart
+          events={events}
+          metric={metric}
+          chartData={chartsData[metric]}
+          groupBy={groupBy}
+          yFormatter={yFormatter}
+          title={title}
+          yUnit={yUnit}
+          labelKey={labelKey}
+          filterChart={filterChart}
+          setFilterChart={setFilterChart}
+          highlight={highlight}
+          setHighlight={setHighlight}
+        />
+      }
       {graphType === "line" && 
         <TimeSeriesChart
           events={events}

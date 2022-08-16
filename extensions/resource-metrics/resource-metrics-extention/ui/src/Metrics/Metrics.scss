@@ -1,6 +1,50 @@
 @import 'node_modules/argo-ui/src/styles/config';
 
 .application-metrics {
+    &__Tabs {
+        margin-bottom: 2em;
+        text-transform: uppercase;
+        font-size: 13px;
+        font-weight: 500;
+        border-bottom: 1px solid #ccd6dd;
+    }
+
+    &__RowTitle {
+        text-transform: uppercase;
+        font-size: 14px;
+        font-weight: 400;
+        padding: 0px 0px 4px;
+        display: block;
+    }
+
+    &__indicator {
+        position: absolute;
+        bottom: 0;
+        height: 2px;
+        background: #ccc;
+
+        &.to-left {
+            transition: left .4s, right .4s .1s;
+        }
+
+        &.to-right {
+            transition: left .4s .1s, right .4s;
+        }
+    }
+
+    &__Tab {
+        display: inline-block;
+        margin: 0px 10px 0px 0px;
+        padding: .8em 1.6em .5em;
+        background-color: transparent;
+        transition: .3s;
+        border-radius: 6px 6px 0px 0px;
+        cursor: pointer;
+        &.active, &:hover {
+            background-color: #e3e7e9;
+        }
+    }
+
     &__labels {
         line-height: 28px;
         display: flex;
@@ -15,7 +59,7 @@
         background-color: #fff;
         border-radius: 6px;
         box-shadow: 1px 2px 3px rgb(0 0 0 / 10%);
-        margin-bottom: 16px;
+        margin-bottom: 2.2em;
         margin-top: 4px;
         padding: 1em 1.5em 1em 0em;
         clear: both;
