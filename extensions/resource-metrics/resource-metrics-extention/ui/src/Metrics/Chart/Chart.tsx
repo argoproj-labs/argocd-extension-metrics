@@ -29,6 +29,10 @@ const height = 150;
 //   return arr;
 // };
 
+const truncate = (str: string, n: number): string => {
+  return (str.length > n) ? str.slice(0, n-1) + '...' : str;
+};
+
 const CustomTooltip = ({
   active,
   metric,
@@ -51,9 +55,6 @@ const CustomTooltip = ({
     return (
       <div className="metrics-charts__tooltip" style={{ display: "none" }}>
         {payload?.map((p: any, i: any) => {
-          if (!p.name) {
-            return <div key={p + i}></div>;
-          }
           return <div key={p + i}></div>;
         })}
       </div>
@@ -151,7 +152,7 @@ const RenderLegend = ({
                       : ".4",
                 }}
               >
-                {entry.value}
+                {truncate(entry.value, 56)}
               </div>
             </div>
             <div
@@ -364,8 +365,8 @@ export const TimeSeriesChart = ({
             <LineChart
               width={800}
               height={500}
-              // syncId={"o11yCharts"}
-              // syncMethod={"value"}
+              syncId={"o11yCharts"}
+              syncMethod={"value"}
               layout={"horizontal"}
               onMouseMove={(e: any) => {}}
               onMouseLeave={() => {
@@ -410,21 +411,22 @@ export const TimeSeriesChart = ({
               {LegendMemo}
               {chartData?.map((d: any, i: number) => {
                 return <Line
-                // strokeDasharray={`${strokeArray(i)}`}
-                isAnimationActive={false}
-                dataKey="y"
-                data={d.data}
-                hide={
-                  filterChart[groupBy] && filterChart[groupBy].indexOf(d.name) < 0
-                }
-                stroke={colorArray[i % colorArray.length]}
-                strokeWidth={d.name === highlight[groupBy] ? 3 : 1.5}
-                name={d.name}
-                dot={false}
-                key={d.name}
-                animationDuration={200}
-                style={{ zIndex: highlight[groupBy] ? 100 : 1 }}
-              />
+                  // strokeDasharray={`${strokeArray(i)}`}
+                  isAnimationActive={false}
+                  dataKey="y"
+                  data={d.data}
+                  connectNulls={false}
+                  hide={
+                    filterChart[groupBy] && filterChart[groupBy].indexOf(d.name) < 0
+                  }
+                  stroke={colorArray[i % colorArray.length]}
+                  strokeWidth={d.name === highlight[groupBy] ? 3 : 1.5}
+                  name={d.name}
+                  dot={false}
+                  key={d.name}
+                  animationDuration={200}
+                  style={{ zIndex: highlight[groupBy] ? 100 : 1 }}
+                />
                 
               })}
             </LineChart>

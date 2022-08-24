@@ -4,16 +4,21 @@
 
     &__MetricsDurationSelector {
         text-align: right;
-        margin-bottom: -1em;
+        margin-top: .8em;
+        margin-bottom: -1.5em;
     }
     &__MetricsDuration {
-        padding: 5px 12px;
+        padding: 5px 5px;
         border-radius: 5px;
-        margin-left: 5px;
+        margin-left: 8px;
+        font-size: .8em;
+        text-transform: uppercase;
+        color: #6d7f8b;
         display: inline-block;
         &.active,
         &:hover {
-            background-color: rgba(0,0,0,.05);
+            // background-color: rgba(0,0,0,.05);
+            text-decoration: overline;
         }
         &.active {
             font-weight: 600;

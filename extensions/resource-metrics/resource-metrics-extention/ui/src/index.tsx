@@ -6,7 +6,9 @@ import './styles.scss'
 export const Extension = (props: any) => {
   const [events, setEvents] = useState([])
   const [duration, setDuration] = useState("1h")
-  console.log("props", props)
+  const [hasMetrics, setHasMetrics] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+
   const loc = window.location
   const { resource, application } = props
   const application_name = application?.metadata?.name || ''
@@ -31,7 +33,10 @@ export const Extension = (props: any) => {
 
   return (
     <React.Fragment>
-      <div className='application-metrics__MetricsDurationSelector'>
+      {!isLoading && !hasMetrics &&
+        <p>No metrics to display</p>
+      }
+      {!isLoading && hasMetrics && <div className='application-metrics__MetricsDurationSelector'>
         <a
           href={`${loc}`}
           className={`application-metrics__MetricsDuration ${duration === '24h' ? 'active' : ''}`}
@@ -66,8 +71,8 @@ export const Extension = (props: any) => {
         >
             1 hr
         </a>
-      </div>
-      <Metrics {...props} events={events} duration={duration} />
+      </div>}
+      <Metrics {...props} events={events} duration={duration} setHasMetrics={setHasMetrics} isLoading={isLoading} setIsLoading={setIsLoading}/>
     </React.Fragment>
   )
 }
