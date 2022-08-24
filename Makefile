@@ -1,6 +1,6 @@
 CURRENT_DIR=$(shell pwd)
 DIST_DIR=${CURRENT_DIR}/dist
-BINARY_NAME:=metrics
+BINARY_NAME:=argo-o11y-server
 DOCKERFILE:=Dockerfile
 
 BUILD_DATE=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')

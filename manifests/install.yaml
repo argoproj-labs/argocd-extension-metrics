@@ -27,6 +27,17 @@ spec:
           image: sarabala1979/argo-o11y-server:v14
           imagePullPolicy: IfNotPresent
           name: argocd-o11y-server
+          ports:
+           - containerPort: 9003
+             name: metrics
+             protocol: TCP
+          resources:
+           limits:
+            cpu: 700m
+            memory: 3Gi
+           requests:
+            cpu: 700m
+            memory: 3Gi
           volumeMounts:
           - name: config-volume
             mountPath: /app/config.json

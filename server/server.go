@@ -12,8 +12,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	tls2 "github.com/sarabala1979/argo-observability/shared/tls"
-
-
 )
 
 type O11yServer struct {
@@ -79,6 +77,7 @@ func (ms *O11yServer) readConfig() error {
 	//var configData map[string]string
 	fmt.Println(string(yamlFile))
 	err = json.Unmarshal(yamlFile, &ms.config)
+
 	if err != nil {
 		log.Fatalf("Unmarshal: %v", err)
 		return err

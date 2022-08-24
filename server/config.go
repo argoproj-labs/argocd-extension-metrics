@@ -5,20 +5,30 @@ import (
 	"github.com/prometheus/common/config"
 )
 
+type Threshold struct {
+	Key   string `json:"key"`
+	Name  string `json:"name"`
+	Color string `json:"color"`
+	Value string `json:"value"`
+}
+
 type Graph struct {
-	Name            string `json:"name"`
-	Title           string `json:"title"`
-	Description     string `json:"description"`
-	GraphType       string `json:"graphType"`
-	MetricName      string `json:"metricName"`
-	YAxisUnit       string `json:"yAxisUnit"`
-	ValueRounding   int    `json:"valueRounding"`
-	QueryExpression string `json:"queryExpression"`
+	Name            string      `json:"name"`
+	Title           string      `json:"title"`
+	Description     string      `json:"description"`
+	GraphType       string      `json:"graphType"`
+	MetricName      string      `json:"metricName"`
+	ColorSchemes    []string    `json:"colorSchemes"`
+	Thresholds      []Threshold `json:"thresholds"`
+	QueryExpression string      `json:"queryExpression"`
+	YAxisUnit       string      `json:"yAxisUnit"`
+	ValueRounding   int         `json:"valueRounding"`
 }
 
 type Row struct {
 	Name   string   `json:"name"`
 	Title  string   `json:"title"`
+	Tab    string   `json:"tab"`
 	Graphs []*Graph `json:"graphs"`
 }
 
@@ -32,9 +42,11 @@ func (r *Row) getGraph(name string) *Graph {
 }
 
 type Dashboard struct {
-	Name      string `json:"name"`
-	GroupKind string `json:"groupKind"`
-	Rows      []*Row `json:"rows"`
+	Name        string   `json:"name"`
+	GroupKind   string   `json:"groupKind"`
+	RefreshRate string   `json:"refreshRate"`
+	Tabs        []string `json:"tabs"`
+	Rows        []*Row   `json:"rows"`
 }
 
 func (d *Dashboard) getRow(name string) *Row {
