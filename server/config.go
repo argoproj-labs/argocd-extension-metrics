@@ -11,8 +11,8 @@ type Graph struct {
 	Description     string `json:"description"`
 	GraphType       string `json:"graphType"`
 	MetricName      string `json:"metricName"`
-	YAxisUnit       string `json: "yAxisUnit"`
-	ValueRounding   int    `json: "valueRounding"`
+	YAxisUnit       string `json:"yAxisUnit"`
+	ValueRounding   int    `json:"valueRounding"`
 	QueryExpression string `json:"queryExpression"`
 }
 
