@@ -21,6 +21,8 @@ type Graph struct {
 	ColorSchemes    []string    `json:"colorSchemes"`
 	Thresholds      []Threshold `json:"thresholds"`
 	QueryExpression string      `json:"queryExpression"`
+	YAxisUnit       string      `json:"yAxisUnit"`
+	ValueRounding   int         `json:"valueRounding"`
 }
 
 type Row struct {
