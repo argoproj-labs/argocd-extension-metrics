@@ -1,17 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: argocd-o11y-server
+  name: argocd-metrics-server
 spec:
   selector:
     matchLabels:
-      app: argocd-o11y-server
+      app: argocd-metrics-server
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: argocd-o11y-server
+        app: argocd-metrics-server
     spec:
       containers:
         - env:
@@ -20,13 +20,9 @@ spec:
               fieldRef:
                 apiVersion: v1
                 fieldPath: metadata.namespace
-          - name: WAVEFRONT_ADDRESS
-            value: https://intuit.wavefront.com/
-          - name: WAVEFRONT_TOKEN
-            value: ""
           image: sarabala1979/argo-o11y-server:v14
           imagePullPolicy: IfNotPresent
-          name: argocd-o11y-server
+          name: argocd-metrics-server
           ports:
            - containerPort: 9003
              name: metrics
@@ -34,10 +30,10 @@ spec:
           resources:
            limits:
             cpu: 700m
-            memory: 3Gi
+            memory: 1Gi
            requests:
-            cpu: 700m
-            memory: 3Gi
+            cpu: 100m
+            memory: 250Mi
           volumeMounts:
           - name: config-volume
             mountPath: /app/config.json
@@ -45,18 +41,18 @@ spec:
       volumes:
       - name: config-volume
         configMap:
-          name: argocd-o11y-server-configmap
+          name: argocd-metrics-server-configmap
 ---
 apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: argocd-o11y-server
-  name: argocd-o11y-server
+    app: argocd-metrics-server
+  name: argocd-metrics-server
 spec:
   ports:
     - name: metrics
       port: 9003
       targetPort: 9003
   selector:
-    app: argocd-o11y-server
+    app: argocd-metrics-server

@@ -1,0 +1,14 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ArgoCDExtension
+metadata:
+  name: argocd-metrics-ext
+  labels:
+    tab: "Metrics"
+    icon: "fa-chart"
+  finalizers:
+    - extensions-finalizer.argocd.argoproj.io
+spec:
+  sources:
+    - web:
+        # url: http://host.docker.internal:8000/extension.tar
+        url:
