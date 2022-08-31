@@ -42,11 +42,12 @@ func (r *Row) getGraph(name string) *Graph {
 }
 
 type Dashboard struct {
-	Name        string   `json:"name"`
-	GroupKind   string   `json:"groupKind"`
-	RefreshRate string   `json:"refreshRate"`
-	Tabs        []string `json:"tabs"`
-	Rows        []*Row   `json:"rows"`
+	Name         string   `json:"name"`
+	GroupKind    string   `json:"groupKind"`
+	RefreshRate  string   `json:"refreshRate"`
+	Tabs         []string `json:"tabs"`
+	Rows         []*Row   `json:"rows"`
+	ProviderType string   `json:"providerType"`
 }
 
 func (d *Dashboard) getRow(name string) *Row {
@@ -63,15 +64,6 @@ type Application struct {
 	Default          bool         `json:"default"`
 	DefaultDashboard *Dashboard   `json:"defaultDashboard"`
 	Dashboards       []*Dashboard `json:"dashboards"`
-}
-
-func (a Application) getDashBoardByName(name string) *Dashboard {
-	for _, dash := range a.Dashboards {
-		if dash.Name == name {
-			return dash
-		}
-	}
-	return a.DefaultDashboard
 }
 
 func (a Application) getDashBoard(groupKind string) *Dashboard {

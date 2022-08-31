@@ -1,6 +1,6 @@
 CURRENT_DIR=$(shell pwd)
 DIST_DIR=${CURRENT_DIR}/dist
-BINARY_NAME:=argo-o11y-server
+BINARY_NAME:=argocd-metrics-server
 DOCKERFILE:=Dockerfile
 
 BUILD_DATE=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
@@ -10,7 +10,7 @@ GIT_TAG=$(shell if [ -z "`git status --porcelain`" ]; then git describe --exact-
 GIT_TREE_STATE=$(shell if [ -z "`git status --porcelain`" ]; then echo "clean" ; else echo "dirty"; fi)
 
 DOCKER_PUSH?=false
-IMAGE_NAMESPACE?=docker.io/sarabala1979
+IMAGE_NAMESPACE?=sarabala1979
 VERSION?=latest
 BASE_VERSION:=latest
 

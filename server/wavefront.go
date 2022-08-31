@@ -2,63 +2,63 @@ package server
 
 import (
 	"bytes"
-	"fmt"
 	"go.uber.org/zap"
 	"html/template"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
+	wavefront "github.com/WavefrontHQ/go-wavefront-management-api"
 	"github.com/gin-gonic/gin"
-	"github.com/prometheus/client_golang/api"
-	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 )
 
-type PrometheusProvider struct {
+type WaveFrontProvider struct {
 	logger   *zap.SugaredLogger
-	provider v1.API
+	provider *wavefront.Client
 	config   *MetricsConfigProvider
+	token    string
 }
 
-func (pp *PrometheusProvider) getType() string {
-	return PROMETHEUS_TYPE
-}
-
-func (pp *PrometheusProvider) getDashboard(ctx *gin.Context) {
+func (wf *WaveFrontProvider) getDashboard(ctx *gin.Context) {
 	appName := ctx.Param("application")
 	groupKind := ctx.Param("groupkind")
-	app := pp.config.getApp(appName)
+	app := wf.config.getApp(appName)
 	if app == nil {
 		ctx.JSON(http.StatusBadRequest, "Requested/Default Application not found")
 		return
 	}
 	dash := app.getDashBoard(groupKind)
-
 	if dash == nil {
 		ctx.JSON(http.StatusBadRequest, "Requested/Default Dashboard not found")
 		return
 	}
-	dash.ProviderType = pp.getType()
+	dash.ProviderType = wf.getType()
 	ctx.JSON(http.StatusOK, dash)
 }
 
-func NewPrometheusProvider(prometheusConfig *MetricsConfigProvider, logger *zap.SugaredLogger) *PrometheusProvider {
-	return &PrometheusProvider{config: prometheusConfig, logger: logger}
+func NewWavefrontProvider(waveFrontConfig *MetricsConfigProvider, token string, logger *zap.SugaredLogger) *WaveFrontProvider {
+	return &WaveFrontProvider{config: waveFrontConfig, token: token, logger: logger}
 }
 
-func (pp *PrometheusProvider) init() error {
-	client, err := api.NewClient(api.Config{
-		Address: pp.config.Provider.Address,
-	})
+func (wf *WaveFrontProvider) init() error {
+
+	wfConfig := wavefront.Config{
+		Address:       wf.config.Provider.Address,
+		Token:         wf.token,
+		SkipTLSVerify: true,
+	}
+	var err error
+	wf.provider, err = wavefront.NewClient(&wfConfig)
 	if err != nil {
-		pp.logger.Errorf("Error creating client: %v\n", err)
 		return err
 	}
-	pp.provider = v1.NewAPI(client)
 	return nil
 }
-
-func (pp *PrometheusProvider) execute(ctx *gin.Context) {
+func (wf *WaveFrontProvider) getType() string {
+	return WAVEFRONT_TYPE
+}
+func (wf *WaveFrontProvider) execute(ctx *gin.Context) {
 	app := ctx.Param("application")
 	groupKind := ctx.Param("groupkind")
 	rowName := ctx.Param("row")
@@ -72,10 +72,9 @@ func (pp *PrometheusProvider) execute(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, "Invalid duration format :"+err.Error())
 		return
 	}
-
 	env := ctx.Request.URL.Query()
 
-	application := pp.config.getApp(app)
+	application := wf.config.getApp(app)
 	if application == nil {
 		ctx.JSON(http.StatusBadRequest, "Requested/Default Application not found")
 		return
@@ -92,7 +91,7 @@ func (pp *PrometheusProvider) execute(ctx *gin.Context) {
 	}
 	graph := row.getGraph(graphName)
 	if graph != nil {
-		fmt.Println(graph.QueryExpression)
+		wf.logger.Infow("Query execution", zap.Any("query", graph.QueryExpression), zap.Any("graphName", graph.Name), zap.Any("rowName", row.Name))
 		tmpl, err := template.New("query").Parse(graph.QueryExpression)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, "invalid query")
@@ -100,36 +99,30 @@ func (pp *PrometheusProvider) execute(ctx *gin.Context) {
 		}
 		env1 := make(map[string]string)
 		for k, v := range env {
-			fmt.Println(k, v)
 			env1[k] = strings.Join(v, ",")
 		}
 		buf := new(bytes.Buffer)
 
 		err = tmpl.Execute(buf, env1)
 		if err != nil {
-			fmt.Println(err)
+			wf.logger.Errorw("Error in template execution ", zap.Error(err))
 			ctx.JSON(http.StatusBadRequest, err)
 			return
 		}
 		strQuery := buf.String()
-		r := v1.Range{
-			Start: time.Now().Add(-duration),
-			End:   time.Now(),
-			Step:  time.Minute,
-		}
-		fmt.Println(strQuery)
-		result, warnings, err := pp.provider.QueryRange(ctx, strQuery, r)
+		startTime := time.Now().Add(-duration)
+		endTime := time.Now()
+		wfQuery := wavefront.NewQueryParams(strQuery)
+		wfQuery.StartTime = strconv.FormatInt(startTime.Unix(), 10)
+		wfQuery.EndTime = strconv.FormatInt(endTime.Unix(), 10)
+		query := wf.provider.NewQuery(wfQuery)
+		result, err := query.Execute()
 		if err != nil {
-			fmt.Printf("Warnings: %v\n", warnings)
+			wf.logger.Errorw("Error in query execution ", zap.Error(err))
 			ctx.JSON(http.StatusBadRequest, err)
 			return
 		}
-		if len(warnings) > 0 {
-			fmt.Printf("Warnings: %v\n", warnings)
-			ctx.JSON(http.StatusBadRequest, warnings)
-			return
-		}
-		ctx.JSON(http.StatusOK, result)
+		ctx.JSON(http.StatusOK, result.TimeSeries)
 		return
 	}
 
