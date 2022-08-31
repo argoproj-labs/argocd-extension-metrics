@@ -41,10 +41,10 @@ jobs:
         uses: actions/setup-go@v3.1.0
         with:
           go-version: "1.18"
-      - name: Restore Go build cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/go-build
-          key: ${{ runner.os }}-go-build-v1-${{ github.run_id }}
+#       - name: Restore Go build cache
+#         uses: actions/cache@v3
+#         with:
+#           path: ~/.cache/go-build
+#           key: ${{ runner.os }}-go-build-v1-${{ github.run_id }}
       - run: make lint
       - run: git diff --exit-code
