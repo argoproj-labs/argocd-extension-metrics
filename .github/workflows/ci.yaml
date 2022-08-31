@@ -7,7 +7,7 @@ on:
   pull_request:
     branches: [ main ]
 jobs:
-  unit-tests:
+  compile:
     name: Unit Tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -26,8 +26,8 @@ jobs:
           key: ${{ runner.os }}-go-build-v1-${{ github.run_id }}
       - name: Get dependencies
         run: go mod download
-      - name: Test
-#        run: make test
+      - name: build
+        run: make
 
   lint:
     name: lint
