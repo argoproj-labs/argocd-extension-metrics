@@ -65,15 +65,6 @@ type Application struct {
 	Dashboards       []*Dashboard `json:"dashboards"`
 }
 
-func (a Application) getDashBoardByName(name string) *Dashboard {
-	for _, dash := range a.Dashboards {
-		if dash.Name == name {
-			return dash
-		}
-	}
-	return a.DefaultDashboard
-}
-
 func (a Application) getDashBoard(groupKind string) *Dashboard {
 	for _, dash := range a.Dashboards {
 		fmt.Println(dash.GroupKind, groupKind)

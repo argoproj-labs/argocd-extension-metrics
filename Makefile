@@ -10,7 +10,7 @@ GIT_TAG=$(shell if [ -z "`git status --porcelain`" ]; then git describe --exact-
 GIT_TREE_STATE=$(shell if [ -z "`git status --porcelain`" ]; then echo "clean" ; else echo "dirty"; fi)
 
 DOCKER_PUSH?=false
-IMAGE_NAMESPACE?=docker.io/sarabala1979
+IMAGE_NAMESPACE?=docker.io/argoproj
 VERSION?=latest
 BASE_VERSION:=latest
 
@@ -44,6 +44,8 @@ test-coverage:
 clean:
 	-rm -rf ${CURRENT_DIR}/dist
 
+test:
+	go test -v ./server
 
 .PHONY: lint
 lint: $(GOPATH)/bin/golangci-lint
