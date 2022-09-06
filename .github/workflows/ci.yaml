@@ -48,7 +48,7 @@ jobs:
       - run: make test
       
   lint:
-    name: lint
+    name: Lint
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
