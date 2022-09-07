@@ -73,8 +73,8 @@ jobs:
           IMAGE_NAMESPACE=${{ secrets.DOCKERIO_ORG }} VERSION=${{ steps.version.outputs.VERSION }} DOCKER_PUSH=true make image
   Release:
     runs-on: ubuntu-latest
-    if: github.repository == 'numaproj/numaflow'
-    needs: [ build-push-linux-multi, bom ]
+    if: github.repository == 'argoproj-labs/argocd-extension-metrics'
+    needs: [ build-push-image ]
     steps:
       - name: Download binaries
         uses: actions/download-artifact@v3
