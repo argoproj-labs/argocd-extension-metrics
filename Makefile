@@ -58,3 +58,7 @@ lint: $(GOPATH)/bin/golangci-lint
 image: build
 	DOCKER_BUILDKIT=1 docker build  -t $(IMAGE_NAMESPACE)/$(BINARY_NAME):$(VERSION)  -f $(DOCKERFILE) .
 	@if [ "$(DOCKER_PUSH)" = "true" ]; then docker push $(IMAGE_NAMESPACE)/$(BINARY_NAME):$(VERSION); fi
+
+.PHONY: checksums
+checksums:
+	for f in ./dist/$(BINARY_NAME); do openssl dgst -sha256 "$$f" | awk ' { print $$2 }' > "$$f".sha256 ; done
