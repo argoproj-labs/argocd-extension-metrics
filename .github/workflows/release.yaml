@@ -70,4 +70,4 @@ jobs:
           echo "::set-output name=VERSION::$tag"
       - name: Container build and push with arm64/amd64
         run: |
-          IMAGE_NAMESPACE=${{ secrets.DOCKERIO_ORG }} VERSION=${{ steps.version.outputs.VERSION }} DOCKER_PUSH=true make image
+          IMAGE_NAMESPACE=argoproj VERSION=${{ steps.version.outputs.VERSION }} DOCKER_PUSH=true make image
