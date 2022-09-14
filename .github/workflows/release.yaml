@@ -71,28 +71,3 @@ jobs:
       - name: Container build and push with arm64/amd64
         run: |
           IMAGE_NAMESPACE=${{ secrets.DOCKERIO_ORG }} VERSION=${{ steps.version.outputs.VERSION }} DOCKER_PUSH=true make image
-  Release:
-    runs-on: ubuntu-latest
-    if: github.repository == 'numaproj/numaflow'
-    needs: [ build-push-linux-multi, bom ]
-    steps:
-      - name: Download binaries
-        uses: actions/download-artifact@v3
-        with:
-          name: binaries
-          path: dist/
-      - uses: actions/download-artifact@v3
-        with:
-          name: sbom.tar.gz
-          path: sbom.tar.gz
-      - name: Release binaries
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: |
-            dist/*.gz
-            dist/*.gz.sha256
-            manifests/*.yaml
-            sbom.tar.gz
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
