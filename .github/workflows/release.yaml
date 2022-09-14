@@ -30,7 +30,11 @@ jobs:
         run: |
           make build
           chmod -R +x dist
-  
+      - name: store artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: binaries
+          path: dist 
   build-push-image:
     name: Build & Push
     needs: [ build-binaries ]
