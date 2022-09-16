@@ -9,12 +9,12 @@ import (
 
 func main() {
 	var port int
-	flag.IntVar(&port, "port", 9003, "Request Parallel")
+	flag.IntVar(&port, "port", 9003, "Listening Port")
 	flag.Parse()
 	logger := logging.NewLogger().Named("metric-sever")
 	ctx := context.Background()
 	defer ctx.Done()
 
-	metricsServer := server.NewO11yServer(logger)
+	metricsServer := server.NewO11yServer(logger, port)
 	metricsServer.Run(ctx)
 }

@@ -33,8 +33,8 @@ type MetricsProvider interface {
 	getType() string
 }
 
-func NewO11yServer(logger *zap.SugaredLogger) O11yServer {
-	return O11yServer{logger: logger}
+func NewO11yServer(logger *zap.SugaredLogger, port int) O11yServer {
+	return O11yServer{logger: logger, port: port}
 }
 func (ms *O11yServer) Run(ctx context.Context) {
 
