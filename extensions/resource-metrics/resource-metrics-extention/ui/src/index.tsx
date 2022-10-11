@@ -3,6 +3,10 @@ import { useEffect, useState } from 'react'
 import Metrics from './Metrics/Metrics'
 import './styles.scss'
 
+export const roundNumber = (num: number, dig: number): number => {
+  return Math.round(num*10**dig) / 10**dig;
+}
+
 export const Extension = (props: any) => {
   const [events, setEvents] = useState([])
   const [duration, setDuration] = useState("1h")

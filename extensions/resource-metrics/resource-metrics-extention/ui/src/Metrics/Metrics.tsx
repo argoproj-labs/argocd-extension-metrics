@@ -17,7 +17,7 @@ export const Metrics = ({ application, resource, events, duration, setHasMetrics
   const uid = application?.metadata?.uid || ''
 
   useEffect(() => {
-    const url = `/api/extension/o11y/applications/${application_name}/groupkinds/${resource.kind.toLowerCase()}/dashboards`
+    const url = `/api/extension/metrics/applications/${application_name}/groupkinds/${resource.kind.toLowerCase()}/dashboards`
     fetch(url)
       .then(response => {
         if (response.status > 399) {
@@ -64,7 +64,7 @@ export const Metrics = ({ application, resource, events, duration, setHasMetrics
         </div>
       }
 
-      {!isLoading && !dashboard?.rows?.filter((r: any) => dashboard?.tabs?.includes(r.tab) || selectedTab === 'More')?.length &&
+      {!isLoading && dashboard?.rows && !dashboard?.rows?.filter((r: any) => dashboard?.tabs?.includes(r.tab) || selectedTab === 'More')?.length &&
         <p>No charts assigned to the <strong>{selectedTab}</strong> tab.</p>
       }
 
@@ -81,7 +81,7 @@ export const Metrics = ({ application, resource, events, duration, setHasMetrics
             </div>
             <div className='application-metrics__ChartContainerFlex'>
               {row?.graphs?.map((graph: any) => {
-                const url = `/api/extension/o11y/applications/${application_name}/groupkinds/${resource.kind.toLowerCase()}/rows/${row.name}/graphs/${graph.name}?name=${resourceName}.*&namespace=${namespace}&application_name=${application_name}&project=${project}&uid=${uid}&duration=${duration}`
+                const url = `/api/extension/metrics/applications/${application_name}/groupkinds/${resource.kind.toLowerCase()}/rows/${row.name}/graphs/${graph.name}?name=${resourceName}.*&namespace=${namespace}&application_name=${application_name}&project=${project}&uid=${uid}&duration=${duration}`
                 return (
                   <ChartWrapper
                     application_name={application_name}
@@ -94,7 +94,8 @@ export const Metrics = ({ application, resource, events, duration, setHasMetrics
                     resource={resource}
                     groupBy={graph.metricName || row.name}
                     name={resourceName}
-                    yUnit={''}
+                    yUnit={graph.yAxisUnit || ''}
+                    valueRounding={graph.valueRounding || 10}
                     labelKey={graph.title}
                     metric={graph.name}
                     graphType={graph.graphType}

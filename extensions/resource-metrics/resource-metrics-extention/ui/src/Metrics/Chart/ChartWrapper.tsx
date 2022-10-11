@@ -38,6 +38,7 @@ export const ChartWrapper = ({
   title,
   metric,
   yUnit,
+  valueRounding,
   yFormatter = (y: any) => y,
   events,
   graphType,
@@ -106,6 +107,7 @@ export const ChartWrapper = ({
           yFormatter={yFormatter}
           title={title}
           yUnit={yUnit}
+          valueRounding={valueRounding}
           labelKey={labelKey}
           filterChart={filterChart}
           setFilterChart={setFilterChart}
@@ -113,6 +115,7 @@ export const ChartWrapper = ({
           setHighlight={setHighlight}
         />
       }
+
       {graphType === "line" && 
         <TimeSeriesChart
           events={events}
@@ -122,6 +125,7 @@ export const ChartWrapper = ({
           yFormatter={yFormatter}
           title={title}
           yUnit={yUnit}
+          valueRounding={valueRounding}
           labelKey={labelKey}
           filterChart={filterChart}
           setFilterChart={setFilterChart}
@@ -136,6 +140,8 @@ export const ChartWrapper = ({
           labelKey={labelKey}
           filterChart={filterChart}
           highlight={highlight}
+          yUnit={yUnit}
+          valueRounding={valueRounding}
           setHighlight={setHighlight}
           chartData={chartsData[metric]}
           yFormatter={yFormatter}
