@@ -14,6 +14,8 @@ import Tippy from "@tippy.js/react";
 import * as moment from "moment";
 import "./Chart.scss";
 import * as React from "react";
+import { roundNumber } from "../..";
+import { ChartDataProps } from "./ChartWrapper";
 
 // const exampleData: any = [
 //   {
@@ -230,6 +232,8 @@ const CustomTooltip = ({
   metric,
   payload,
   label,
+  yUnit,
+  valueRounding,
   yFormatter = (y: any) => y,
 }: any) => {
   if (active && payload && payload.length) {
@@ -239,7 +243,7 @@ const CustomTooltip = ({
 
     payload?.map((p: any, i: any) => {
       document.getElementById(`valueId_${metric}_${p.name}`).innerText =
-        yFormatter(p.value);
+        roundNumber(yFormatter(p.value), valueRounding) + ` ${yUnit}`
       document.getElementById(`labelId_${metric}`).textContent = moment
         .unix(label)
         .format("MMM D, HH:mm");
@@ -307,6 +311,22 @@ const RenderLegend = ({ payload, metric }: any) => {
   );
 };
 
+interface AnomalyChartProps {
+  chartData: ChartDataProps
+  title: string
+  groupBy: string
+  metric: any
+  yFormatter: (arg0: number) => number
+  yUnit: string
+  filterChart: string
+  setFilterChart: () => any
+  valueRounding: number
+  highlight: any
+  setHighlight: (arg0: {} | any) => any
+  labelKey: string
+  events: any
+}
+
 export const AnomalyChart = ({
   chartData,
   title,
@@ -316,30 +336,21 @@ export const AnomalyChart = ({
   yUnit,
   filterChart,
   setFilterChart,
+  valueRounding,
   highlight,
   setHighlight,
   labelKey,
   events,
-}: any) => {
+}: AnomalyChartProps) => {
   const formatChartData = (data: any) => {
     const formattedData: any = [];
     data?.map((obj: any) => {
-      // if (!obj?.[groupBy] && !obj?.values?.length) {
-      //   return false
-      // }
       const metricObj: any = {
         ...obj,
         name: obj?.metric && Object.values(obj?.metric).join(":"),
         data: [],
       };
       obj?.values?.map((kp: any, i: any) => {
-        // if(obj?.values?.length && (metricObj.data?.[i-1]?.x < (kp[0] - 61)) ) {
-        //   metricObj.data.push({
-        //     x: obj?.values?.[i-1]?.x + 60,
-        //     y: null
-        //   })
-        //   return
-        // }
         metricObj.data.push({
           x: Math.floor(kp[0] * 1),
           y: kp[1],
@@ -377,6 +388,8 @@ export const AnomalyChart = ({
             metric={metric}
             label={labelKey}
             yFormatter={yFormatter}
+            valueRounding={valueRounding}
+            yUnit={yUnit}
           />
         }
         cursor={true}
@@ -390,7 +403,10 @@ export const AnomalyChart = ({
     return (
       <YAxis
         domain={[0, 10]}
-        // tickCount={11}
+        unit={` ${yUnit}`}
+        tickFormatter={
+          (y: any) => (roundNumber(y, valueRounding) + ``)
+        }
         ticks={[0, 3, 7, 10]}
         style={{ fontSize: ".9em" }}
       >
@@ -535,7 +551,7 @@ export const AnomalyChart = ({
               syncId={"o11yCharts"}
               syncMethod={"value"}
               layout={"horizontal"}
-              onMouseMove={(e: any) => {}}
+              onMouseMove={(e: any) => { }}
               onMouseLeave={() => {
                 setHighlight({ ...highlight, [groupBy]: "" });
               }}
