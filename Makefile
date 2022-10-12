@@ -10,7 +10,7 @@ GIT_TAG=$(shell if [ -z "`git status --porcelain`" ]; then git describe --exact-
 GIT_TREE_STATE=$(shell if [ -z "`git status --porcelain`" ]; then echo "clean" ; else echo "dirty"; fi)
 
 DOCKER_PUSH?=false
-IMAGE_NAMESPACE?=sarabala1979
+IMAGE_NAMESPACE?=docker.io/argoproj
 VERSION?=latest
 BASE_VERSION:=latest
 
@@ -44,6 +44,11 @@ test-coverage:
 clean:
 	-rm -rf ${CURRENT_DIR}/dist
 
+test:
+	go test -v ./server
+
+$(GOPATH)/bin/golangci-lint:
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b `go env GOPATH`/bin v1.46.2
 
 .PHONY: lint
 lint: $(GOPATH)/bin/golangci-lint
@@ -52,4 +57,4 @@ lint: $(GOPATH)/bin/golangci-lint
 
 image: build
 	DOCKER_BUILDKIT=1 docker build  -t $(IMAGE_NAMESPACE)/$(BINARY_NAME):$(VERSION)  -f $(DOCKERFILE) .
-	@if [ "$(DOCKER_PUSH)" = "true" ]; then docker push $(IMAGE_NAMESPACE)/$(BINARY_NAME):$(VERSION)-linux-$*; fi
+	@if [ "$(DOCKER_PUSH)" = "true" ]; then docker push $(IMAGE_NAMESPACE)/$(BINARY_NAME):$(VERSION); fi

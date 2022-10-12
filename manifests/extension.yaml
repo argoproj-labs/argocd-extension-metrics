@@ -10,5 +10,4 @@ metadata:
 spec:
   sources:
     - web:
-        # url: http://host.docker.internal:8000/extension.tar
-        url:
+        url: https://github.com/argoproj-labs/argocd-extension-metrics/blob/main/manifests/extension.tar
