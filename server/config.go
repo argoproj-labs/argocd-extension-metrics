@@ -42,11 +42,12 @@ func (r *Row) getGraph(name string) *Graph {
 }
 
 type Dashboard struct {
-	Name        string   `json:"name"`
-	GroupKind   string   `json:"groupKind"`
-	RefreshRate string   `json:"refreshRate"`
-	Tabs        []string `json:"tabs"`
-	Rows        []*Row   `json:"rows"`
+	Name         string   `json:"name"`
+	GroupKind    string   `json:"groupKind"`
+	RefreshRate  string   `json:"refreshRate"`
+	Tabs         []string `json:"tabs"`
+	Rows         []*Row   `json:"rows"`
+	ProviderType string   `json:"providerType"`
 }
 
 func (d *Dashboard) getRow(name string) *Row {

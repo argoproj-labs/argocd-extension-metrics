@@ -2,13 +2,19 @@ package main
 
 import (
 	"context"
-	"github.com/sarabala1979/argo-observability/server"
+	"flag"
+	"github.com/argoproj-labs/argocd-metric-ext-server/server"
+	"github.com/argoproj-labs/argocd-metric-ext-server/shared/logging"
 )
 
-func main(){
+func main() {
+	var port int
+	flag.IntVar(&port, "port", 9003, "Listening Port")
+	flag.Parse()
+	logger := logging.NewLogger().Named("metric-sever")
 	ctx := context.Background()
 	defer ctx.Done()
 
-	metricsServer := server.NewO11yServer()
+	metricsServer := server.NewO11yServer(logger, port)
 	metricsServer.Run(ctx)
 }
