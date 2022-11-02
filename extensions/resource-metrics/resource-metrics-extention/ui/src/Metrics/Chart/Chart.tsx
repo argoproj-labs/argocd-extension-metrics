@@ -16,6 +16,7 @@ import * as moment from "moment";
 import { colorArray } from "./ChartWrapper";
 import "./Chart.scss";
 import * as React from "react";
+import { roundNumber } from "../..";
 
 const height = 150;
 
@@ -30,7 +31,7 @@ const height = 150;
 // };
 
 const truncate = (str: string, n: number): string => {
-  return (str.length > n) ? str.slice(0, n-1) + '...' : str;
+  return (str.length > n) ? str.slice(0, n - 1) + '...' : str;
 };
 
 const CustomTooltip = ({
@@ -38,6 +39,8 @@ const CustomTooltip = ({
   metric,
   payload,
   label,
+  yUnit,
+  valueRounding,
   yFormatter = (y: any) => y,
 }: any) => {
   if (active && payload && payload.length) {
@@ -47,7 +50,7 @@ const CustomTooltip = ({
 
     payload?.map((p: any, i: any) => {
       document.getElementById(`valueId_${metric}_${p.name}`).innerText =
-        yFormatter(p.value);
+        roundNumber(yFormatter(p.value), valueRounding) + ` ${yUnit}`
       document.getElementById(`labelId_${metric}`).textContent = moment
         .unix(label)
         .format("MMM D, HH:mm");
@@ -173,6 +176,7 @@ export const TimeSeriesChart = ({
   metric,
   yFormatter = (y: any) => y,
   yUnit,
+  valueRounding,
   filterChart,
   setFilterChart,
   highlight,
@@ -218,7 +222,9 @@ export const TimeSeriesChart = ({
           <CustomTooltip
             metric={metric}
             label={labelKey}
+            yUnit={yUnit}
             yFormatter={yFormatter}
+            valueRounding={valueRounding}
           />
         }
         cursor={true}
@@ -231,8 +237,10 @@ export const TimeSeriesChart = ({
   const YAxisMemo = useMemo(() => {
     return (
       <YAxis
-        unit={yUnit}
-        tickFormatter={yFormatter}
+        unit={` ${yUnit}`}
+        tickFormatter={
+          (y: any) => (roundNumber(y, valueRounding) + ``)
+        }
         style={{ fontSize: ".9em" }}
       >
         <Label
@@ -368,7 +376,7 @@ export const TimeSeriesChart = ({
               syncId={"o11yCharts"}
               syncMethod={"value"}
               layout={"horizontal"}
-              onMouseMove={(e: any) => {}}
+              onMouseMove={(e: any) => { }}
               onMouseLeave={() => {
                 setHighlight({ ...highlight, [groupBy]: "" });
               }}
@@ -427,7 +435,7 @@ export const TimeSeriesChart = ({
                   animationDuration={200}
                   style={{ zIndex: highlight[groupBy] ? 100 : 1 }}
                 />
-                
+
               })}
             </LineChart>
           </ResponsiveContainer>

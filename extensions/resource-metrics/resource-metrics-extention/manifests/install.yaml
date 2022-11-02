@@ -2,12 +2,10 @@ apiVersion: argoproj.io/v1alpha1
 kind: ArgoCDExtension
 metadata:
   name: o11y-metrics
-  labels: 
-    tab: "Metrics"
-    icon: "fa-chart"
   finalizers:
     - extensions-finalizer.argocd.argoproj.io
 spec:
   sources:
     - web:
-        url: https://artifact.intuit.com:443/artifactory/generic-local/personal/dsmith36/argocd/extension.tar
+        url: https://github.com/argoproj-labs/argocd-extension-metrics/raw/main/extensions/resource-metrics/resource-metrics-extention/ui/dist/extension.tar
+        
