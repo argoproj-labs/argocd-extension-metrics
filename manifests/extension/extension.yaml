@@ -10,4 +10,4 @@ metadata:
 spec:
   sources:
     - web:
-        url: https://github.com/argoproj-labs/argocd-extension-metrics/blob/main/manifests/extension.tar
+        url: https://github.com/crenshaw-dev/argocd-extension-metrics/raw/install-instructions/extensions/resource-metrics/resource-metrics-extention/ui/dist/extension.tar

@@ -5,4 +5,3 @@ resources:
 - configmap.yaml
 - install.yaml
 - extension.yaml
-

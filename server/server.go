@@ -5,11 +5,12 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"go.uber.org/zap"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+
+	"go.uber.org/zap"
 
 	"github.com/gin-gonic/gin"
 
@@ -24,17 +25,18 @@ type O11yServer struct {
 	config   O11yConfig
 	provider MetricsProvider
 	port     int
+	headers  map[string]string
 }
 
 type MetricsProvider interface {
 	init() error
-	execute(ctx *gin.Context)
-	getDashboard(ctx *gin.Context)
+	execute(ctx *gin.Context, headers map[string]string)
+	getDashboard(ctx *gin.Context, headers map[string]string)
 	getType() string
 }
 
-func NewO11yServer(logger *zap.SugaredLogger, port int) O11yServer {
-	return O11yServer{logger: logger, port: port}
+func NewO11yServer(logger *zap.SugaredLogger, port int, headers map[string]string) O11yServer {
+	return O11yServer{logger: logger, port: port, headers: headers}
 }
 func (ms *O11yServer) Run(ctx context.Context) {
 
@@ -85,11 +87,11 @@ func (ms *O11yServer) Run(ctx context.Context) {
 }
 
 func (ms *O11yServer) queryMetrics(ctx *gin.Context) {
-	ms.provider.execute(ctx)
+	ms.provider.execute(ctx, ms.headers)
 }
 
 func (ms *O11yServer) dashboardConfig(ctx *gin.Context) {
-	ms.provider.getDashboard(ctx)
+	ms.provider.getDashboard(ctx, ms.headers)
 }
 
 func (ms *O11yServer) readConfig() error {

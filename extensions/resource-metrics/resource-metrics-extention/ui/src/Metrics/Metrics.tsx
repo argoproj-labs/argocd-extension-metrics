@@ -17,7 +17,7 @@ export const Metrics = ({ application, resource, events, duration, setHasMetrics
   const uid = application?.metadata?.uid || ''
 
   useEffect(() => {
-    const url = `/api/extension/metrics/applications/${application_name}/groupkinds/${resource.kind.toLowerCase()}/dashboards`
+    const url = `https://localhost:8081/api/extension/metrics/applications/${application_name}/groupkinds/${resource.kind.toLowerCase()}/dashboards`
     fetch(url)
       .then(response => {
         if (response.status > 399) {
@@ -81,7 +81,7 @@ export const Metrics = ({ application, resource, events, duration, setHasMetrics
             </div>
             <div className='application-metrics__ChartContainerFlex'>
               {row?.graphs?.map((graph: any) => {
-                const url = `/api/extension/metrics/applications/${application_name}/groupkinds/${resource.kind.toLowerCase()}/rows/${row.name}/graphs/${graph.name}?name=${resourceName}.*&namespace=${namespace}&application_name=${application_name}&project=${project}&uid=${uid}&duration=${duration}`
+                const url = `https://localhost:8081/api/extension/metrics/applications/${application_name}/groupkinds/${resource.kind.toLowerCase()}/rows/${row.name}/graphs/${graph.name}?name=${resourceName}.*&namespace=${namespace}&application_name=${application_name}&project=${project}&uid=${uid}&duration=${duration}`
                 return (
                   <ChartWrapper
                     application_name={application_name}

@@ -56,5 +56,5 @@ lint: $(GOPATH)/bin/golangci-lint
 	golangci-lint run --fix --verbose --concurrency 4 --timeout 5m
 
 image: build
-	DOCKER_BUILDKIT=1 docker build  -t $(IMAGE_NAMESPACE)/$(BINARY_NAME):$(VERSION)  -f $(DOCKERFILE) .
+	DOCKER_BUILDKIT=1 docker build --load -t $(IMAGE_NAMESPACE)/$(BINARY_NAME):$(VERSION)  -f $(DOCKERFILE) .
 	@if [ "$(DOCKER_PUSH)" = "true" ]; then docker push $(IMAGE_NAMESPACE)/$(BINARY_NAME):$(VERSION); fi

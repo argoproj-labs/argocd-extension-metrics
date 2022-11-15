@@ -1,4 +1,7 @@
-build:
+install:
+	yarn install
+
+build: install
 	yarn build
 	# dist/extension.tar must be committed into repo for install.yml to reference
 	

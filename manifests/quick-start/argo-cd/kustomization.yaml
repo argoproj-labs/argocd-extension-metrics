@@ -1,0 +1,16 @@
+namespace: argocd
+
+commonLabels:
+  app.kubernetes.io/instance: bootstrap
+
+resources:
+  - https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+  - bootstrap.yaml
+  - ../../extension
+
+patchesStrategicMerge:
+  - argocd-cm-patch.yaml
+  - argocd-secret-patch.yaml
+
+components:
+  - https://github.com/argoproj-labs/argocd-extensions/manifests
