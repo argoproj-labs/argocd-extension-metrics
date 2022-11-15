@@ -20,8 +20,10 @@ spec:
               fieldRef:
                 apiVersion: v1
                 fieldPath: metadata.namespace
-          image: sarabala1979/argocd-metrics-server:v1
-          imagePullPolicy: IfNotPresent
+          - name: ACCESS_CONTROL_ALLOW_ORIGIN
+            value: "https://localhost:8080"
+          image: docker.io/argoproj/argocd-metrics-server:latest
+          imagePullPolicy: Never
           name: argocd-metrics-server
           ports:
            - containerPort: 9003

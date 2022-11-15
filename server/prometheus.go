@@ -3,11 +3,12 @@ package server
 import (
 	"bytes"
 	"fmt"
-	"go.uber.org/zap"
 	"html/template"
 	"net/http"
 	"strings"
 	"time"
+
+	"go.uber.org/zap"
 
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/api"
@@ -24,7 +25,10 @@ func (pp *PrometheusProvider) getType() string {
 	return PROMETHEUS_TYPE
 }
 
-func (pp *PrometheusProvider) getDashboard(ctx *gin.Context) {
+func (pp *PrometheusProvider) getDashboard(ctx *gin.Context, headers map[string]string) {
+	for header, value := range headers {
+		ctx.Header(header, value)
+	}
 	appName := ctx.Param("application")
 	groupKind := ctx.Param("groupkind")
 	app := pp.config.getApp(appName)
@@ -58,7 +62,10 @@ func (pp *PrometheusProvider) init() error {
 	return nil
 }
 
-func (pp *PrometheusProvider) execute(ctx *gin.Context) {
+func (pp *PrometheusProvider) execute(ctx *gin.Context, headers map[string]string) {
+	for header, value := range headers {
+		ctx.Header(header, value)
+	}
 	app := ctx.Param("application")
 	groupKind := ctx.Param("groupkind")
 	rowName := ctx.Param("row")

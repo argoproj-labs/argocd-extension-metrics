@@ -2,14 +2,15 @@ package server
 
 import (
 	"bytes"
-	"go.uber.org/zap"
 	"html/template"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
-	wavefront "github.com/WavefrontHQ/go-wavefront-management-api"
+	"go.uber.org/zap"
+
+	"github.com/WavefrontHQ/go-wavefront-management-api"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,7 +21,10 @@ type WaveFrontProvider struct {
 	token    string
 }
 
-func (wf *WaveFrontProvider) getDashboard(ctx *gin.Context) {
+func (wf *WaveFrontProvider) getDashboard(ctx *gin.Context, headers map[string]string) {
+	for header, value := range headers {
+		ctx.Header(header, value)
+	}
 	appName := ctx.Param("application")
 	groupKind := ctx.Param("groupkind")
 	app := wf.config.getApp(appName)
@@ -58,7 +62,10 @@ func (wf *WaveFrontProvider) init() error {
 func (wf *WaveFrontProvider) getType() string {
 	return WAVEFRONT_TYPE
 }
-func (wf *WaveFrontProvider) execute(ctx *gin.Context) {
+func (wf *WaveFrontProvider) execute(ctx *gin.Context, headers map[string]string) {
+	for header, value := range headers {
+		ctx.Header(header, value)
+	}
 	app := ctx.Param("application")
 	groupKind := ctx.Param("groupkind")
 	rowName := ctx.Param("row")

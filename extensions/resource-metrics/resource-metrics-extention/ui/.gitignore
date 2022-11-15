@@ -10,7 +10,7 @@
 
 # production
 /build
-/ui/dist
+/dist/resources
 
 # misc
 .DS_Store
