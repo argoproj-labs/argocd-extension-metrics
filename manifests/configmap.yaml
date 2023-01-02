@@ -303,4 +303,3 @@ data:
 kind: ConfigMap
 metadata:
   name: argocd-metrics-server-configmap
-  namespace: argocd
