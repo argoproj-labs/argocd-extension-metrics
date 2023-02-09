@@ -26,7 +26,7 @@ export const Metrics = ({
   const uid = application?.metadata?.uid || "";
 
   useEffect(() => {
-    const url = `/extensions/metrics/applications/${application_name}/groupkinds/${resource.kind.toLowerCase()}/dashboards`;
+    const url = `/extensions/metrics/api/applications/${application_name}/groupkinds/${resource.kind.toLowerCase()}/dashboards`;
     fetch(url)
       .then((response) => {
         if (response.status > 399) {
@@ -111,7 +111,7 @@ export const Metrics = ({
             </div>
             <div className="application-metrics__ChartContainerFlex">
               {row?.graphs?.map((graph: any) => {
-                const url = `/extensions/metrics/applications/${application_name}/groupkinds/${resource.kind.toLowerCase()}/rows/${
+                const url = `/extensions/metrics/api/applications/${application_name}/groupkinds/${resource.kind.toLowerCase()}/rows/${
                   row.name
                 }/graphs/${
                   graph.name

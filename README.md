@@ -25,9 +25,9 @@ kubectl apply -n argocd \
 
 # Enable the Argo UI to access the ArgoCD Metrics Server.
 
-## ArgoCD < v2.5
+## ArgoCD < v2.7
 
-ArgoCD version less than v2.5 doesn't support the `Backend Proxy`. You have to configure the Ingress to deviate the API calls between ArgoCD server and ArgoCD metrics Server
+ArgoCD version less than v2.7 doesn't support the `Backend Proxy`. You have to configure the Ingress to deviate the API calls between ArgoCD server and ArgoCD metrics Server
 
 ```yaml
 spec:
@@ -50,6 +50,6 @@ spec:
             pathType: Prefix
 ```
 
-## ArgoCD > v2.6
+## ArgoCD >= v2.7
 
 ArgoCD Team is working to implemented backend proxy [proposal](https://github.com/argoproj/argo-cd/blob/master/docs/proposals/proxy-extensions.md)
