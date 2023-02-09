@@ -66,8 +66,8 @@ func (ms *O11yServer) Run(ctx context.Context) {
 	r.GET("/healthz", func(c *gin.Context) {
 		c.String(http.StatusOK, "healthy")
 	})
-	r.GET("/api/extension/metrics/applications/:application/groupkinds/:groupkind/rows/:row/graphs/:graph", ms.queryMetrics)
-	r.GET("/api/extension/metrics/applications/:application/groupkinds/:groupkind/dashboards", ms.dashboardConfig)
+	r.GET("/api/applications/:application/groupkinds/:groupkind/rows/:row/graphs/:graph", ms.queryMetrics)
+	r.GET("/api/applications/:application/groupkinds/:groupkind/dashboards", ms.dashboardConfig)
 	cert, err := tls2.GenerateX509KeyPair()
 	if err != nil {
 		panic(err)

@@ -1,87 +1,121 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import * as React from 'react'
-import { useState, useEffect } from 'react'
-import ChartWrapper from './Chart/ChartWrapper'
-import './Metrics.scss'
+import * as React from "react";
+import { useState, useEffect } from "react";
+import ChartWrapper from "./Chart/ChartWrapper";
+import "./Metrics.scss";
 
-export const Metrics = ({ application, resource, events, duration, setHasMetrics, isLoading, setIsLoading }: any) => {
-  const resourceName = resource.kind === 'Application' ? '' : resource?.metadata?.name
-  const [dashboard, setDashboard] = useState<any>({})
-  const [filterChart, setFilterChart] = useState<any>({})
-  const [highlight, setHighlight] = useState<any>({})
-  const [selectedTab, setSelectedTab] = useState<string>("")
+export const Metrics = ({
+  application,
+  resource,
+  events,
+  duration,
+  setHasMetrics,
+  isLoading,
+  setIsLoading,
+}: any) => {
+  const resourceName =
+    resource.kind === "Application" ? "" : resource?.metadata?.name;
+  const [dashboard, setDashboard] = useState<any>({});
+  const [filterChart, setFilterChart] = useState<any>({});
+  const [highlight, setHighlight] = useState<any>({});
+  const [selectedTab, setSelectedTab] = useState<string>("");
 
-  const namespace = resource?.metadata?.namespace || ''
-  const application_name = application?.metadata?.name || ''
-  const project = application?.spec?.project || ''
-  const uid = application?.metadata?.uid || ''
+  const namespace = resource?.metadata?.namespace || "";
+  const application_name = application?.metadata?.name || "";
+  const project = application?.spec?.project || "";
+  const uid = application?.metadata?.uid || "";
 
   useEffect(() => {
-    const url = `/api/extension/metrics/applications/${application_name}/groupkinds/${resource.kind.toLowerCase()}/dashboards`
+    const url = `/extensions/metrics/api/applications/${application_name}/groupkinds/${resource.kind.toLowerCase()}/dashboards`;
     fetch(url)
-      .then(response => {
+      .then((response) => {
         if (response.status > 399) {
           throw new Error("No metrics");
         }
-        return response.json()
+        return response.json();
       })
       .then((data: any) => {
-        setIsLoading(false)
-        setHasMetrics(true)
-        setDashboard(data)
+        setIsLoading(false);
+        setHasMetrics(true);
+        setDashboard(data);
         if (data?.tabs?.length) {
-          setSelectedTab(data.tabs[0])
+          setSelectedTab(data.tabs[0]);
         }
-      }).catch(err => {
-        setHasMetrics(false)
-        setIsLoading(false)
-        console.error('res.data', err)
+      })
+      .catch((err) => {
+        setHasMetrics(false);
+        setIsLoading(false);
+        console.error("res.data", err);
       });
-  }, [application_name, resource?.kind])
+  }, [application_name, resource?.kind]);
 
   return (
     <div>
-      {dashboard?.tabs?.length &&
-        <div className="application-metrics__Tabs" >
+      {dashboard?.tabs?.length && (
+        <div className="application-metrics__Tabs">
           {dashboard?.tabs?.map((tab: string) => {
-            return <div
-              className={`application-metrics__Tab ${selectedTab === tab ? 'active' : ''}`}
-              onClick={() => { setSelectedTab(tab) }}
-              key={tab}
-            >
-              {tab}
-            </div>
+            return (
+              <div
+                className={`application-metrics__Tab ${
+                  selectedTab === tab ? "active" : ""
+                }`}
+                onClick={() => {
+                  setSelectedTab(tab);
+                }}
+                key={tab}
+              >
+                {tab}
+              </div>
+            );
           })}
-          {dashboard?.rows?.filter((r: any) => !dashboard?.tabs?.includes(r.tab))?.length > 0 &&
+          {dashboard?.rows?.filter(
+            (r: any) => !dashboard?.tabs?.includes(r.tab)
+          )?.length > 0 && (
             <div
-              className={`application-metrics__Tab ${selectedTab === 'More' ? 'active' : ''}`}
-              onClick={() => { setSelectedTab('More') }}
-              key={'More'}
+              className={`application-metrics__Tab ${
+                selectedTab === "More" ? "active" : ""
+              }`}
+              onClick={() => {
+                setSelectedTab("More");
+              }}
+              key={"More"}
             >
               More
             </div>
-          }
+          )}
         </div>
-      }
+      )}
 
-      {!isLoading && dashboard?.rows && !dashboard?.rows?.filter((r: any) => dashboard?.tabs?.includes(r.tab) || selectedTab === 'More')?.length &&
-        <p>No charts assigned to the <strong>{selectedTab}</strong> tab.</p>
-      }
+      {!isLoading &&
+        dashboard?.rows &&
+        !dashboard?.rows?.filter(
+          (r: any) => dashboard?.tabs?.includes(r.tab) || selectedTab === "More"
+        )?.length && (
+          <p>
+            No charts assigned to the <strong>{selectedTab}</strong> tab.
+          </p>
+        )}
 
       {dashboard?.rows?.map((row: any) => {
-        if (dashboard?.tabs?.length && row?.tab !== selectedTab && !(!row?.tab && selectedTab === "More")) {
-          return <></>
+        if (
+          dashboard?.tabs?.length &&
+          row?.tab !== selectedTab &&
+          !(!row?.tab && selectedTab === "More")
+        ) {
+          return <></>;
         }
         return (
           <>
-            <div className='application-metrics'>
-              <span className='application-metrics__RowTitle'>
-                {row.title}
-              </span>
+            <div className="application-metrics">
+              <span className="application-metrics__RowTitle">{row.title}</span>
             </div>
-            <div className='application-metrics__ChartContainerFlex'>
+            <div className="application-metrics__ChartContainerFlex">
               {row?.graphs?.map((graph: any) => {
-                const url = `/api/extension/metrics/applications/${application_name}/groupkinds/${resource.kind.toLowerCase()}/rows/${row.name}/graphs/${graph.name}?name=${resourceName}.*&namespace=${namespace}&application_name=${application_name}&project=${project}&uid=${uid}&duration=${duration}`
+                const url = `/extensions/metrics/api/applications/${application_name}/groupkinds/${resource.kind.toLowerCase()}/rows/${
+                  row.name
+                }/graphs/${
+                  graph.name
+                }?name=${resourceName}.*&namespace=${namespace}&application_name=${application_name}&project=${project}&uid=${uid}&duration=${duration}`;
                 return (
                   <ChartWrapper
                     application_name={application_name}
@@ -94,20 +128,20 @@ export const Metrics = ({ application, resource, events, duration, setHasMetrics
                     resource={resource}
                     groupBy={graph.metricName || row.name}
                     name={resourceName}
-                    yUnit={graph.yAxisUnit || ''}
+                    yUnit={graph.yAxisUnit || ""}
                     valueRounding={graph.valueRounding || 10}
                     labelKey={graph.title}
                     metric={graph.name}
                     graphType={graph.graphType}
                   />
-                )
+                );
               })}
             </div>
           </>
-        )
+        );
       })}
     </div>
-  )
-}
+  );
+};
 
-export default Metrics
+export default Metrics;
