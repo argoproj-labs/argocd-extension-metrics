@@ -1,0 +1,16 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argocd-server
+spec:
+  template:
+    spec:
+      containers:
+        - name: argocd-server
+          volumeMounts:
+            - name: metric-extension
+              mountPath: /tmp/extensions/extension-Metrics.js
+      volumes:
+        - name: metric-extension
+          configMap:
+            name: extensions-metrics
