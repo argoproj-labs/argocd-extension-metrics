@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useEffect, useMemo, useState } from "react";
-import { apiCall, getHeaders } from "../../utils/api";
+import { apiCall, getHeaders } from "../client";
 import CustomPie from "../Pie/Pie";
 import AnomalyChart from "./AnomalyChart";
 import TimeSeriesChart from "./Chart";

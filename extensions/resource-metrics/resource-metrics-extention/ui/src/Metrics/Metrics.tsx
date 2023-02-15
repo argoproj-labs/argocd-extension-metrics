@@ -1,9 +1,10 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import * as React from "react";
 import { useState, useEffect } from "react";
-import { getDashBoard } from "../utils/api";
+
 import ChartWrapper from "./Chart/ChartWrapper";
 import "./Metrics.scss";
+import {getDashBoard} from "./client";
 
 export const Metrics = ({
   application,

@@ -1,3 +1,4 @@
+//Wrapper for fetch
 export const apiCall = (url: string, headers: Record<string, string>) => {
   return fetch(url, { headers })
     .then((res) => res.json())
@@ -7,6 +8,7 @@ export const apiCall = (url: string, headers: Record<string, string>) => {
     });
 };
 
+//Fetches the configuration needed for rendering charts based on resource kind from configmap.yaml present in the manifests directory of argocd-extension-metrics.
 export function getDashBoard({
   applicationName,
   namespace,
@@ -34,6 +36,7 @@ export function getDashBoard({
     });
 }
 
+//Creates and returns the custom headers needed for the argocd-extension-metrics
 export function getHeaders({
   applicationName,
   namespace,
