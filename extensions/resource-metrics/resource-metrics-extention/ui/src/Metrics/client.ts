@@ -8,7 +8,7 @@ export const apiCall = (url: string, headers: Record<string, string>) => {
     });
 };
 
-//Fetches the configuration needed for rendering charts based on resource kind from configmap.yaml present in the manifests directory of argocd-extension-metrics.
+// This function is making an api call to argocd api-server invoking the metrics extension to retrieve the dashboard configuration based on resource Kind.
 export function getDashBoard({
   applicationName,
   namespace,
@@ -36,7 +36,7 @@ export function getDashBoard({
     });
 }
 
-//Creates and returns the custom headers needed for the argocd-extension-metrics
+//Creates and returns the custom headers needed for the argocd extensions.
 export function getHeaders({
   applicationName,
   namespace,
