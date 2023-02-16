@@ -8,7 +8,7 @@ export const apiCall = (url: string, headers: Record<string, string>) => {
     });
 };
 
-// This function is making an api call to argocd api-server invoking the metrics extension to retrieve the dashboard configuration based on resource Kind.
+// This function is making an api call to argocd api-server, which invokes the metrics extension to retrieve the dashboard configuration based on resource Kind.
 export function getDashBoard({
   applicationName,
   namespace,
