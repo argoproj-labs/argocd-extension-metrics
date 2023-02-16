@@ -11,17 +11,20 @@ export const apiCall = (url: string, headers: Record<string, string>) => {
 // This function is making an api call to argocd api-server, which invokes the metrics extension to retrieve the dashboard configuration based on resource Kind.
 export function getDashBoard({
   applicationName,
-  namespace,
+  applicationNamespace,
   resourceType,
   project,
 }: {
   applicationName: string;
-  namespace: string;
+  applicationNamespace: string;
   resourceType: string;
   project: string;
 }) {
   const url = `/extensions/metrics/api/applications/${applicationName}/groupkinds/${resourceType.toLowerCase()}/dashboards`;
-  return apiCall(url, getHeaders({ applicationName, namespace, project }))
+  return apiCall(
+    url,
+    getHeaders({ applicationName, applicationNamespace, project })
+  )
     .then((response) => {
       if (response.status > 399) {
         throw new Error("No metrics");
@@ -39,14 +42,14 @@ export function getDashBoard({
 //Creates and returns the custom headers needed for the argocd extensions.
 export function getHeaders({
   applicationName,
-  namespace,
+  applicationNamespace,
   project,
 }: {
   applicationName: string;
-  namespace: string;
+  applicationNamespace: string;
   project: string;
 }) {
-  const argocdApplicationName = `${namespace}:${applicationName}`;
+  const argocdApplicationName = `${applicationNamespace}:${applicationName}`;
   return {
     "Argocd-Application-Name": `${argocdApplicationName}`,
     "Argocd-Project-Name": `${project}`,

@@ -88,7 +88,7 @@ export const ChartWrapper = ({
   graphType,
   queryPath,
   project,
-  namespace,
+  applicationNamespace,
 }: any) => {
   const [chartsData, setChartsData] = useState<AllChartDataProps>({});
 
@@ -164,7 +164,7 @@ export const ChartWrapper = ({
       url,
       getHeaders({
         applicationName,
-        namespace,
+        applicationNamespace,
         project,
       })
     )

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 
 import ChartWrapper from "./Chart/ChartWrapper";
 import "./Metrics.scss";
-import {getDashBoard} from "./client";
+import { getDashBoard } from "./client";
 
 export const Metrics = ({
   application,
@@ -24,13 +24,14 @@ export const Metrics = ({
 
   const namespace = resource?.metadata?.namespace || "";
   const applicationName = application?.metadata?.name || "";
+  const applicationNamespace = application?.metadata?.namespace || "";
   const project = application?.spec?.project || "";
   const uid = application?.metadata?.uid || "";
 
   useEffect(() => {
     getDashBoard({
       applicationName,
-      namespace,
+      applicationNamespace,
       resourceType: resource.kind,
       project,
     })
@@ -50,7 +51,7 @@ export const Metrics = ({
         setIsLoading(false);
         console.error("res.data", err);
       });
-  }, [applicationName, namespace, project, resource.kind]);
+  }, [applicationName, applicationNamespace, project, resource.kind]);
 
   return (
     <div>
@@ -137,7 +138,7 @@ export const Metrics = ({
                     metric={graph.name}
                     graphType={graph.graphType}
                     project={project}
-                    namespace={namespace}
+                    applicationNamespace={applicationNamespace}
                   />
                 );
               })}
