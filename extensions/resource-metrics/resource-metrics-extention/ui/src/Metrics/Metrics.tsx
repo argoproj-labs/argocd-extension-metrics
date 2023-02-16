@@ -1,8 +1,10 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import * as React from "react";
 import { useState, useEffect } from "react";
+
 import ChartWrapper from "./Chart/ChartWrapper";
 import "./Metrics.scss";
+import {getDashBoard} from "./client";
 
 export const Metrics = ({
   application,
@@ -21,33 +23,34 @@ export const Metrics = ({
   const [selectedTab, setSelectedTab] = useState<string>("");
 
   const namespace = resource?.metadata?.namespace || "";
-  const application_name = application?.metadata?.name || "";
+  const applicationName = application?.metadata?.name || "";
   const project = application?.spec?.project || "";
   const uid = application?.metadata?.uid || "";
 
   useEffect(() => {
-    const url = `/extensions/metrics/api/applications/${application_name}/groupkinds/${resource.kind.toLowerCase()}/dashboards`;
-    fetch(url)
-      .then((response) => {
+    getDashBoard({
+      applicationName,
+      namespace,
+      resourceType: resource.kind,
+      project,
+    })
+      .then((response: any) => {
         if (response.status > 399) {
           throw new Error("No metrics");
         }
-        return response.json();
-      })
-      .then((data: any) => {
         setIsLoading(false);
         setHasMetrics(true);
-        setDashboard(data);
-        if (data?.tabs?.length) {
-          setSelectedTab(data.tabs[0]);
+        setDashboard(response);
+        if (response?.tabs?.length) {
+          setSelectedTab(response.tabs[0]);
         }
       })
-      .catch((err) => {
+      .catch((err: Error) => {
         setHasMetrics(false);
         setIsLoading(false);
         console.error("res.data", err);
       });
-  }, [application_name, resource?.kind]);
+  }, [applicationName, namespace, project, resource.kind]);
 
   return (
     <div>
@@ -111,14 +114,14 @@ export const Metrics = ({
             </div>
             <div className="application-metrics__ChartContainerFlex">
               {row?.graphs?.map((graph: any) => {
-                const url = `/extensions/metrics/api/applications/${application_name}/groupkinds/${resource.kind.toLowerCase()}/rows/${
+                const url = `/extensions/metrics/api/applications/${applicationName}/groupkinds/${resource.kind.toLowerCase()}/rows/${
                   row.name
                 }/graphs/${
                   graph.name
-                }?name=${resourceName}.*&namespace=${namespace}&application_name=${application_name}&project=${project}&uid=${uid}&duration=${duration}`;
+                }?name=${resourceName}.*&namespace=${namespace}&application_name=${applicationName}&project=${project}&uid=${uid}&duration=${duration}`;
                 return (
                   <ChartWrapper
-                    application_name={application_name}
+                    applicationName={applicationName}
                     filterChart={filterChart}
                     setFilterChart={setFilterChart}
                     highlight={highlight}
@@ -133,6 +136,8 @@ export const Metrics = ({
                     labelKey={graph.title}
                     metric={graph.name}
                     graphType={graph.graphType}
+                    project={project}
+                    namespace={namespace}
                   />
                 );
               })}
