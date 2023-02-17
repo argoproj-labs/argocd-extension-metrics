@@ -21,19 +21,10 @@ export function getDashBoard({
   project: string;
 }) {
   const url = `/extensions/metrics/api/applications/${applicationName}/groupkinds/${resourceType.toLowerCase()}/dashboards`;
-  return apiCall(
-    url,
-    getHeaders({ applicationName, applicationNamespace, project })
-  )
-    .then((response) => {
-      if (response.status > 399) {
-        throw new Error("No metrics");
-      }
-      return response.json();
-    })
-    .then((data: any) => {
-      return data;
-    })
+  return fetch(url, {
+    headers: getHeaders({ applicationName, applicationNamespace, project }),
+  })
+    .then((response) => response)
     .catch((err) => {
       throw err;
     });
