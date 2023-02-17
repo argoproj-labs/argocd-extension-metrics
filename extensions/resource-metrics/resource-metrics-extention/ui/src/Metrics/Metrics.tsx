@@ -35,23 +35,26 @@ export const Metrics = ({
       resourceType: resource.kind,
       project,
     })
-      .then((response: any) => {
+      .then((response) => {
         if (response.status > 399) {
           throw new Error("No metrics");
         }
+        return response.json();
+      })
+      .then((data: any) => {
         setIsLoading(false);
         setHasMetrics(true);
-        setDashboard(response);
-        if (response?.tabs?.length) {
-          setSelectedTab(response.tabs[0]);
+        setDashboard(data);
+        if (data?.tabs?.length) {
+          setSelectedTab(data.tabs[0]);
         }
       })
-      .catch((err: Error) => {
+      .catch((err) => {
         setHasMetrics(false);
         setIsLoading(false);
         console.error("res.data", err);
       });
-  }, [applicationName, applicationNamespace, project, resource.kind]);
+  }, [applicationName, applicationNamespace, resource?.kind]);
 
   return (
     <div>
