@@ -54,7 +54,7 @@ export const Metrics = ({
         setIsLoading(false);
         console.error("res.data", err);
       });
-  }, [applicationName, applicationNamespace, resource?.kind]);
+  }, [applicationName, applicationNamespace, project, resource.kind]);
 
   return (
     <div>
