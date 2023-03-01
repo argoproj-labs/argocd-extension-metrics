@@ -20,10 +20,11 @@ const PROMETHEUS_TYPE = "prometheus"
 const WAVEFRONT_TYPE = "wavefront"
 
 type O11yServer struct {
-	logger   *zap.SugaredLogger
-	config   O11yConfig
-	provider MetricsProvider
-	port     int
+	logger    *zap.SugaredLogger
+	config    O11yConfig
+	provider  MetricsProvider
+	port      int
+	enableTLS bool
 }
 
 type MetricsProvider interface {
@@ -33,8 +34,12 @@ type MetricsProvider interface {
 	getType() string
 }
 
-func NewO11yServer(logger *zap.SugaredLogger, port int) O11yServer {
-	return O11yServer{logger: logger, port: port}
+func NewO11yServer(logger *zap.SugaredLogger, port int, enableTLS bool) O11yServer {
+	return O11yServer{
+		logger:    logger,
+		port:      port,
+		enableTLS: enableTLS,
+	}
 }
 func (ms *O11yServer) Run(ctx context.Context) {
 
@@ -59,26 +64,46 @@ func (ms *O11yServer) Run(ctx context.Context) {
 			log.Panic(err)
 		}
 	}
-	r := gin.Default()
-	r.GET("/", func(c *gin.Context) {
+	handler := gin.Default()
+	handler.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "healthy")
 	})
-	r.GET("/healthz", func(c *gin.Context) {
+	handler.GET("/healthz", func(c *gin.Context) {
 		c.String(http.StatusOK, "healthy")
 	})
-	r.GET("/api/applications/:application/groupkinds/:groupkind/rows/:row/graphs/:graph", ms.queryMetrics)
-	r.GET("/api/applications/:application/groupkinds/:groupkind/dashboards", ms.dashboardConfig)
+	handler.GET("/api/applications/:application/groupkinds/:groupkind/rows/:row/graphs/:graph", ms.queryMetrics)
+	handler.GET("/api/applications/:application/groupkinds/:groupkind/dashboards", ms.dashboardConfig)
+
+	address := fmt.Sprintf(":%d", ms.port)
+	ms.logger.Infof("Server Configs: [address: %s, enableTLS: %t]", address, ms.enableTLS)
+	if ms.enableTLS {
+		ms.runWithTLS(address, handler)
+	} else {
+		ms.run(address, handler)
+	}
+}
+func (ms *O11yServer) run(address string, handler *gin.Engine) {
+	ms.logger.Infof("Starting Argo Metrics Server.. %s", address)
+	server := http.Server{
+		Addr:    address,
+		Handler: handler,
+	}
+	if err := server.ListenAndServe(); err != nil {
+		ms.logger.Fatal(err)
+	}
+}
+
+func (ms *O11yServer) runWithTLS(address string, handler *gin.Engine) {
+	ms.logger.Infof("Starting Argo Metrics Server with TLS.. %s", address)
 	cert, err := tls2.GenerateX509KeyPair()
 	if err != nil {
 		panic(err)
 	}
-	address := fmt.Sprintf(":%d", ms.port)
 	server := http.Server{
 		Addr:      address,
-		Handler:   r,
+		Handler:   handler,
 		TLSConfig: &tls.Config{Certificates: []tls.Certificate{*cert}, MinVersion: tls.VersionTLS12},
 	}
-	ms.logger.Infof("Metrics Server starting successfully. %s", address)
 	if err := server.ListenAndServeTLS("", ""); err != nil {
 		ms.logger.Fatal(err)
 	}
