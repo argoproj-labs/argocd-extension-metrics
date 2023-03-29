@@ -44,28 +44,6 @@ export const Extension = (props: any) => {
           <a
             href={`${loc}`}
             className={`application-metrics__MetricsDuration ${
-              duration === "24h" ? "active" : ""
-            }`}
-            onClick={(e) => {
-              updateDuration(e, "24h");
-            }}
-          >
-            1 day
-          </a>
-          <a
-            href={`${loc}`}
-            className={`application-metrics__MetricsDuration ${
-              duration === "12h" ? "active" : ""
-            }`}
-            onClick={(e) => {
-              updateDuration(e, "12h");
-            }}
-          >
-            12 hrs
-          </a>
-          <a
-            href={`${loc}`}
-            className={`application-metrics__MetricsDuration ${
               duration === "6h" ? "active" : ""
             }`}
             onClick={(e) => {
