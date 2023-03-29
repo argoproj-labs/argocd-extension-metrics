@@ -10,7 +10,7 @@ import {
   Label,
   Legend,
   ReferenceLine,
-} from "recharts";
+} from "../../utils/recharts";
 import Tippy from "@tippy.js/react";
 import * as moment from "moment";
 import { colorArray } from "./ChartWrapper";
@@ -21,7 +21,7 @@ import { roundNumber } from "../..";
 const height = 150;
 
 // Line dash variations...
-// 
+//
 // const strokeArray = (i: number) => {
 //   let arr = `${Math.ceil((i + 2) * 2)} ${i ? 2 : 0}`;
 //   for (let index = 0; index < i - 1; index++) {
@@ -31,7 +31,7 @@ const height = 150;
 // };
 
 const truncate = (str: string, n: number): string => {
-  return (str.length > n) ? str.slice(0, n - 1) + '...' : str;
+  return str.length > n ? str.slice(0, n - 1) + "..." : str;
 };
 
 const CustomTooltip = ({
@@ -50,7 +50,7 @@ const CustomTooltip = ({
 
     payload?.map((p: any, i: any) => {
       document.getElementById(`valueId_${metric}_${p.name}`).innerText =
-        roundNumber(yFormatter(p.value), valueRounding) + ` ${yUnit}`
+        roundNumber(yFormatter(p.value), valueRounding) + ` ${yUnit}`;
       document.getElementById(`labelId_${metric}`).textContent = moment
         .unix(label)
         .format("MMM D, HH:mm");
@@ -210,7 +210,15 @@ export const TimeSeriesChart = ({
         }
       />
     );
-  }, [groupBy, metric, labelKey, setHighlight, highlight, filterChart, setFilterChart]);
+  }, [
+    groupBy,
+    metric,
+    labelKey,
+    setHighlight,
+    highlight,
+    filterChart,
+    setFilterChart,
+  ]);
 
   const TooltipMemo = useMemo(() => {
     return (
@@ -238,9 +246,7 @@ export const TimeSeriesChart = ({
     return (
       <YAxis
         unit={` ${yUnit}`}
-        tickFormatter={
-          (y: any) => (roundNumber(y, valueRounding) + ``)
-        }
+        tickFormatter={(y: any) => roundNumber(y, valueRounding) + ``}
         style={{ fontSize: ".9em" }}
       >
         <Label
@@ -376,7 +382,7 @@ export const TimeSeriesChart = ({
               syncId={"o11yCharts"}
               syncMethod={"value"}
               layout={"horizontal"}
-              onMouseMove={(e: any) => { }}
+              onMouseMove={(e: any) => {}}
               onMouseLeave={() => {
                 setHighlight({ ...highlight, [groupBy]: "" });
               }}
@@ -418,31 +424,45 @@ export const TimeSeriesChart = ({
               {TooltipMemo}
               {LegendMemo}
               {chartData?.map((d: any, i: number) => {
-                return <Line
-                  // strokeDasharray={`${strokeArray(i)}`}
-                  isAnimationActive={false}
-                  dataKey="y"
-                  data={d.data}
-                  connectNulls={false}
-                  hide={
-                    filterChart[groupBy] && filterChart[groupBy].indexOf(d.name) < 0
-                  }
-                  stroke={colorArray[i % colorArray.length]}
-                  strokeWidth={d.name === highlight[groupBy] ? 3 : 1.5}
-                  name={d.name}
-                  dot={false}
-                  key={d.name}
-                  animationDuration={200}
-                  style={{ zIndex: highlight[groupBy] ? 100 : 1 }}
-                />
-
+                return (
+                  <Line
+                    // strokeDasharray={`${strokeArray(i)}`}
+                    isAnimationActive={false}
+                    dataKey="y"
+                    data={d.data}
+                    connectNulls={false}
+                    hide={
+                      filterChart[groupBy] &&
+                      filterChart[groupBy].indexOf(d.name) < 0
+                    }
+                    stroke={colorArray[i % colorArray.length]}
+                    strokeWidth={d.name === highlight[groupBy] ? 3 : 1.5}
+                    name={d.name}
+                    dot={false}
+                    key={d.name}
+                    animationDuration={200}
+                    style={{ zIndex: highlight[groupBy] ? 100 : 1 }}
+                  />
+                );
               })}
             </LineChart>
           </ResponsiveContainer>
         </div>
       </>
     ),
-    [title, events, XAxisMemo, YAxisMemo, TooltipMemo, LegendMemo, chartData, setHighlight, highlight, groupBy, filterChart]
+    [
+      title,
+      events,
+      XAxisMemo,
+      YAxisMemo,
+      TooltipMemo,
+      LegendMemo,
+      chartData,
+      setHighlight,
+      highlight,
+      groupBy,
+      filterChart,
+    ]
   );
 };
 
