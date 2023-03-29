@@ -9,7 +9,7 @@ import {
   Label,
   Legend,
   ReferenceLine,
-} from "recharts";
+} from "../../utils/recharts";
 import Tippy from "@tippy.js/react";
 import * as moment from "moment";
 import "./Chart.scss";
@@ -243,7 +243,7 @@ const CustomTooltip = ({
 
     payload?.map((p: any, i: any) => {
       document.getElementById(`valueId_${metric}_${p.name}`).innerText =
-        roundNumber(yFormatter(p.value), valueRounding) + ` ${yUnit}`
+        roundNumber(yFormatter(p.value), valueRounding) + ` ${yUnit}`;
       document.getElementById(`labelId_${metric}`).textContent = moment
         .unix(label)
         .format("MMM D, HH:mm");
@@ -312,19 +312,19 @@ const RenderLegend = ({ payload, metric }: any) => {
 };
 
 interface AnomalyChartProps {
-  chartData: ChartDataProps
-  title: string
-  groupBy: string
-  metric: any
-  yFormatter: (arg0: number) => number
-  yUnit: string
-  filterChart: string
-  setFilterChart: () => any
-  valueRounding: number
-  highlight: any
-  setHighlight: (arg0: {} | any) => any
-  labelKey: string
-  events: any
+  chartData: ChartDataProps;
+  title: string;
+  groupBy: string;
+  metric: any;
+  yFormatter: (arg0: number) => number;
+  yUnit: string;
+  filterChart: string;
+  setFilterChart: () => any;
+  valueRounding: number;
+  highlight: any;
+  setHighlight: (arg0: {} | any) => any;
+  labelKey: string;
+  events: any;
 }
 
 export const AnomalyChart = ({
@@ -404,9 +404,7 @@ export const AnomalyChart = ({
       <YAxis
         domain={[0, 10]}
         unit={` ${yUnit}`}
-        tickFormatter={
-          (y: any) => (roundNumber(y, valueRounding) + ``)
-        }
+        tickFormatter={(y: any) => roundNumber(y, valueRounding) + ``}
         ticks={[0, 3, 7, 10]}
         style={{ fontSize: ".9em" }}
       >
@@ -513,7 +511,7 @@ export const AnomalyChart = ({
     return uEvents;
   };
   // const thisChartData = formatChartData(exampleData);
-  const thisChartData = formatChartData(chartData)
+  const thisChartData = formatChartData(chartData);
 
   const scaleGradient = (
     perc: number,
@@ -551,7 +549,7 @@ export const AnomalyChart = ({
               syncId={"o11yCharts"}
               syncMethod={"value"}
               layout={"horizontal"}
-              onMouseMove={(e: any) => { }}
+              onMouseMove={(e: any) => {}}
               onMouseLeave={() => {
                 setHighlight({ ...highlight, [groupBy]: "" });
               }}
