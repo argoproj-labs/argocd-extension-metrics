@@ -1,0 +1,92 @@
+project_name: argocd-extension-metrics
+
+before:
+  hooks:
+    - go mod download
+    - make build-ui
+
+builds:
+  - id: metrics-server
+    main: ./cmd
+    binary: metrics-server
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -v
+    ldflags:
+      - -X github.com/argoproj-labs/argocd-extension-metrics/common.version={{ .Version }}
+      - -X github.com/argoproj-labs/argocd-extension-metrics/common.buildDate={{ .Date }}
+      - -extldflags="-static"
+    goos:
+      - linux
+    goarch:
+      - amd64
+    ignore:
+      - goos: darwin
+        goarch: s390x
+      - goos: darwin
+        goarch: ppc64le
+      - goos: windows
+        goarch: s390x
+      - goos: windows
+        goarch: ppc64le
+      - goos: windows
+        goarch: arm64
+
+dockers:
+  - image_templates:
+    - argoproj-labs/argocd-extension-metrics:latest
+    - argoproj-labs/argocd-extension-metrics:{{ .Tag }}
+    dockerfile: release.Dockerfile
+    build_flag_templates:
+    - "--pull"
+    - "--label=org.opencontainers.image.created={{.Date}}"
+    - "--label=org.opencontainers.image.title={{.ProjectName}}"
+    - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+    - "--label=org.opencontainers.image.version={{.Version}}"
+    - "--platform=linux/amd64"
+
+archives:
+  - format: binary
+
+checksum:
+  name_template: 'extension_checksums.txt'
+  algorithm: sha256
+
+release:
+  prerelease: auto
+  draft: false
+  header: |
+    ## argocd-extension-metrics {{ .Version }}
+    {{ .Date }}
+  footer: |
+    **Full Changelog**: https://github.com/argoproj-labs/argocd-extension-metrics/compare/{{ .PreviousTag }}...{{ .Tag }}
+
+    <a href="https://argoproj.github.io/cd/"><img src="https://raw.githubusercontent.com/argoproj/argo-site/master/content/pages/cd/gitops-cd.png" width="25%" ></a>
+
+changelog:
+  use:
+    github
+  sort: asc
+  abbrev: 0
+  groups: # Regex use RE2 syntax as defined here: https://github.com/google/re2/wiki/Syntax.
+    - title: 'Features'
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 100
+    - title: 'Bug fixes'
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 200
+    - title: 'Documentation'
+      regexp: '^.*?docs(\([[:word:]]+\))??!?:.+$'
+      order: 300
+    - title: 'Dependency updates'
+      regexp: '^.*?(feat|fix|chore)\(deps?.+\)!?:.+$'
+      order: 400
+    - title: 'Other work'
+      order: 999
+  filters:
+    exclude:
+      - '^test:'
+      - '^.*?Bump(\([[:word:]]+\))?.+$'
+
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json

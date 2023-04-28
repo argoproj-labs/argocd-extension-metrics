@@ -1,5 +1,7 @@
 CURRENT_DIR=$(shell pwd)
 DIST_DIR=${CURRENT_DIR}/dist
+UI_DIR=${CURRENT_DIR}/extensions/resource-metrics/resource-metrics-extention/ui
+UI_DIST_DIR=${UI_DIR}/dist
 BINARY_NAME:=argocd-metrics-server
 DOCKERFILE:=Dockerfile
 
@@ -41,9 +43,17 @@ test-coverage:
 	cat test/profile.cov.tmp | grep -v v1alpha1/zz_generated | grep -v v1alpha1/generated > test/profile.cov
 	rm test/profile.cov.tmp
 	go tool cover -func=test/profile.cov
-clean:
-	-rm -rf ${CURRENT_DIR}/dist
 
+.PHONY: clean
+clean:
+	-rm -rf ${DIST_DIR}
+
+.PHONY: clean-ui
+clean-ui:
+	-rm -rf ${UI_DIST_DIR}
+	find ${UI_DIR} -type f -name extension.tar -delete
+
+.PHONY: test
 test:
 	go test -v ./server
 
@@ -55,6 +65,12 @@ lint: $(GOPATH)/bin/golangci-lint
 	go mod tidy
 	golangci-lint run --fix --verbose --concurrency 4 --timeout 5m
 
+.PHONY: image
 image: build
 	DOCKER_BUILDKIT=1 docker build  -t $(IMAGE_NAMESPACE)/$(BINARY_NAME):$(VERSION)  -f $(DOCKERFILE) .
 	@if [ "$(DOCKER_PUSH)" = "true" ]; then docker push $(IMAGE_NAMESPACE)/$(BINARY_NAME):$(VERSION); fi
+
+.PHONY: build-ui
+build-ui: clean-ui
+	yarn --cwd ${UI_DIR} build
+	mv ${UI_DIR}/extension.tar ${DIST_DIR}
