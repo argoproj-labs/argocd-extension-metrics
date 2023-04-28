@@ -72,5 +72,6 @@ image: build
 
 .PHONY: build-ui
 build-ui: clean-ui
+	yarn --cwd ${UI_DIR} install
 	yarn --cwd ${UI_DIR} build
 	mv ${UI_DIR}/extension.tar ${DIST_DIR}
