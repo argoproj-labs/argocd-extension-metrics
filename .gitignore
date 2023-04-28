@@ -3,3 +3,4 @@ vendor/
 dist/
 bin/
 extensions/resource-metrics/resource-metrics-extention/ui/dist
+extensions/resource-metrics/resource-metrics-extention/ui/package-lock.json
