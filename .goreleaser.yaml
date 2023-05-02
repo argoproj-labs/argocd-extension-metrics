@@ -35,8 +35,8 @@ builds:
 
 dockers:
   - image_templates:
-    - argoproj-labs/argocd-extension-metrics:latest
-    - argoproj-labs/argocd-extension-metrics:{{ .Tag }}
+    - ghcr.io/leoluz/argocd-extension-metrics:latest
+    - ghcr.io/leoluz/argocd-extension-metrics:{{ .Tag }}
     dockerfile: release.Dockerfile
     build_flag_templates:
     - "--pull"
