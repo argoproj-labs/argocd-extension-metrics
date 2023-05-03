@@ -49,7 +49,7 @@ dockers:
 archives:
   - format: gz
     files: 
-    - dist/extension.tar
+    - **/extension.tar
 
 checksum:
   name_template: 'extension_checksums.txt'

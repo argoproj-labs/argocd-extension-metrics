@@ -74,5 +74,3 @@ image: build
 build-ui: clean-ui
 	yarn --cwd ${UI_DIR} install
 	yarn --cwd ${UI_DIR} build
-	-mkdir ${DIST_DIR}
-	mv ${UI_DIR}/extension.tar ${DIST_DIR}/
