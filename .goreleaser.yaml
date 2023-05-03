@@ -48,6 +48,9 @@ dockers:
 
 archives:
   - format: tar.gz
+    builds:
+    - default
+  - format: gz
     files: 
     - extensions/**/extension.tar
 
