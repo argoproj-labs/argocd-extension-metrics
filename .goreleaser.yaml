@@ -51,7 +51,7 @@ archives:
     id: binary
     builds:
     - default
-  - format: gz
+  - format: tar.gz
     id: ui-extension
     files: 
     - extensions/**/extension.tar
