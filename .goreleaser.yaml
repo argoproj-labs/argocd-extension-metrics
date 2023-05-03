@@ -67,12 +67,17 @@ release:
   prerelease: auto
   draft: false
   header: |
-    ## argocd-extension-metrics {{ .Version }}
+    ## argocd-extension-metrics
     {{ .Date }}
+
+    ### Docker images
+
+    - quay.io/argoprojlabs/argocd-extension-metrics:{{ .Tag }}
+    - quay.io/argoprojlabs/argocd-extension-metrics:latest
+
   footer: |
     **Full Changelog**: https://github.com/argoproj-labs/argocd-extension-metrics/compare/{{ .PreviousTag }}...{{ .Tag }}
-
-    <a href="https://argoproj.github.io/cd/"><img src="https://raw.githubusercontent.com/argoproj/argo-site/master/content/pages/cd/gitops-cd.png" width="25%" ></a>
+    <a href="https://argoproj.github.io/cd/"><img src="https://raw.githubusercontent.com/argoproj/argo-site/c42c87e68cea647eadc1564e9e264621442aa8cf/src/images/icon.png" width="25%" ></a>
 
 changelog:
   use:
