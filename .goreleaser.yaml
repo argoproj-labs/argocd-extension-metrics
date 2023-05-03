@@ -53,7 +53,7 @@ archives:
     - metrics-server
   - format: gz
     id: ui-extension
-    name_template: extension
+    name_template: extension.tar
     meta: true
     files: 
     - src: extensions/**/extension.tar
