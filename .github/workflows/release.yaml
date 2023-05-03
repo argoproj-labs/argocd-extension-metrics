@@ -12,37 +12,31 @@ defaults:
 jobs:
   release:
     runs-on: ubuntu-20.04
-    if: github.repository == 'leoluz/argocd-extension-metrics'
-    name: Build binaries
+    if: github.repository == 'argoproj-labs/argocd-extension-metrics'
+    name: Release
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # pin@v3
         with:
           fetch-depth: 0
 
       - name: Setup Go
-        uses: actions/setup-go@v3.1.0
+        uses: actions/setup-go@fcdc43634adb5f7ae75a9d7a9b9361790f7293e2 # pin@v3.1.0
         with:
           go-version: 1.18
 
-      - name: Docker Login
-        uses: docker/login-action@v1
+      - name: Docker Login in quay.io
+        uses: docker/login-action@dd4fa0671be5250ee6f50aedf4cb05514abda2c7 # pin@v1
         with:
           registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.RELEASE_TOKEN }}
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_TOKEN }}
 
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v4
+        uses: goreleaser/goreleaser-action@f82d6c1c344bcacabba2c841718984797f664a6b # pin@v4
         with:
           distribution: goreleaser
           version: latest
           args: release --clean
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-
-      # - name: store artifacts
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: binaries
-      #     path: dist 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
