@@ -51,12 +51,13 @@ archives:
     id: binary
     builds:
     - metrics-server
-  - format: tar.gz
+  - format: gz
     id: ui-extension
-    name_template: extension.tar.gz
-    strip_parent_binary_folder: true
+    name_template: extension
+    meta: true
     files: 
-    - extensions/**/extension.tar
+    - src: extensions/**/extension.tar
+      strip_parent: true
 
 checksum:
   name_template: 'extension_checksums.txt'
