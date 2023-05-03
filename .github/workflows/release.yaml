@@ -28,7 +28,7 @@ jobs:
       - name: Docker Login in quay.io
         uses: docker/login-action@dd4fa0671be5250ee6f50aedf4cb05514abda2c7 # pin@v1
         with:
-          registry: ghcr.io
+          registry: quay.io
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_TOKEN }}
 
