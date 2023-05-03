@@ -47,7 +47,9 @@ dockers:
     - "--platform=linux/amd64"
 
 archives:
-  - format: binary
+  - format: gz
+    files: 
+    - dist/extension.tar
 
 checksum:
   name_template: 'extension_checksums.txt'
