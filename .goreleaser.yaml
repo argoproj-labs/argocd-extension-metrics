@@ -47,7 +47,7 @@ dockers:
     - "--platform=linux/amd64"
 
 archives:
-  - format: gz
+  - format: tar.gz
     files: 
     - extensions/**/extension.tar
 
