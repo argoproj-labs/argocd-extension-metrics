@@ -53,6 +53,7 @@ archives:
     - metrics-server
   - format: tar.gz
     id: ui-extension
+    name: extension.tar.gz
     strip_parent_binary_folder: true
     files: 
     - extensions/**/extension.tar
