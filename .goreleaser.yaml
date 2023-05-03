@@ -50,9 +50,10 @@ archives:
   - format: tar.gz
     id: binary
     builds:
-    - default
+    - metrics-server
   - format: tar.gz
     id: ui-extension
+    strip_parent_binary_folder: true
     files: 
     - extensions/**/extension.tar
 

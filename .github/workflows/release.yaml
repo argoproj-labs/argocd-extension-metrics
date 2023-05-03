@@ -10,7 +10,7 @@ defaults:
     shell: bash
 
 jobs:
-  build-binaries:
+  release:
     runs-on: ubuntu-20.04
     if: github.repository == 'leoluz/argocd-extension-metrics'
     name: Build binaries
