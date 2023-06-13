@@ -79,7 +79,7 @@ export const component = Extension;
   window?.extensionsAPI?.registerResourceExtension(
     component,
     "*",
-    "*",
+    "Rollout",
     "Metrics",
     { icon: "fa fa-chart-area" }
   );
