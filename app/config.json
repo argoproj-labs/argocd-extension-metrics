@@ -104,7 +104,10 @@
             ],
             "intervals": [
               "1h",
-              "6h"
+              "2h",
+              "6h",
+              "12h",
+              "24h"
             ]
           }
         ]
@@ -118,7 +121,10 @@
             "tabs": ["GoldenSignal"],
             "intervals": [
               "1h",
-              "6h"
+              "2h",
+              "6h",
+              "12h",
+              "24h"
             ],
             "rows": [
               {
@@ -205,7 +211,10 @@
             "groupKind": "deployment",
             "intervals": [
               "1h",
-              "6h"
+              "2h",
+              "6h",
+              "12h",
+              "24h"
             ],
             "rows": [
               {
