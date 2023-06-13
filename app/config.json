@@ -101,6 +101,10 @@
                   }
                 ]
               }
+            ],
+            "intervals": [
+              "1h",
+              "6h"
             ]
           }
         ]
@@ -112,6 +116,10 @@
           {
             "groupKind": "pod",
             "tabs": ["GoldenSignal"],
+            "intervals": [
+              "1h",
+              "6h"
+            ],
             "rows": [
               {
                 "name": "container",
@@ -195,7 +203,10 @@
           },
           {
             "groupKind": "deployment",
-
+            "intervals": [
+              "1h",
+              "6h"
+            ],
             "rows": [
               {
                 "name": "httpaggrigatedanomaly",
@@ -301,10 +312,12 @@
                 ]
               }
             ]
+
           }
         ]
       }
     ],
+
     "provider":
     {
       "Name": "default",

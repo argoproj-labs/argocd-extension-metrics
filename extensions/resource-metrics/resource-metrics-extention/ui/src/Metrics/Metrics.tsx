@@ -14,6 +14,7 @@ export const Metrics = ({
   setHasMetrics,
   isLoading,
   setIsLoading,
+  setIntervals
 }: any) => {
   const resourceName =
     resource.kind === "Application" ? "" : resource?.metadata?.name;
@@ -33,9 +34,9 @@ export const Metrics = ({
       applicationName,
       applicationNamespace,
       resourceType: resource.kind,
-      project,
+      project
     })
-      .then((response) => {
+      .then(response => {
         if (response.status > 399) {
           throw new Error("No metrics");
         }
@@ -45,13 +46,15 @@ export const Metrics = ({
         setIsLoading(false);
         setHasMetrics(true);
         setDashboard(data);
+        setIntervals(data?.intervals || []);
         if (data?.tabs?.length) {
           setSelectedTab(data.tabs[0]);
         }
       })
-      .catch((err) => {
+      .catch(err => {
         setHasMetrics(false);
         setIsLoading(false);
+        setIntervals(null);
         console.error("res.data", err);
       });
   }, [applicationName, applicationNamespace, project, resource.kind]);
