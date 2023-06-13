@@ -54,7 +54,6 @@ export const Metrics = ({
       .catch(err => {
         setHasMetrics(false);
         setIsLoading(false);
-        setIntervals(null);
         console.error("res.data", err);
       });
   }, [applicationName, applicationNamespace, project, resource.kind]);
