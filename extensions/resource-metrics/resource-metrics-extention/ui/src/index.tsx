@@ -12,6 +12,7 @@ export const Extension = (props: any) => {
   const [duration, setDuration] = useState("1h");
   const [hasMetrics, setHasMetrics] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [intervals, setIntervals] = useState([]);
 
   const loc = window.location;
   const { resource, application } = props;
@@ -27,11 +28,11 @@ export const Extension = (props: any) => {
       url = `/api/v1/applications/${application_name}/events`;
     }
     fetch(url)
-      .then((response) => response.json())
-      .then((data) => {
+      .then(response => response.json())
+      .then(data => {
         setEvents(data?.items || []);
       })
-      .catch((err) => {
+      .catch(err => {
         console.error("res.data", err);
       });
   }, [application_name, resource, duration]);
@@ -41,61 +42,21 @@ export const Extension = (props: any) => {
       {!isLoading && !hasMetrics && <p>No metrics to display</p>}
       {!isLoading && hasMetrics && (
         <div className="application-metrics__MetricsDurationSelector">
-          <a
-            href={`${loc}`}
-            className={`application-metrics__MetricsDuration ${
-              duration === "24h" ? "active" : ""
-            }`}
-            onClick={(e) => {
-              updateDuration(e, "24h");
-            }}
-          >
-            1 day
-          </a>
-          <a
-            href={`${loc}`}
-            className={`application-metrics__MetricsDuration ${
-              duration === "12h" ? "active" : ""
-            }`}
-            onClick={(e) => {
-              updateDuration(e, "12h");
-            }}
-          >
-            12 hrs
-          </a>
-          <a
-            href={`${loc}`}
-            className={`application-metrics__MetricsDuration ${
-              duration === "6h" ? "active" : ""
-            }`}
-            onClick={(e) => {
-              updateDuration(e, "6h");
-            }}
-          >
-            6 hrs
-          </a>
-          <a
-            href={`${loc}`}
-            className={`application-metrics__MetricsDuration ${
-              duration === "2h" ? "active" : ""
-            }`}
-            onClick={(e) => {
-              updateDuration(e, "2h");
-            }}
-          >
-            2 hrs
-          </a>
-          <a
-            href={`${loc}`}
-            className={`application-metrics__MetricsDuration ${
-              duration === "1h" ? "active" : ""
-            }`}
-            onClick={(e) => {
-              updateDuration(e, "1h");
-            }}
-          >
-            1 hr
-          </a>
+          {intervals?.length > 0 &&
+            intervals?.map((hasDuration: string) => (
+              <a
+                href={`${loc}`}
+                className={`application-metrics__MetricsDuration ${
+                  duration === hasDuration ? "active" : ""
+                }`}
+                key={hasDuration}
+                onClick={e => {
+                  updateDuration(e, hasDuration);
+                }}
+              >
+                {hasDuration}
+              </a>
+            ))}
         </div>
       )}
       <Metrics
@@ -105,6 +66,7 @@ export const Extension = (props: any) => {
         setHasMetrics={setHasMetrics}
         isLoading={isLoading}
         setIsLoading={setIsLoading}
+        setIntervals={setIntervals}
       />
     </React.Fragment>
   );
@@ -117,7 +79,7 @@ export const component = Extension;
   window?.extensionsAPI?.registerResourceExtension(
     component,
     "*",
-    "*",
+    "Rollout",
     "Metrics",
     { icon: "fa fa-chart-area" }
   );
