@@ -426,7 +426,7 @@ export const TimeSeriesChart = ({
                 {XAxisMemo}
                 {YAxisMemo}
                 {TooltipMemo}
-                {chartData?.length > 0 ? LegendMemo : <></>}
+                {chartData?.length > 0 ? LegendMemo : null}
                 {chartData?.map((d: any, i: number) => {
                   return (
                     <Line
