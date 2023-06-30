@@ -428,7 +428,7 @@ export const TimeSeriesChart = ({
                 {TooltipMemo}
                 {chartData?.length > 0 ? LegendMemo : <></>}
                 {chartData?.map((d: any, i: number) => {
-                  return chartData.length > 0 ? (
+                  return (
                     <Line
                       // strokeDasharray={`${strokeArray(i)}`}
                       isAnimationActive={false}
@@ -447,8 +447,6 @@ export const TimeSeriesChart = ({
                       animationDuration={200}
                       style={{ zIndex: highlight[groupBy] ? 100 : 1 }}
                     />
-                  ) : (
-                    "N"
                   );
                 })}
               </LineChart>
