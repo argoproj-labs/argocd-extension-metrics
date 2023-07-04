@@ -186,11 +186,13 @@ export const TimeSeriesChart = ({
 }: any) => {
   useEffect(() => {
     const newFilter: any = [];
-    if (chartData?.length != 0) {
-      chartData?.map((data: any) => {
-        newFilter.push(data.name);
-      });
+    chartData?.map((data: any) => {
+      newFilter.push(data.name);
+    });
+    if (filterChart?.length > 0) {
       setFilterChart({ ...filterChart, [groupBy]: newFilter });
+    } else {
+      setFilterChart({ [groupBy]: newFilter });
     }
   }, [chartData, groupBy]);
 
@@ -373,11 +375,7 @@ export const TimeSeriesChart = ({
   return useMemo(
     () => (
       <>
-        <div style={{ display: "block", width: "100%" }}>
-          <div>
-            <strong>{title}</strong>
-          </div>
-
+        <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
           {chartData?.length > 0 ? (
             <ResponsiveContainer debounce={150} width="100%" height={height}>
               <LineChart
@@ -456,17 +454,16 @@ export const TimeSeriesChart = ({
               style={{
                 display: "flex",
                 justifyContent: "center",
-                alignItems: "center",
+                alignItems: "flex-end",
                 border: "1px solid #ccc",
-                borderRadius: "4px",
-                padding: "16px 32px 16px 16px",
-                width: "80%",
+                padding: "16px 16 16px 16px",
+                width: "calc(100% - 2em)",
                 height: "50px",
-                marginLeft: "1em",
+                margin: "1em",
               }}
             >
               <i className="fa-solid fa-empty-set" />
-              Metric provider not available
+              Metric {title} not available
             </div>
           )}
         </div>

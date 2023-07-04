@@ -144,6 +144,7 @@ export const Metrics = ({
                     graphType={graph.graphType}
                     project={project}
                     applicationNamespace={applicationNamespace}
+                    title={graph.title}
                   />
                 );
               })}
