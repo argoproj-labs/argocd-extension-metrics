@@ -460,9 +460,9 @@ export const TimeSeriesChart = ({
                 width: "calc(100% - 2em)",
                 height: "50px",
                 margin: "1em",
+                color: "#b4b4b4",
               }}
             >
-              <i className="fa-solid fa-empty-set" />
               Metric {title} not available
             </div>
           )}
