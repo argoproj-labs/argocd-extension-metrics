@@ -135,7 +135,7 @@ export const Metrics = ({
                     events={events}
                     queryPath={url}
                     resource={resource}
-                    groupBy={graph.metricName || row.name}
+                    groupBy={graph.metricName}
                     name={resourceName}
                     yUnit={graph.yAxisUnit || ""}
                     valueRounding={graph.valueRounding || 10}
@@ -144,6 +144,7 @@ export const Metrics = ({
                     graphType={graph.graphType}
                     project={project}
                     applicationNamespace={applicationNamespace}
+                    title={graph.title}
                   />
                 );
               })}

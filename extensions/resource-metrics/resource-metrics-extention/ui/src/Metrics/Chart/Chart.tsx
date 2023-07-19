@@ -189,8 +189,12 @@ export const TimeSeriesChart = ({
     chartData?.map((data: any) => {
       newFilter.push(data.name);
     });
-    setFilterChart({ ...filterChart, [groupBy]: newFilter });
-  }, [chartData, groupBy, setFilterChart]);
+    if (filterChart?.length > 0) {
+      setFilterChart({ ...filterChart, [groupBy]: newFilter });
+    } else {
+      setFilterChart({ [groupBy]: newFilter });
+    }
+  }, [chartData, groupBy]);
 
   const LegendMemo = useMemo(() => {
     return (
@@ -371,82 +375,97 @@ export const TimeSeriesChart = ({
   return useMemo(
     () => (
       <>
-        <div style={{ display: "block", width: "100%" }}>
-          <div>
-            <strong>{title}</strong>
-          </div>
-          <ResponsiveContainer debounce={150} width="100%" height={height}>
-            <LineChart
-              width={800}
-              height={500}
-              syncId={"o11yCharts"}
-              syncMethod={"value"}
-              layout={"horizontal"}
-              onMouseMove={(e: any) => {}}
-              onMouseLeave={() => {
-                setHighlight({ ...highlight, [groupBy]: "" });
-              }}
-              margin={{
-                top: 30,
-                right: 30,
-                left: 40,
-                bottom: 5,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              {Object.keys(uniqueEvents(events))?.map(
-                (eventKey: any, i: number) => {
-                  const event = uniqueEvents(events)[eventKey];
-                  if (!eventKey || !event) {
-                    return;
-                  }
+        <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
+          {chartData?.length > 0 ? (
+            <ResponsiveContainer debounce={150} width="100%" height={height}>
+              <LineChart
+                width={800}
+                height={500}
+                syncId={"o11yCharts"}
+                syncMethod={"value"}
+                layout={"horizontal"}
+                onMouseMove={(e: any) => {}}
+                onMouseLeave={() => {
+                  setHighlight({ ...highlight, [groupBy]: "" });
+                }}
+                margin={{
+                  top: 30,
+                  right: 30,
+                  left: 40,
+                  bottom: 5,
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                {Object.keys(uniqueEvents(events))?.map(
+                  (eventKey: any, i: number) => {
+                    const event = uniqueEvents(events)[eventKey];
+                    if (!eventKey || !event) {
+                      return;
+                    }
 
+                    return (
+                      <ReferenceLine
+                        key={eventKey + i}
+                        isFront
+                        x={moment(eventKey).unix()}
+                        stroke="#e96d76"
+                        strokeWidth={2}
+                        strokeDasharray={"3 2"}
+                        label={
+                          <Label
+                            position="center"
+                            content={(p: any) => renderEventContent(p, event)}
+                          />
+                        }
+                      />
+                    );
+                  }
+                )}
+                {XAxisMemo}
+                {YAxisMemo}
+                {TooltipMemo}
+                {chartData?.length > 0 ? LegendMemo : null}
+                {chartData?.map((d: any, i: number) => {
                   return (
-                    <ReferenceLine
-                      key={eventKey + i}
-                      isFront
-                      x={moment(eventKey).unix()}
-                      stroke="#e96d76"
-                      strokeWidth={2}
-                      strokeDasharray={"3 2"}
-                      label={
-                        <Label
-                          position="center"
-                          content={(p: any) => renderEventContent(p, event)}
-                        />
+                    <Line
+                      // strokeDasharray={`${strokeArray(i)}`}
+                      isAnimationActive={false}
+                      dataKey="y"
+                      data={d.data}
+                      connectNulls={false}
+                      hide={
+                        filterChart[groupBy] &&
+                        filterChart[groupBy].indexOf(d.name) < 0
                       }
+                      stroke={colorArray[i % colorArray.length]}
+                      strokeWidth={d.name === highlight[groupBy] ? 3 : 1.5}
+                      name={d.name}
+                      dot={false}
+                      key={d.name}
+                      animationDuration={200}
+                      style={{ zIndex: highlight[groupBy] ? 100 : 1 }}
                     />
                   );
-                }
-              )}
-              {XAxisMemo}
-              {YAxisMemo}
-              {TooltipMemo}
-              {LegendMemo}
-              {chartData?.map((d: any, i: number) => {
-                return (
-                  <Line
-                    // strokeDasharray={`${strokeArray(i)}`}
-                    isAnimationActive={false}
-                    dataKey="y"
-                    data={d.data}
-                    connectNulls={false}
-                    hide={
-                      filterChart[groupBy] &&
-                      filterChart[groupBy].indexOf(d.name) < 0
-                    }
-                    stroke={colorArray[i % colorArray.length]}
-                    strokeWidth={d.name === highlight[groupBy] ? 3 : 1.5}
-                    name={d.name}
-                    dot={false}
-                    key={d.name}
-                    animationDuration={200}
-                    style={{ zIndex: highlight[groupBy] ? 100 : 1 }}
-                  />
-                );
-              })}
-            </LineChart>
-          </ResponsiveContainer>
+                })}
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "flex-end",
+                border: "1px solid #ccc",
+                padding: "16px 16 16px 16px",
+                width: "calc(100% - 2em)",
+                height: "50px",
+                margin: "1em",
+                color: "#b4b4b4",
+              }}
+            >
+              Metric {title} not available
+            </div>
+          )}
         </div>
       </>
     ),
