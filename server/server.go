@@ -4,14 +4,16 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"go.uber.org/zap"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 
 	tls2 "github.com/argoproj-labs/argocd-metric-ext-server/shared/tls"
 )
@@ -34,6 +36,35 @@ type MetricsProvider interface {
 	getType() string
 }
 
+func validateHeader(header http.Header, headerName string) error {
+	val, ok := header[headerName]
+	if !ok {
+		errMsg := headerName + " header not sent"
+		return errors.New(errMsg)
+	}
+	if len(val) != 1 {
+		errMsg := "Multiple values for " + headerName + " header sent. Only one is allowed"
+		return errors.New(errMsg)
+	}
+	return nil
+}
+
+func validateQueryParam(queryParam string, queryParamName string) error {
+	if len(queryParam) == 0 {
+		errMsg := queryParamName + " query param not sent"
+		return errors.New(errMsg)
+	}
+	return nil
+}
+
+func validatePathParam(pathParam string, pathParamName string) error {
+	if len(pathParam) == 0 {
+		errMsg := pathParamName + " path param not sent"
+		return errors.New(errMsg)
+	}
+	return nil
+}
+
 func NewO11yServer(logger *zap.SugaredLogger, port int, enableTLS bool) O11yServer {
 	return O11yServer{
 		logger:    logger,
@@ -44,6 +75,7 @@ func NewO11yServer(logger *zap.SugaredLogger, port int, enableTLS bool) O11yServ
 func (ms *O11yServer) Run(ctx context.Context) {
 
 	err := ms.readConfig()
+
 	if err != nil {
 		panic(err)
 	}
@@ -72,6 +104,7 @@ func (ms *O11yServer) Run(ctx context.Context) {
 		c.String(http.StatusOK, "healthy")
 	})
 	handler.GET("/api/applications/:application/groupkinds/:groupkind/rows/:row/graphs/:graph", ms.queryMetrics)
+
 	handler.GET("/api/applications/:application/groupkinds/:groupkind/dashboards", ms.dashboardConfig)
 
 	address := fmt.Sprintf(":%d", ms.port)
@@ -110,10 +143,84 @@ func (ms *O11yServer) runWithTLS(address string, handler *gin.Engine) {
 }
 
 func (ms *O11yServer) queryMetrics(ctx *gin.Context) {
+	headers := ctx.Request.Header
+
+	if err := validateHeader(headers, "Argocd-Application-Name"); err != nil {
+		ms.logger.Warn(err)
+		ctx.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	val := headers["Argocd-Application-Name"]
+	applicationNameHeader := strings.Split(val[0], ":")[1]
+
+	if err := validateHeader(headers, "Argocd-Project-Name"); err != nil {
+		ms.logger.Warn(err)
+		ctx.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	temp := headers["Argocd-Project-Name"]
+	projectHeader := temp[0]
+
+	applicationNameQueryParam := ctx.Query("application_name")
+
+	if err := validateQueryParam(applicationNameQueryParam, "application_name"); err != nil {
+		ms.logger.Warn(err)
+		ctx.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	projectQueryParam := ctx.Query("project")
+
+	if err := validateQueryParam(projectQueryParam, "project"); err != nil {
+		ms.logger.Warn(err)
+		ctx.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	if applicationNameHeader != applicationNameQueryParam {
+		msg := "Application name mismatch. Value from the header is different from the url."
+		err := errors.New(msg)
+		ms.logger.Warn(msg)
+		ctx.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	if projectHeader != projectQueryParam {
+		msg := "Project mismatch. Value from the header is different from the url."
+		err := errors.New(msg)
+		ms.logger.Warn(msg)
+		ctx.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
 	ms.provider.execute(ctx)
 }
 
 func (ms *O11yServer) dashboardConfig(ctx *gin.Context) {
+	headers := ctx.Request.Header
+
+	if err := validateHeader(headers, "Argocd-Application-Name"); err != nil {
+		ms.logger.Warn(err)
+		ctx.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	val := headers["Argocd-Application-Name"]
+	applicationNameHeader := strings.Split(val[0], ":")[1]
+
+	applicationNamePathParam := ctx.Param("application")
+
+	if err := validatePathParam(applicationNamePathParam, "application"); err != nil {
+		ms.logger.Warn(err)
+		ctx.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	if applicationNameHeader != applicationNamePathParam {
+		msg := "Application name mismatch. Value from the header is different from the url."
+		err := errors.New(msg)
+		ms.logger.Warn(msg)
+		ctx.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
 	ms.provider.getDashboard(ctx)
 }
 
