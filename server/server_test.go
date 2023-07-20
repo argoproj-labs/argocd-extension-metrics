@@ -76,6 +76,7 @@ func TestQueryMetrics(t *testing.T) {
 	}
 	//test invalid scenarios
 	for _, invalidTest := range invalidTests {
+		invalidTest := invalidTest
 		t.Run(invalidTest.testName, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			ctx, ms := createContextAndNewO11yServer(w)
@@ -100,6 +101,7 @@ func TestQueryMetrics(t *testing.T) {
 		},
 	}
 	for _, validTest := range validTests {
+		validTest := validTest
 		t.Run(validTest.testName, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			ctx, ms := createContextAndNewO11yServer(w)
@@ -156,6 +158,7 @@ func TestDashboardConfig(t *testing.T) {
 	}
 	//test invalid scenarios
 	for _, invalidTest := range invalidTests {
+		invalidTest := invalidTest
 		t.Run(invalidTest.testName, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			ctx, ms := createContextAndNewO11yServer(w)
@@ -180,6 +183,7 @@ func TestDashboardConfig(t *testing.T) {
 		},
 	}
 	for _, validTest := range validTests {
+		validTest := validTest
 		t.Run(validTest.testName, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			ctx, ms := createContextAndNewO11yServer(w)
