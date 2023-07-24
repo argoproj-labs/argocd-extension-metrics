@@ -48,6 +48,7 @@ type Dashboard struct {
 	Tabs         []string `json:"tabs"`
 	Rows         []*Row   `json:"rows"`
 	ProviderType string   `json:"providerType"`
+	Intervals    []string `json:"intervals"`
 }
 
 func (d *Dashboard) getRow(name string) *Row {

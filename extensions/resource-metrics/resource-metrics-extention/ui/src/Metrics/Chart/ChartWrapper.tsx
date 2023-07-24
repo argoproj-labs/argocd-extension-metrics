@@ -130,7 +130,10 @@ export const ChartWrapper = ({
             }
             const metricObj: ChartDataProps = {
               ...obj,
-              name: obj?.metric && Object.values(obj?.metric).join(":"),
+              name:
+                obj?.metric && typeof obj?.metric?.[groupBy] === "string"
+                  ? (obj?.metric?.[groupBy] as string)
+                  : Object.values(obj?.metric).join(":"),
               data: [],
             };
             obj?.values?.map((kp: [any, any], i: number) => {

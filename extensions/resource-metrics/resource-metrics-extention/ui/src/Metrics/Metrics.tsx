@@ -14,6 +14,7 @@ export const Metrics = ({
   setHasMetrics,
   isLoading,
   setIsLoading,
+  setIntervals
 }: any) => {
   const resourceName =
     resource.kind === "Application" ? "" : resource?.metadata?.name;
@@ -33,9 +34,9 @@ export const Metrics = ({
       applicationName,
       applicationNamespace,
       resourceType: resource.kind,
-      project,
+      project
     })
-      .then((response) => {
+      .then(response => {
         if (response.status > 399) {
           throw new Error("No metrics");
         }
@@ -45,11 +46,12 @@ export const Metrics = ({
         setIsLoading(false);
         setHasMetrics(true);
         setDashboard(data);
+        setIntervals(data?.intervals || []);
         if (data?.tabs?.length) {
           setSelectedTab(data.tabs[0]);
         }
       })
-      .catch((err) => {
+      .catch(err => {
         setHasMetrics(false);
         setIsLoading(false);
         console.error("res.data", err);
@@ -133,7 +135,7 @@ export const Metrics = ({
                     events={events}
                     queryPath={url}
                     resource={resource}
-                    groupBy={graph.metricName || row.name}
+                    groupBy={graph.metricName}
                     name={resourceName}
                     yUnit={graph.yAxisUnit || ""}
                     valueRounding={graph.valueRounding || 10}
@@ -142,6 +144,7 @@ export const Metrics = ({
                     graphType={graph.graphType}
                     project={project}
                     applicationNamespace={applicationNamespace}
+                    title={graph.title}
                   />
                 );
               })}

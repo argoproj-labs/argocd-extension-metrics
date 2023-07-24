@@ -523,13 +523,13 @@ export const AnomalyChart = ({
 
   const maxVal = Math.max.apply(
     Math,
-    thisChartData?.[0]?.data.map(function (o: any) {
+    thisChartData?.[0]?.data?.map(function (o: any) {
       return o.y;
     })
   );
   const minVal = Math.min.apply(
     Math,
-    thisChartData?.[0]?.data.map(function (o: any) {
+    thisChartData?.[0]?.data?.map(function (o: any) {
       return o.y;
     })
   );

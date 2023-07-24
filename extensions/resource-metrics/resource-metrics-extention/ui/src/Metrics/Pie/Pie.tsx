@@ -16,7 +16,7 @@ const CustomTooltip = ({
   if (active && payload && payload.length) {
     return (
       <div className="metrics-pie__tooltip box-arrow-bottom">
-        {payload.map((p: any, i: any) => {
+        {payload?.map((p: any, i: any) => {
           if (!p.name) {
             return <></>;
           }
