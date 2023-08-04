@@ -3,17 +3,17 @@
 }
 
 .chartYLabel {
-  opacity: .6;
+  opacity: 0.6;
 }
 
 .metrics-charts__legend_wrapper {
   text-align: left;
-  font-size: .9em;
+  font-size: 0.9em;
   position: absolute;
-  margin-left: 30px; 
+  margin-left: 30px;
   overflow-y: scroll;
   z-index: 999;
-  background-color: rgb(0, 0, 0,.8);
+  background-color: rgb(0, 0, 0, 0.8);
   color: #fafafa;
   font-weight: 400;
   border-radius: 6px;
@@ -26,7 +26,6 @@
     display: flex;
     white-space: nowrap;
     .label {
-
     }
   }
   .metrics-charts__value {
@@ -41,58 +40,56 @@
 
 .metrics-charts__legend_wrapper {
   display: none;
-  transition: .3s;
-  padding: .8em 1.2em !important;
+  transition: 0.3s;
+  padding: 0.8em 1.2em !important;
   min-width: 50%;
   left: 15%;
-  font-size: .85em;
+  font-size: 0.85em;
   padding: 20px;
 }
 
 div:hover > div > .metrics-charts__legend_wrapper {
   max-height: 500px;
   display: block;
-
 }
 
 .legendLink {
-  color: #ffffff; 
+  color: #ffffff;
   cursor: pointer;
   font-weight: 400;
   &:hover {
-    color: #5d9fcb; 
+    color: #5d9fcb;
   }
 }
 
 .metrics-charts {
-
   &__tooltip_text {
     display: inline-block;
     margin-right: 1em;
   }
 
   &__tooltip_wrapper {
-    padding: .5em;
+    padding: 0.5em;
     text-align: left;
-    font-size: .95em;
+    font-size: 0.95em;
     clear: both;
   }
 
   &__tooltip_title {
     text-align: left;
-    font-size: .8em;
-    padding-bottom:.2em;
+    font-size: 0.8em;
+    padding-bottom: 0.2em;
     text-transform: uppercase;
     color: #ddd;
   }
 
   &__badge {
-    padding: .25em .5em .09em .5em;
+    padding: 0.25em 0.5em 0.09em 0.5em;
     background-color: #555;
-    border-radius:100px;
-    font-size: .8em;
+    border-radius: 100px;
+    font-size: 0.8em;
     display: inline-block;
-    margin: auto .1em;
+    margin: auto 0.1em;
     line-height: 1em;
     float: right;
     margin-top: 2px;
@@ -101,7 +98,6 @@ div:hover > div > .metrics-charts__legend_wrapper {
   &__legend_title {
     text-transform: uppercase;
   }
-
 }
 
 .metrics-charts__tooltip {
@@ -148,7 +144,7 @@ div:hover > div > .metrics-charts__legend_wrapper {
   content: " ";
   position: absolute;
   left: 40px;
-  top:0;
+  top: 0;
   transform: translateY(-99%);
   border-top: none;
   border-right: 7px solid transparent;

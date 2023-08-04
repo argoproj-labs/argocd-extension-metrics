@@ -372,83 +372,149 @@ export const TimeSeriesChart = ({
     return uEvents;
   };
 
+  let limitRequestData: any = [];
+  let nonLimitRequestData: any = [];
+
+  chartData?.forEach((d: any) => {
+    if (
+      d.metric.__name__.endsWith("cpu_resource_limits") ||
+      d.metric.__name__.endsWith("memory_resource_requests") ||
+      d.metric.__name__.endsWith("memory_resource_limits") ||
+      d.metric.__name__.endsWith("cpu_resource_requests")
+    ) {
+      limitRequestData.push(d);
+    } else {
+      nonLimitRequestData.push(d);
+    }
+  });
+
   return useMemo(
     () => (
       <>
-        <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            width: "100%",
+            flexDirection: "column",
+          }}
+        >
           {chartData?.length > 0 ? (
-            <ResponsiveContainer debounce={150} width="100%" height={height}>
-              <LineChart
-                width={800}
-                height={500}
-                syncId={"o11yCharts"}
-                syncMethod={"value"}
-                layout={"horizontal"}
-                onMouseMove={(e: any) => {}}
-                onMouseLeave={() => {
-                  setHighlight({ ...highlight, [groupBy]: "" });
-                }}
-                margin={{
-                  top: 30,
-                  right: 30,
-                  left: 40,
-                  bottom: 5,
-                }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                {Object.keys(uniqueEvents(events))?.map(
-                  (eventKey: any, i: number) => {
-                    const event = uniqueEvents(events)[eventKey];
-                    if (!eventKey || !event) {
-                      return;
-                    }
+            <>
+              <ResponsiveContainer debounce={150} width="100%" height={height}>
+                <LineChart
+                  width={800}
+                  height={500}
+                  syncId={"o11yCharts"}
+                  syncMethod={"value"}
+                  layout={"horizontal"}
+                  onMouseMove={(e: any) => { }}
+                  onMouseLeave={() => {
+                    setHighlight({ ...highlight, [groupBy]: "" });
+                  }}
+                  margin={{
+                    top: 30,
+                    right: 30,
+                    left: 40,
+                    bottom: 5,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  {Object.keys(uniqueEvents(events))?.map(
+                    (eventKey: any, i: number) => {
+                      const event = uniqueEvents(events)[eventKey];
+                      if (!eventKey || !event) {
+                        return;
+                      }
 
+                      return (
+                        <ReferenceLine
+                          key={eventKey + i}
+                          isFront
+                          x={moment(eventKey).unix()}
+                          stroke="#e96d76"
+                          strokeWidth={2}
+                          strokeDasharray={"3 2"}
+                          label={
+                            <Label
+                              position="center"
+                              content={(p: any) => renderEventContent(p, event)}
+                            />
+                          }
+                        />
+                      );
+                    }
+                  )}
+                  {XAxisMemo}
+                  {YAxisMemo}
+                  {TooltipMemo}
+                  {chartData?.length > 0 ? LegendMemo : null}
+                  {nonLimitRequestData?.map((d: any, i: number) => {
                     return (
-                      <ReferenceLine
-                        key={eventKey + i}
-                        isFront
-                        x={moment(eventKey).unix()}
-                        stroke="#e96d76"
-                        strokeWidth={2}
-                        strokeDasharray={"3 2"}
-                        label={
-                          <Label
-                            position="center"
-                            content={(p: any) => renderEventContent(p, event)}
-                          />
+                      <Line
+                        // strokeDasharray={`${strokeArray(i)}`}
+                        isAnimationActive={false}
+                        dataKey="y"
+                        data={d.data}
+                        connectNulls={false}
+                        hide={
+                          filterChart[groupBy] &&
+                          filterChart[groupBy].indexOf(d.name) < 0
                         }
+                        stroke={colorArray[i % colorArray.length]}
+                        strokeWidth={d.name === highlight[groupBy] ? 3 : 1.5}
+                        name={d.name}
+                        dot={false}
+                        key={d.name}
+                        animationDuration={200}
+                        style={{ zIndex: highlight[groupBy] ? 100 : 1 }}
                       />
                     );
+                  })}
+                </LineChart>
+              </ResponsiveContainer>
+              <ul
+                style={{
+                  display: "flex",
+                  fontSize: "12px",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginTop: "10px",
+                  listStyle:'none',
+                }}
+              >
+                {limitRequestData?.map((d: any, i: number) => {
+                  let metricName = "";
+                  let metricValue = "";
+
+                  if (d.metric.__name__.endsWith("requests")) {
+                    if (d.metric.__name__.includes("cpu")) {
+                      metricName = "CPU_REQUESTS";
+                      metricValue = d.data[d.data.length - 1].y + " cores";
+                    } else {
+                      metricName = "MEMORY_REQUESTS";
+                      metricValue = d.data[d.data.length - 1].y + " mib";
+                    }
                   }
-                )}
-                {XAxisMemo}
-                {YAxisMemo}
-                {TooltipMemo}
-                {chartData?.length > 0 ? LegendMemo : null}
-                {chartData?.map((d: any, i: number) => {
+
+                  if (d.metric.__name__?.endsWith("limits")) {
+                    if (d.metric.__name__.includes("cpu")) {
+                      metricName = "CPU_LIMITS";
+                      metricValue = d.data[d.data.length - 1].y + " cores";
+                    } else {
+                      metricName = "MEMORY_LIMITS";
+                      metricValue = d.data[d.data.length - 1].y + " mib";
+                    }
+                  }
+
                   return (
-                    <Line
-                      // strokeDasharray={`${strokeArray(i)}`}
-                      isAnimationActive={false}
-                      dataKey="y"
-                      data={d.data}
-                      connectNulls={false}
-                      hide={
-                        filterChart[groupBy] &&
-                        filterChart[groupBy].indexOf(d.name) < 0
-                      }
-                      stroke={colorArray[i % colorArray.length]}
-                      strokeWidth={d.name === highlight[groupBy] ? 3 : 1.5}
-                      name={d.name}
-                      dot={false}
-                      key={d.name}
-                      animationDuration={200}
-                      style={{ zIndex: highlight[groupBy] ? 100 : 1 }}
-                    />
+                    <li style={{ position: "relative", marginRight: "30px" }}>
+                      {metricName + " :  " + metricValue}
+                    </li>
                   );
                 })}
-              </LineChart>
-            </ResponsiveContainer>
+              </ul>
+            </>
           ) : (
             <div
               style={{
