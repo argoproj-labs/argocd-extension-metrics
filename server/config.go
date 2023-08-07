@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+
 	"github.com/prometheus/common/config"
 )
 
@@ -13,16 +14,24 @@ type Threshold struct {
 }
 
 type Graph struct {
-	Name            string      `json:"name"`
-	Title           string      `json:"title"`
-	Description     string      `json:"description"`
-	GraphType       string      `json:"graphType"`
-	MetricName      string      `json:"metricName"`
-	ColorSchemes    []string    `json:"colorSchemes"`
-	Thresholds      []Threshold `json:"thresholds"`
-	QueryExpression string      `json:"queryExpression"`
-	YAxisUnit       string      `json:"yAxisUnit"`
-	ValueRounding   int         `json:"valueRounding"`
+	Name                 string       `json:"name"`
+	Title                string       `json:"title"`
+	Description          string       `json:"description"`
+	GraphType            string       `json:"graphType"`
+	MetricName           string       `json:"metricName"`
+	ColorSchemes         []string     `json:"colorSchemes"`
+	Thresholds           []Threshold  `json:"thresholds"`
+	QueryExpression      string       `json:"queryExpression"`
+	YAxisUnit            string       `json:"yAxisUnit"`
+	Unit                 string       `json:"unit"`
+	ValueRounding        int          `json:"valueRounding"`
+	SubMetricsExpression []SubMetrics `json:"subMetricsExpression"`
+}
+
+type SubMetrics struct {
+	QueryExpression string `json:"queryExpression"`
+	IsStatic        bool   `json:"isStatic"`
+	Label           string `json:"label"`
 }
 
 type Row struct {

@@ -18,6 +18,8 @@ import "./Chart.scss";
 import * as React from "react";
 import { roundNumber } from "../..";
 
+
+
 const height = 150;
 
 // Line dash variations...
@@ -183,6 +185,8 @@ export const TimeSeriesChart = ({
   setHighlight,
   labelKey,
   events,
+  subMetrics,
+  unit
 }: any) => {
   useEffect(() => {
     const newFilter: any = [];
@@ -372,17 +376,18 @@ export const TimeSeriesChart = ({
     return uEvents;
   };
 
-  let limitRequestData: any = [];
-  let nonLimitRequestData: any = [];
+  let staticData: any = [];
+  let nonStaticData: any = [];
+  const staticMap = new Map();
+  (subMetrics || []).forEach((data: any) => staticMap.set(data.queryExpression, data.label));
 
   chartData?.forEach((d: any) => {
     if (
-      d.metric.__name__.endsWith("limits") ||
-      d.metric.__name__.endsWith("requests")
+      staticMap.has(d.metric.__name__)
     ) {
-      limitRequestData.push(d);
+      staticData.push(d);
     } else {
-      nonLimitRequestData.push(d);
+      nonStaticData.push(d);
     }
   });
 
@@ -447,7 +452,7 @@ export const TimeSeriesChart = ({
                   {YAxisMemo}
                   {TooltipMemo}
                   {chartData?.length > 0 ? LegendMemo : null}
-                  {nonLimitRequestData?.map((d: any, i: number) => {
+                  {nonStaticData?.map((d: any, i: number) => {
                     return (
                       <Line
                         // strokeDasharray={`${strokeArray(i)}`}
@@ -481,33 +486,10 @@ export const TimeSeriesChart = ({
                   listStyle: 'none',
                 }}
               >
-                {limitRequestData?.map((d: any, i: number) => {
-                  let metricName = "";
-                  let metricValue = "";
-
-                  if (d.metric.__name__.endsWith("requests")) {
-                    if (d.metric.__name__.includes("cpu")) {
-                      metricName = "CPU_REQUESTS";
-                      metricValue = d.data[d.data.length - 1].y + " cores";
-                    } else {
-                      metricName = "MEMORY_REQUESTS";
-                      metricValue = d.data[d.data.length - 1].y + " mib";
-                    }
-                  }
-
-                  if (d.metric.__name__?.endsWith("limits")) {
-                    if (d.metric.__name__.includes("cpu")) {
-                      metricName = "CPU_LIMITS";
-                      metricValue = d.data[d.data.length - 1].y + " cores";
-                    } else {
-                      metricName = "MEMORY_LIMITS";
-                      metricValue = d.data[d.data.length - 1].y + " mib";
-                    }
-                  }
-
+                {staticData?.map((d: any, i: number) => {
                   return (
                     <li style={{ position: "relative", marginRight: "30px" }}>
-                      {metricName + " :  " + metricValue}
+                      {staticMap.get(d.metric.__name__) + " :  " + d.data[d.data.length - 1].y + unit}
                     </li>
                   );
                 })}

@@ -55,6 +55,8 @@ export const CustomPie = ({
   highlight,
   groupBy,
   setHighlight,
+  subMetrics,
+  unit
 }: any) => {
   const [formattedData, setFormattedData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);

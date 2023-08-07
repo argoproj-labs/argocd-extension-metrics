@@ -46,9 +46,8 @@ export const Extension = (props: any) => {
             intervals?.map((hasDuration: string) => (
               <a
                 href={`${loc}`}
-                className={`application-metrics__MetricsDuration ${
-                  duration === hasDuration ? "active" : ""
-                }`}
+                className={`application-metrics__MetricsDuration ${duration === hasDuration ? "active" : ""
+                  }`}
                 key={hasDuration}
                 onClick={e => {
                   updateDuration(e, hasDuration);

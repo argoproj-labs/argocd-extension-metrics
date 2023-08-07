@@ -34,13 +34,13 @@ export interface ChartDataProps {
   };
   values?: [[string | number, string | number]];
   data?:
-    | [
-        {
-          x: number | string;
-          y: number | string;
-        }
-      ]
-    | any[];
+  | [
+    {
+      x: number | string;
+      y: number | string;
+    }
+  ]
+  | any[];
 }
 
 export interface AllChartDataProps {
@@ -88,7 +88,7 @@ export const ChartWrapper = ({
   graphType,
   queryPath,
   project,
-  applicationNamespace,
+  applicationNamespace, subMetrics, unit
 }: any) => {
   const [chartsData, setChartsData] = useState<AllChartDataProps>({});
 
@@ -200,6 +200,8 @@ export const ChartWrapper = ({
             setFilterChart={setFilterChart}
             highlight={highlight}
             setHighlight={setHighlight}
+            subMetrics={subMetrics}
+            unit={unit}
           />
         )}
 
@@ -218,6 +220,8 @@ export const ChartWrapper = ({
             setFilterChart={setFilterChart}
             highlight={highlight}
             setHighlight={setHighlight}
+            subMetrics={subMetrics}
+            unit={unit}
           />
         )}
         {graphType === "pie" && (
@@ -232,6 +236,8 @@ export const ChartWrapper = ({
             setHighlight={setHighlight}
             chartData={chartsData[metric]}
             yFormatter={yFormatter}
+            subMetrics={subMetrics}
+            unit={{ unit }}
           />
         )}
       </>

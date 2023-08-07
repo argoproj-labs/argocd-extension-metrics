@@ -65,9 +65,8 @@ export const Metrics = ({
           {dashboard?.tabs?.map((tab: string) => {
             return (
               <div
-                className={`application-metrics__Tab ${
-                  selectedTab === tab ? "active" : ""
-                }`}
+                className={`application-metrics__Tab ${selectedTab === tab ? "active" : ""
+                  }`}
                 onClick={() => {
                   setSelectedTab(tab);
                 }}
@@ -80,18 +79,17 @@ export const Metrics = ({
           {dashboard?.rows?.filter(
             (r: any) => !dashboard?.tabs?.includes(r.tab)
           )?.length > 0 && (
-            <div
-              className={`application-metrics__Tab ${
-                selectedTab === "More" ? "active" : ""
-              }`}
-              onClick={() => {
-                setSelectedTab("More");
-              }}
-              key={"More"}
-            >
-              More
-            </div>
-          )}
+              <div
+                className={`application-metrics__Tab ${selectedTab === "More" ? "active" : ""
+                  }`}
+                onClick={() => {
+                  setSelectedTab("More");
+                }}
+                key={"More"}
+              >
+                More
+              </div>
+            )}
         </div>
       )}
 
@@ -120,11 +118,9 @@ export const Metrics = ({
             </div>
             <div className="application-metrics__ChartContainerFlex">
               {row?.graphs?.map((graph: any) => {
-                const url = `/extensions/metrics/api/applications/${applicationName}/groupkinds/${resource.kind.toLowerCase()}/rows/${
-                  row.name
-                }/graphs/${
-                  graph.name
-                }?name=${resourceName}.*&namespace=${namespace}&application_name=${applicationName}&project=${project}&uid=${uid}&duration=${duration}`;
+                const url = `/extensions/metrics/api/applications/${applicationName}/groupkinds/${resource.kind.toLowerCase()}/rows/${row.name
+                  }/graphs/${graph.name
+                  }?name=${resourceName}.*&namespace=${namespace}&application_name=${applicationName}&project=${project}&uid=${uid}&duration=${duration}`;
                 return (
                   <ChartWrapper
                     applicationName={applicationName}
@@ -145,6 +141,8 @@ export const Metrics = ({
                     project={project}
                     applicationNamespace={applicationNamespace}
                     title={graph.title}
+                    subMetrics={graph?.subMetricsExpression}
+                    unit={graph.unit}
                   />
                 );
               })}

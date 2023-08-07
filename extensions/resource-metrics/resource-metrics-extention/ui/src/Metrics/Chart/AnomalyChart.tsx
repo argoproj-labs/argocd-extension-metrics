@@ -325,6 +325,9 @@ interface AnomalyChartProps {
   setHighlight: (arg0: {} | any) => any;
   labelKey: string;
   events: any;
+  subMetrics: any;
+  unit: string;
+
 }
 
 export const AnomalyChart = ({
@@ -341,6 +344,8 @@ export const AnomalyChart = ({
   setHighlight,
   labelKey,
   events,
+  subMetrics,
+  unit
 }: AnomalyChartProps) => {
   const formatChartData = (data: any) => {
     const formattedData: any = [];
@@ -549,7 +554,7 @@ export const AnomalyChart = ({
               syncId={"o11yCharts"}
               syncMethod={"value"}
               layout={"horizontal"}
-              onMouseMove={(e: any) => {}}
+              onMouseMove={(e: any) => { }}
               onMouseLeave={() => {
                 setHighlight({ ...highlight, [groupBy]: "" });
               }}
