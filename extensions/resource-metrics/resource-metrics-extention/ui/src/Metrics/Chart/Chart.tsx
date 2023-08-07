@@ -377,10 +377,8 @@ export const TimeSeriesChart = ({
 
   chartData?.forEach((d: any) => {
     if (
-      d.metric.__name__.endsWith("cpu_resource_limits") ||
-      d.metric.__name__.endsWith("memory_resource_requests") ||
-      d.metric.__name__.endsWith("memory_resource_limits") ||
-      d.metric.__name__.endsWith("cpu_resource_requests")
+      d.metric.__name__.endsWith("limits") ||
+      d.metric.__name__.endsWith("requests")
     ) {
       limitRequestData.push(d);
     } else {
@@ -480,7 +478,7 @@ export const TimeSeriesChart = ({
                   justifyContent: "center",
                   alignItems: "center",
                   marginTop: "10px",
-                  listStyle:'none',
+                  listStyle: 'none',
                 }}
               >
                 {limitRequestData?.map((d: any, i: number) => {
