@@ -12,7 +12,8 @@ The project introduces the ArgoCD extension to enable Metrics on Resource tab.
 kubectl apply -n argocd \
     -f https://raw.githubusercontent.com/argoproj-labs/argocd-extension-metrics/main/manifests/install.yaml
 
-kubectl apply -n argocd https://raw.githubusercontent.com/argoproj-labs/argocd-extension-metrics/main/manifests/configmap.yaml
+kubectl apply -n argocd \
+    -f https://raw.githubusercontent.com/argoproj-labs/argocd-extension-metrics/main/manifests/configmap.yaml
 
 ```
 
