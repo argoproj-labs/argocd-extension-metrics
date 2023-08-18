@@ -19,7 +19,6 @@ export const Metrics = ({
   const resourceName =
     resource.kind === "Application" ? "" : resource?.metadata?.name;
   const [dashboard, setDashboard] = useState<any>({});
-  const [filterChart, setFilterChart] = useState<any>({});
   const [highlight, setHighlight] = useState<any>({});
   const [selectedTab, setSelectedTab] = useState<string>("");
 
@@ -124,8 +123,8 @@ export const Metrics = ({
                 return (
                   <ChartWrapper
                     applicationName={applicationName}
-                    filterChart={filterChart}
-                    setFilterChart={setFilterChart}
+                    // filterChart={filterChart}
+                    // setFilterChart={setFilterChart}
                     highlight={highlight}
                     setHighlight={setHighlight}
                     events={events}

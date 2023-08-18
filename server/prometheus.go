@@ -2,7 +2,9 @@ package server
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"github.com/prometheus/common/model"
 	"go.uber.org/zap"
 	"html/template"
 	"net/http"
@@ -13,6 +15,20 @@ import (
 	"github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 )
+
+type ThresholdResponse struct {
+	Data  json.RawMessage `json:"data"`
+	Key   string          `json:"key"`
+	Name  string          `json:"name"`
+	Color string          `json:"color"`
+	Value string          `json:"value"`
+	Unit  string          `json:"unit"`
+}
+
+type AggregatedResponse struct {
+	Data       json.RawMessage     `json:"data""`
+	Thresholds []ThresholdResponse `json:"thresholds,omitempty"`
+}
 
 type PrometheusProvider struct {
 	logger   *zap.SugaredLogger
@@ -58,6 +74,43 @@ func (pp *PrometheusProvider) init() error {
 	return nil
 }
 
+func ExecuteGraphQuery(ctx *gin.Context, queryExpression string, env map[string][]string, duration time.Duration, pp *PrometheusProvider) (model.Value, v1.Warnings, error) {
+	tmpl, err := template.New("query").Parse(queryExpression)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	env1 := make(map[string]string)
+	for k, v := range env {
+		env1[k] = strings.Join(v, ",")
+	}
+
+	buf := new(bytes.Buffer)
+	err = tmpl.Execute(buf, env1)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	strQuery := buf.String()
+	r := v1.Range{
+		Start: time.Now().Add(-duration),
+		End:   time.Now(),
+		Step:  time.Minute,
+	}
+
+	result, warnings, err := pp.provider.QueryRange(ctx, strQuery, r)
+
+	if err != nil {
+		return nil, warnings, err
+	}
+
+	if len(warnings) > 0 {
+		return result, warnings, err
+	}
+
+	return result, nil, nil
+}
+
 func (pp *PrometheusProvider) execute(ctx *gin.Context) {
 	app := ctx.Param("application")
 	groupKind := ctx.Param("groupkind")
@@ -92,33 +145,10 @@ func (pp *PrometheusProvider) execute(ctx *gin.Context) {
 	}
 	graph := row.getGraph(graphName)
 	if graph != nil {
-		fmt.Println(graph.QueryExpression)
-		tmpl, err := template.New("query").Parse(graph.QueryExpression)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, "invalid query")
-			return
-		}
-		env1 := make(map[string]string)
-		for k, v := range env {
-			fmt.Println(k, v)
-			env1[k] = strings.Join(v, ",")
-		}
-		buf := new(bytes.Buffer)
 
-		err = tmpl.Execute(buf, env1)
-		if err != nil {
-			fmt.Println(err)
-			ctx.JSON(http.StatusBadRequest, err)
-			return
-		}
-		strQuery := buf.String()
-		r := v1.Range{
-			Start: time.Now().Add(-duration),
-			End:   time.Now(),
-			Step:  time.Minute,
-		}
-		fmt.Println(strQuery)
-		result, warnings, err := pp.provider.QueryRange(ctx, strQuery, r)
+		var data AggregatedResponse
+		result, warnings, err := ExecuteGraphQuery(ctx, graph.QueryExpression, env, duration, pp)
+
 		if err != nil {
 			fmt.Printf("Warnings: %v\n", warnings)
 			ctx.JSON(http.StatusBadRequest, err)
@@ -129,8 +159,44 @@ func (pp *PrometheusProvider) execute(ctx *gin.Context) {
 			ctx.JSON(http.StatusBadRequest, warnings)
 			return
 		}
-		ctx.JSON(http.StatusOK, result)
+		data.Data, err = json.Marshal(result)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, err)
+			return
+		}
+		var finalResultArr []ThresholdResponse
+		if graph.Thresholds != nil {
+
+			for _, threshold := range graph.Thresholds {
+				result, warnings, err := ExecuteGraphQuery(ctx, threshold.QueryExpression, env, duration, pp)
+				if err != nil {
+					fmt.Printf("Warnings: %v\n", warnings)
+					ctx.JSON(http.StatusBadRequest, err)
+					return
+				}
+				if len(warnings) > 0 {
+					fmt.Printf("Warnings: %v\n", warnings)
+					ctx.JSON(http.StatusBadRequest, warnings)
+					return
+				}
+				var temp ThresholdResponse
+				temp.Unit = threshold.Unit
+				temp.Name = threshold.Name
+				temp.Value = threshold.Value
+				temp.Key = threshold.Key
+				temp.Color = threshold.Color
+				temp.Data, err = json.Marshal(result)
+				if err != nil {
+					ctx.JSON(http.StatusBadRequest, err)
+					return
+				}
+
+				finalResultArr = append(finalResultArr, temp)
+			}
+		}
+		data.Thresholds = finalResultArr
+
+		ctx.JSON(http.StatusOK, data)
 		return
 	}
-
 }

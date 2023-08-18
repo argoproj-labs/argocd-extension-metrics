@@ -82,4 +82,6 @@ export const component = Extension;
     "Metrics",
     { icon: "fa fa-chart-area" }
   );
+  window?.extensionsAPI?.registerResourceExtension(component, '', 'Pod', 'Metrics', {icon: "fa fa-chart-area"});
+  window?.extensionsAPI?.registerResourceExtension(component, '*', 'Deployment', 'Metrics', {icon: "fa fa-chart-area"});
 })(window);

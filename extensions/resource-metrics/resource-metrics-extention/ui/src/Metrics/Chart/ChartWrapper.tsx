@@ -1,8 +1,8 @@
 import * as React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { apiCall, getHeaders } from "../client";
-import CustomPie from "../Pie/Pie";
-import AnomalyChart from "./AnomalyChart";
+// import CustomPie from "../Pie/Pie";
+// import AnomalyChart from "./AnomalyChart";
 import TimeSeriesChart from "./Chart";
 
 export interface PrometheusResponse {
@@ -10,6 +10,35 @@ export interface PrometheusResponse {
     [key: string]: string | [string];
   };
   values: [[number, number]];
+}
+
+export interface PrometheusThresholdResponse {
+  data: Array<PrometheusResponse>
+  key: string
+  name: string
+  value: string
+  color: string
+  unit: string
+}
+
+export interface WavefrontThresholdResponse {
+  data: WavefrontResponse
+  key: string
+  name: string
+  value: string
+  color: string
+  unit: string
+}
+
+export interface CustomPrometheusResponse {
+  data: Array<PrometheusResponse>
+  thresholds: Array<PrometheusThresholdResponse>
+}
+
+
+export interface CustomWavefrontResponse {
+  data: WavefrontResponse
+  thresholds: Array<WavefrontThresholdResponse>
 }
 
 export interface WavefrontTS {
@@ -27,24 +56,49 @@ export interface WavefrontResponse {
   timeseries: [WavefrontTS];
 }
 
+// export interface ChartDataProps {
+//   name?: string;
+//   metrics?: {
+//     [key: string]: string;
+//   };
+//   values?: [[string | number, string | number]];
+//   data?:
+//   | [
+//     {
+//       x: number | string;
+//       y: number | string;
+//     }
+//   ]
+//   | any[];
+// }
+
 export interface ChartDataProps {
+  key?:string;
   name?: string;
+  value?:string;
+  unit?:string;
+  color?:string
   metrics?: {
     [key: string]: string;
   };
   values?: [[string | number, string | number]];
   data?:
-  | [
+      | [
     {
       x: number | string;
       y: number | string;
     }
   ]
-  | any[];
+      | any[];
 }
 
+
+
 export interface AllChartDataProps {
-  [key: string]: ChartDataProps;
+  [key: string]: {
+    data:Array<ChartDataProps>
+    thresholds: Array<ChartDataProps>
+  }
 }
 
 export const colorArray = [
@@ -72,8 +126,6 @@ export const colorArray = [
 export const ChartWrapper = ({
   applicationName,
   resource,
-  filterChart,
-  setFilterChart,
   highlight,
   setHighlight,
   labelKey,
@@ -91,6 +143,8 @@ export const ChartWrapper = ({
   applicationNamespace, subMetrics, unit
 }: any) => {
   const [chartsData, setChartsData] = useState<AllChartDataProps>({});
+  const [filterChart, setFilterChart] = useState<any>({});
+
 
   const formatChartData = useMemo(
     () =>
@@ -100,17 +154,17 @@ export const ChartWrapper = ({
         yFormatter = (y: any): number => y * 1,
         xFormatter = (x: any): number => Math.floor(x * 1),
       }: {
-        data: [PrometheusResponse] & WavefrontResponse;
+        data: CustomPrometheusResponse & CustomWavefrontResponse;
         groupBy: string;
         yFormatter?: (arg0: number) => number;
         xFormatter?: (arg0: number) => number;
       }) => {
         const formattedData: Array<ChartDataProps> = [];
-
+        const formattedThresholdData: Array<ChartDataProps> = [];
         // TODO: move this into another abstracted functionality
-        if (data?.granularity) {
+        if (data?.data?.granularity) {
           // Wavefront Data
-          data?.timeseries?.map((obj: WavefrontTS) => {
+          data?.data?.timeseries?.map((obj: WavefrontTS) => {
             if (!obj?.tags?.[groupBy] && !obj?.data?.length) {
               return false;
             }
@@ -118,13 +172,37 @@ export const ChartWrapper = ({
               ...obj,
               name: obj?.tags && Object.values(obj?.tags).join(":"),
               data: [],
+              key:'',
+              color:'',
+              unit:'',
+              value:'',
             };
             metricObj.data = obj?.data;
             formattedData.push(metricObj);
           });
+
+          data?.thresholds?.map((temp:WavefrontThresholdResponse ) => {
+            temp?.data?.timeseries?.map((obj: WavefrontTS) => {
+              if (!obj?.tags?.[groupBy] && !obj?.data?.length) {
+                return false;
+              }
+              const metricObj: ChartDataProps = {
+                ...obj,
+                name: temp.name,
+                data: [],
+                key:temp?.key,
+                value:temp?.value,
+                color:temp?.color,
+                unit:temp?.unit
+              };
+              metricObj.data = obj?.data;
+              formattedData.push(metricObj);
+            });
+          });
         } else {
           // Prometheus Data
-          data?.map((obj: PrometheusResponse) => {
+
+          data?.data?.map((obj: PrometheusResponse) => {
             if (!obj?.["metric"]?.[groupBy] && !obj?.values?.length) {
               return false;
             }
@@ -135,6 +213,10 @@ export const ChartWrapper = ({
                   ? (obj?.metric?.[groupBy] as string)
                   : Object.values(obj?.metric).join(":"),
               data: [],
+              key:'',
+              color:'',
+              unit:'',
+              value:'',
             };
             obj?.values?.map((kp: [any, any], i: number) => {
               if (
@@ -154,9 +236,43 @@ export const ChartWrapper = ({
             });
             formattedData.push(metricObj);
           });
+
+          data?.thresholds?.map((temp ) => {
+            temp?.data?.map((obj:PrometheusResponse) => {
+              if (!obj?.["metric"]?.[groupBy] && !obj?.values?.length) {
+                return false;
+              }
+              const metricObj: ChartDataProps = {
+                ...obj,
+                name:temp?.name,
+                data: [],
+                key:temp?.key,
+                value:temp?.value,
+                color:temp?.color,
+                unit:temp?.unit
+              };
+              obj?.values?.map((kp: [any, any], i: number) => {
+                if (
+                    obj?.values?.length &&
+                    metricObj.data?.[i - 1]?.[0] < kp[0] - 61
+                ) {
+                  metricObj.data.push({
+                    x: (obj?.values?.[i - 1]?.[0] || 0) + 60,
+                    y: null,
+                  });
+                  return;
+                }
+                metricObj.data.push({
+                  x: xFormatter(kp[0]),
+                  y: yFormatter(kp[1]),
+                });
+              });
+              formattedThresholdData.push(metricObj);
+            });
+          });
         }
 
-        return formattedData;
+        return {data:formattedData,thresholds:formattedThresholdData};
       },
     [labelKey, groupBy, name, title, metric, yUnit]
   );
@@ -172,6 +288,7 @@ export const ChartWrapper = ({
       })
     )
       .then((data) => {
+
         setChartsData({
           ...chartsData,
           [metric]: formatChartData({ data, groupBy }),
@@ -185,25 +302,25 @@ export const ChartWrapper = ({
   return useMemo(
     () => (
       <>
-        {graphType === "anomaly" && (
-          <AnomalyChart
-            events={events}
-            metric={metric}
-            chartData={chartsData[metric]}
-            groupBy={groupBy}
-            yFormatter={yFormatter}
-            title={title}
-            yUnit={yUnit}
-            valueRounding={valueRounding}
-            labelKey={labelKey}
-            filterChart={filterChart}
-            setFilterChart={setFilterChart}
-            highlight={highlight}
-            setHighlight={setHighlight}
-            subMetrics={subMetrics}
-            unit={unit}
-          />
-        )}
+        {/*{graphType === "anomaly" && (*/}
+        {/*  <AnomalyChart*/}
+        {/*    events={events}*/}
+        {/*    metric={metric}*/}
+        {/*    chartData={chartsData[metric]}*/}
+        {/*    groupBy={groupBy}*/}
+        {/*    yFormatter={yFormatter}*/}
+        {/*    title={title}*/}
+        {/*    yUnit={yUnit}*/}
+        {/*    valueRounding={valueRounding}*/}
+        {/*    labelKey={labelKey}*/}
+        {/*    filterChart={filterChart}*/}
+        {/*    setFilterChart={setFilterChart}*/}
+        {/*    highlight={highlight}*/}
+        {/*    setHighlight={setHighlight}*/}
+        {/*    subMetrics={subMetrics}*/}
+        {/*    unit={unit}*/}
+        {/*  />*/}
+        {/*)}*/}
 
         {graphType === "line" && (
           <TimeSeriesChart
@@ -224,22 +341,22 @@ export const ChartWrapper = ({
             unit={unit}
           />
         )}
-        {graphType === "pie" && (
-          <CustomPie
-            metric={metric}
-            groupBy={groupBy}
-            labelKey={labelKey}
-            filterChart={filterChart}
-            highlight={highlight}
-            yUnit={yUnit}
-            valueRounding={valueRounding}
-            setHighlight={setHighlight}
-            chartData={chartsData[metric]}
-            yFormatter={yFormatter}
-            subMetrics={subMetrics}
-            unit={{ unit }}
-          />
-        )}
+        {/*{graphType === "pie" && (*/}
+        {/*  <CustomPie*/}
+        {/*    metric={metric}*/}
+        {/*    groupBy={groupBy}*/}
+        {/*    labelKey={labelKey}*/}
+        {/*    filterChart={filterChart}*/}
+        {/*    highlight={highlight}*/}
+        {/*    yUnit={yUnit}*/}
+        {/*    valueRounding={valueRounding}*/}
+        {/*    setHighlight={setHighlight}*/}
+        {/*    chartData={chartsData[metric]}*/}
+        {/*    yFormatter={yFormatter}*/}
+        {/*    subMetrics={subMetrics}*/}
+        {/*    unit={{ unit }}*/}
+        {/*  />*/}
+        {/*)}*/}
       </>
     ),
     [

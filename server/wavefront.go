@@ -2,6 +2,7 @@ package server
 
 import (
 	"bytes"
+	"encoding/json"
 	"go.uber.org/zap"
 	"html/template"
 	"net/http"
@@ -58,6 +59,39 @@ func (wf *WaveFrontProvider) init() error {
 func (wf *WaveFrontProvider) getType() string {
 	return WAVEFRONT_TYPE
 }
+
+func ExecuteWavefrontGraphQuery(queryExpression string, env map[string][]string, duration time.Duration, wf *WaveFrontProvider) (*wavefront.QueryResponse, error) {
+	tmpl, err := template.New("query").Parse(queryExpression)
+	if err != nil {
+		return nil, err
+	}
+
+	env1 := make(map[string]string)
+	for k, v := range env {
+		env1[k] = strings.Join(v, ",")
+	}
+
+	buf := new(bytes.Buffer)
+	err = tmpl.Execute(buf, env1)
+	if err != nil {
+		return nil, err
+	}
+
+	strQuery := buf.String()
+	startTime := time.Now().Add(-duration)
+	endTime := time.Now()
+	wfQuery := wavefront.NewQueryParams(strQuery)
+	wfQuery.StartTime = strconv.FormatInt(startTime.Unix(), 10)
+	wfQuery.EndTime = strconv.FormatInt(endTime.Unix(), 10)
+	query := wf.provider.NewQuery(wfQuery)
+	result, err := query.Execute()
+	if err != nil {
+		wf.logger.Errorw("Error in query execution ", zap.Error(err))
+		return nil, err
+	}
+	return result, nil
+}
+
 func (wf *WaveFrontProvider) execute(ctx *gin.Context) {
 	app := ctx.Param("application")
 	groupKind := ctx.Param("groupkind")
@@ -92,38 +126,50 @@ func (wf *WaveFrontProvider) execute(ctx *gin.Context) {
 	graph := row.getGraph(graphName)
 	if graph != nil {
 		wf.logger.Infow("Query execution", zap.Any("query", graph.QueryExpression), zap.Any("graphName", graph.Name), zap.Any("rowName", row.Name))
-		tmpl, err := template.New("query").Parse(graph.QueryExpression)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, "invalid query")
-			return
-		}
-		env1 := make(map[string]string)
-		for k, v := range env {
-			env1[k] = strings.Join(v, ",")
-		}
-		buf := new(bytes.Buffer)
 
-		err = tmpl.Execute(buf, env1)
-		if err != nil {
-			wf.logger.Errorw("Error in template execution ", zap.Error(err))
-			ctx.JSON(http.StatusBadRequest, err)
-			return
-		}
-		strQuery := buf.String()
-		startTime := time.Now().Add(-duration)
-		endTime := time.Now()
-		wfQuery := wavefront.NewQueryParams(strQuery)
-		wfQuery.StartTime = strconv.FormatInt(startTime.Unix(), 10)
-		wfQuery.EndTime = strconv.FormatInt(endTime.Unix(), 10)
-		query := wf.provider.NewQuery(wfQuery)
-		result, err := query.Execute()
+		var data AggregatedResponse
+		result, err := ExecuteWavefrontGraphQuery(graph.QueryExpression, env, duration, wf)
+
 		if err != nil {
 			wf.logger.Errorw("Error in query execution ", zap.Error(err))
 			ctx.JSON(http.StatusBadRequest, err)
 			return
 		}
-		ctx.JSON(http.StatusOK, result.TimeSeries)
-		return
-	}
 
+		data.Data, err = json.Marshal(result)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, err)
+			return
+		}
+
+		var finalResultArr []ThresholdResponse
+		if graph.Thresholds != nil {
+
+			for _, threshold := range graph.Thresholds {
+				result, err := ExecuteWavefrontGraphQuery(threshold.QueryExpression, env, duration, wf)
+				if err != nil {
+					ctx.JSON(http.StatusBadRequest, err)
+					return
+				}
+				var temp ThresholdResponse
+				temp.Unit = threshold.Unit
+				temp.Name = threshold.Name
+				temp.Value = threshold.Value
+				temp.Key = threshold.Key
+				temp.Color = threshold.Color
+				temp.Data, err = json.Marshal(result)
+				if err != nil {
+					ctx.JSON(http.StatusBadRequest, err)
+					return
+				}
+
+				finalResultArr = append(finalResultArr, temp)
+			}
+			data.Thresholds = finalResultArr
+
+			ctx.JSON(http.StatusOK, data)
+
+			return
+		}
+	}
 }
