@@ -126,8 +126,6 @@ export const colorArray = [
 export const ChartWrapper = ({
   applicationName,
   resource,
-  highlight,
-  setHighlight,
   labelKey,
   groupBy,
   name,
@@ -144,6 +142,8 @@ export const ChartWrapper = ({
 }: any) => {
   const [chartsData, setChartsData] = useState<AllChartDataProps>({});
   const [filterChart, setFilterChart] = useState<any>({});
+  const [highlight, setHighlight] = useState<any>({});
+  const [showThreshold,setShowThreshold] = useState(true);
 
 
   const formatChartData = useMemo(
@@ -299,6 +299,8 @@ export const ChartWrapper = ({
       });
   }, [queryPath, resource]);
 
+
+
   return useMemo(
     () => (
       <>
@@ -339,6 +341,8 @@ export const ChartWrapper = ({
             setHighlight={setHighlight}
             subMetrics={subMetrics}
             unit={unit}
+            showThreshold={showThreshold}
+            setShowThreshold={setShowThreshold}
           />
         )}
         {/*{graphType === "pie" && (*/}

@@ -197,7 +197,10 @@ export const TimeSeriesChart = ({
   labelKey,
   events,
   subMetrics,
-  unit
+  unit,
+  showThreshold,
+  setShowThreshold
+
 }: any) => {
   const [showThreshold, setShowThreshold] = useState(false);
 
