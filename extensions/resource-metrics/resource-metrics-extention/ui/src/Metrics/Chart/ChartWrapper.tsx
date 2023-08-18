@@ -73,30 +73,30 @@ export interface WavefrontResponse {
 // }
 
 export interface ChartDataProps {
-  key?:string;
+  key?: string;
   name?: string;
-  value?:string;
-  unit?:string;
-  color?:string
+  value?: string;
+  unit?: string;
+  color?: string
   metrics?: {
     [key: string]: string;
   };
   values?: [[string | number, string | number]];
   data?:
-      | [
+  | [
     {
       x: number | string;
       y: number | string;
     }
   ]
-      | any[];
+  | any[];
 }
 
 
 
 export interface AllChartDataProps {
   [key: string]: {
-    data:Array<ChartDataProps>
+    data: Array<ChartDataProps>
     thresholds: Array<ChartDataProps>
   }
 }
@@ -172,16 +172,16 @@ export const ChartWrapper = ({
               ...obj,
               name: obj?.tags && Object.values(obj?.tags).join(":"),
               data: [],
-              key:'',
-              color:'',
-              unit:'',
-              value:'',
+              key: '',
+              color: '',
+              unit: '',
+              value: '',
             };
             metricObj.data = obj?.data;
             formattedData.push(metricObj);
           });
 
-          data?.thresholds?.map((temp:WavefrontThresholdResponse ) => {
+          data?.thresholds?.map((temp: WavefrontThresholdResponse) => {
             temp?.data?.timeseries?.map((obj: WavefrontTS) => {
               if (!obj?.tags?.[groupBy] && !obj?.data?.length) {
                 return false;
@@ -190,10 +190,10 @@ export const ChartWrapper = ({
                 ...obj,
                 name: temp.name,
                 data: [],
-                key:temp?.key,
-                value:temp?.value,
-                color:temp?.color,
-                unit:temp?.unit
+                key: temp?.key,
+                value: temp?.value,
+                color: temp?.color,
+                unit: temp?.unit
               };
               metricObj.data = obj?.data;
               formattedData.push(metricObj);
@@ -213,10 +213,10 @@ export const ChartWrapper = ({
                   ? (obj?.metric?.[groupBy] as string)
                   : Object.values(obj?.metric).join(":"),
               data: [],
-              key:'',
-              color:'',
-              unit:'',
-              value:'',
+              key: '',
+              color: '',
+              unit: '',
+              value: '',
             };
             obj?.values?.map((kp: [any, any], i: number) => {
               if (
@@ -237,24 +237,24 @@ export const ChartWrapper = ({
             formattedData.push(metricObj);
           });
 
-          data?.thresholds?.map((temp ) => {
-            temp?.data?.map((obj:PrometheusResponse) => {
+          data?.thresholds?.map((temp) => {
+            temp?.data?.map((obj: PrometheusResponse) => {
               if (!obj?.["metric"]?.[groupBy] && !obj?.values?.length) {
                 return false;
               }
               const metricObj: ChartDataProps = {
                 ...obj,
-                name:temp?.name,
+                name: temp?.name,
                 data: [],
-                key:temp?.key,
-                value:temp?.value,
-                color:temp?.color,
-                unit:temp?.unit
+                key: temp?.key,
+                value: temp?.value,
+                color: temp?.color,
+                unit: temp?.unit
               };
               obj?.values?.map((kp: [any, any], i: number) => {
                 if (
-                    obj?.values?.length &&
-                    metricObj.data?.[i - 1]?.[0] < kp[0] - 61
+                  obj?.values?.length &&
+                  metricObj.data?.[i - 1]?.[0] < kp[0] - 61
                 ) {
                   metricObj.data.push({
                     x: (obj?.values?.[i - 1]?.[0] || 0) + 60,
@@ -272,7 +272,7 @@ export const ChartWrapper = ({
           });
         }
 
-        return {data:formattedData,thresholds:formattedThresholdData};
+        return { data: formattedData, thresholds: formattedThresholdData };
       },
     [labelKey, groupBy, name, title, metric, yUnit]
   );
