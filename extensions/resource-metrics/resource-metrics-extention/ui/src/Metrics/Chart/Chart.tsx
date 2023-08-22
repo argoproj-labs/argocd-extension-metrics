@@ -483,7 +483,7 @@ export const TimeSeriesChart = ({
                   })}
                 </LineChart>
               </ResponsiveContainer>
-              <div style={{ fontSize: "12px" }}>
+              {(chartData?.thresholds.length > 0) && (<div style={{ fontSize: "12px" }}>
                 <label>
                   showThresholds:
                   <input
@@ -492,7 +492,8 @@ export const TimeSeriesChart = ({
                     onChange={handleCheckboxChange}
                   />
                 </label>
-              </div>
+              </div>)
+              }
             </>
           ) : (
             <div
