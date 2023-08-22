@@ -73,17 +73,25 @@
                     "description": "",
                     "graphType": "line",
                     "metricName": "pod",
-                    "queryExpression": "{__name__=~\"namespace_argocd_pod_container_cpu_usage_seconds_total\",  pod=~\"chaos-agent-6786db5456-vf8z8\"}",
+                    "queryExpression": "sum by(pod) (namespace_argocd_pod_container_cpu_usage_seconds_total {pod=~\"falco-daemonset-.*\"})",
                     "thresholds": [
                       {
-                        "queryExpression":"{__name__=~\"namespace_argocd_pod_cpu_resource_requests\",  pod=~\"chaos-agent-6786db5456-vf8z8\"}",
+                        "queryExpression":"sum (namespace_argocd_pod_cpu_resource_requests {pod=~\"falco-daemonset-.*\"})/count(count by(pod) (namespace_argocd_pod_cpu_resource_requests {pod=~\"falco-daemonset-.*\"}))",
                         "name": "CPU_REQUESTS",
-                        "unit": "cores"
+                        "unit": "cores",
+                        "color": "green"
                       },
                       {
-                        "queryExpression":"{__name__=~\"namespace_argocd_pod_cpu_resource_limits\",  pod=~\"chaos-agent-6786db5456-vf8z8\"}",
+                        "queryExpression":"sum(namespace_argocd_pod_cpu_resource_limits {pod=~\"falco-daemonset-.*\"})/count(count by(pod) (namespace_argocd_pod_cpu_resource_limits {pod=~\"falco-daemonset-.*\"}))",
                         "name": "CPU_LIMITS",
-                        "unit": "cores"
+                        "unit": "cores",
+                        "color": "red"
+                      },
+                      {
+                        "name": "dummy",
+                        "unit": "cores",
+                        "value": "50",
+                        "color": "grey"
                       }
                     ]
                   },
@@ -93,7 +101,7 @@
                     "description": "",
                     "graphType": "pie",
                     "metricName": "pod",
-                    "queryExpression": "namespace_argocd_pod_container_cpu_usage_seconds_total { pod=~\"chaos-agent-6786db5456-dqvkh\"}"
+                    "queryExpression": "sum by(pod) (namespace_argocd_pod_container_cpu_usage_seconds_total {pod=~\"falco-daemonset-.*\"})"
                   },
                   {
                     "name": "pod_memory_line",
@@ -101,18 +109,19 @@
                     "description": "",
                     "graphType": "line",
                     "metricName": "pod",
-                    "queryExpression": "{__name__=~\"namespace_argocd_pod_memory_usage_mebibyte\" , pod=~\"chaos-agent-6786db5456-vf8z8\"}",
+                    "queryExpression": "sum by(pod) (namespace_argocd_pod_memory_usage_mebibyte {pod=~\"falco-daemonset-.*\"})",
                     "thresholds": [
                       {
-                        "queryExpression": "{__name__=~\"namespace_argocd_pod_memory_resource_requests\",  pod=~\"chaos-agent-6786db5456-vf8z8\"}",
+                        "queryExpression": "sum(namespace_argocd_pod_memory_resource_requests {pod=~\"falco-daemonset-.*\"})/count(count by(pod) (namespace_argocd_pod_memory_resource_requests {pod=~\"falco-daemonset-.*\"}))",
                         "name": "MEMORY_REQUESTS",
                         "unit": "mib",
                         "color": "blue"
                       },
                       {
-                        "queryExpression": "{__name__=~\"namespace_argocd_pod_memory_resource_limits\",  pod=~\"chaos-agent-6786db5456-vf8z8\"}",
+                        "queryExpression": "sum(namespace_argocd_pod_memory_resource_limits {pod=~\"falco-daemonset-.*\"})/count(count by(pod) (namespace_argocd_pod_memory_resource_limits {pod=~\"falco-daemonset-.*\"}))",
                         "name": "MEMORY_LIMITS",
-                        "unit": "mib"
+                        "unit": "mib",
+                        "color": "red"
                       }
                     ]
                   },
@@ -122,7 +131,7 @@
                     "description": "",
                     "graphType": "pie",
                     "metricName": "pod",
-                    "queryExpression": "namespace_argocd_pod_memory_usage_mebibyte { pod=~\"chaos-agent-6786db5456-vf8z8\"}"
+                    "queryExpression": "sum by(pod) (namespace_argocd_pod_memory_usage_mebibyte {pod=~\"falco-daemonset-.*\"})"
                   }
                 ]
               }
