@@ -19,8 +19,9 @@
   border-radius: 6px;
 
   .legend-content {
-    overflow-y: scroll;
+    overflow-y: auto;
     max-height: 220px;
+    padding-right: 10px;
   }
   .l-content {
     display: flex;

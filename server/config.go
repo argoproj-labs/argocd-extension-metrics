@@ -12,7 +12,7 @@ type Threshold struct {
 	Color           string `json:"color"`
 	Value           string `json:"value"`
 	Unit            string `json:"unit"`
-	QueryExpression string `json:"queryExpression""`
+	QueryExpression string `json:"queryExpression"`
 }
 
 type Graph struct {

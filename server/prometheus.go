@@ -26,7 +26,7 @@ type ThresholdResponse struct {
 }
 
 type AggregatedResponse struct {
-	Data       json.RawMessage     `json:"data""`
+	Data       json.RawMessage     `json:"data"`
 	Thresholds []ThresholdResponse `json:"thresholds,omitempty"`
 }
 
@@ -168,7 +168,15 @@ func (pp *PrometheusProvider) execute(ctx *gin.Context) {
 		if graph.Thresholds != nil {
 
 			for _, threshold := range graph.Thresholds {
-				result, warnings, err := ExecuteGraphQuery(ctx, threshold.QueryExpression, env, duration, pp)
+				var result model.Value
+				var warnings v1.Warnings
+				var err error
+
+				if threshold.Value != "" {
+					result, warnings, err = ExecuteGraphQuery(ctx, threshold.Value, env, duration, pp)
+				} else {
+					result, warnings, err = ExecuteGraphQuery(ctx, threshold.QueryExpression, env, duration, pp)
+				}
 				if err != nil {
 					fmt.Printf("Warnings: %v\n", warnings)
 					ctx.JSON(http.StatusBadRequest, err)

@@ -17,7 +17,7 @@ import { colorArray } from "./ChartWrapper";
 import "./Chart.scss";
 import * as React from "react";
 import { roundNumber } from "../..";
-import moment from 'moment';
+import moment from "moment";
 
 const height = 150;
 
@@ -79,19 +79,9 @@ const RenderLegend = ({
   groupBy,
 }: any) => {
   let filterBy = filterChart?.[groupBy]?.concat([]) || [];
-  console.log("filterChart is ", filterChart);
-  console.log("filterBy is ", filterBy);
-  console.log("outside--------------------")
-
 
   const onLegendClick = (e: any, legendItem: any, legend: any) => {
     const index = legendItem.value;
-    console.log("filterChart is ", filterChart);
-    console.log("filterBy is ", filterBy);
-    console.log("e is ", e);
-    console.log("legendItem is ", legendItem);
-    console.log("legend is ", legend);
-    console.log("legendItem.value is ", legendItem.value);
 
     if (filterBy.length <= 1 && filterBy.indexOf(index) > -1) {
       legend?.map((l: any) => {
@@ -118,8 +108,6 @@ const RenderLegend = ({
         filterBy.splice(filterBy.indexOf(l.value), 1);
       }
     });
-    console.log("filterChart is ", filterChart);
-    console.log("filterBy is ", filterBy);
     setFilterChart({ ...filterChart, [groupBy]: filterBy });
   };
 
@@ -196,47 +184,43 @@ export const TimeSeriesChart = ({
   setHighlight,
   labelKey,
   events,
-  subMetrics,
-  unit,
-  showThreshold,
-  setShowThreshold
-
 }: any) => {
   const [showThreshold, setShowThreshold] = useState(false);
 
   const handleCheckboxChange = (event: any) => {
-    setShowThreshold(!showThreshold)
-  }
+    setShowThreshold(!showThreshold);
+  };
 
   const concatenatedData = useMemo(() => {
-    console.log("chartDta is", chartData);
-    if (chartData)
-      return ([...chartData?.data, ...chartData?.thresholds] || []);
+    if (chartData) return [...chartData?.data, ...chartData?.thresholds] || [];
   }, [chartData]);
 
-  const data = showThreshold ? concatenatedData : (chartData?.data || []);
+  const data = showThreshold ? concatenatedData : chartData?.data || [];
 
   useEffect(() => {
     const newFilter: any = [];
     if (chartData) {
-      Object.keys(chartData)?.forEach(key => {
+      Object.keys(chartData)?.forEach((key) => {
         chartData[key]?.map((data: any) => {
           newFilter.push(data?.name);
         });
-      })
+      });
     }
-    if (filterChart?.length > 0) {
-      setFilterChart({ ...filterChart, [groupBy]: newFilter });
+
+    if (Object.keys(filterChart)?.length > 0) {
+      setFilterChart({
+        ...filterChart,
+        [groupBy]: (filterChart[groupBy] || []).concat(newFilter),
+      });
     } else {
       setFilterChart({ [groupBy]: newFilter });
     }
-  }, [chartData, groupBy]);
-
+  }, [chartData, groupBy, showThreshold]);
 
   const LegendMemo = useMemo(() => {
     return (
       <Legend
-        layout="horizontal"
+        layout="vertical"
         content={
           <RenderLegend
             chartHeight={50}
@@ -259,6 +243,7 @@ export const TimeSeriesChart = ({
     highlight,
     filterChart,
     setFilterChart,
+    showThreshold,
   ]);
 
   const TooltipMemo = useMemo(() => {
@@ -281,7 +266,7 @@ export const TimeSeriesChart = ({
         allowEscapeViewBox={{ x: false, y: true }}
       />
     );
-  }, [chartData, filterChart]);
+  }, [chartData, filterChart, showThreshold]);
 
   const YAxisMemo = useMemo(() => {
     return (
@@ -420,7 +405,7 @@ export const TimeSeriesChart = ({
             flexDirection: "column",
           }}
         >
-          {data?.length > 0 ? (
+          {concatenatedData?.length > 0 ? (
             <>
               <ResponsiveContainer debounce={150} width="100%" height={height}>
                 <LineChart
@@ -473,7 +458,7 @@ export const TimeSeriesChart = ({
                   {data?.map((d: any, i: number) => {
                     return (
                       <Line
-                        // strokeDasharray={`${strokeArray(i)}`}
+                        strokeDasharray={d.isThreshold ? "3 3" : ""}
                         isAnimationActive={false}
                         dataKey="y"
                         data={d.data}
@@ -482,7 +467,11 @@ export const TimeSeriesChart = ({
                           filterChart[groupBy] &&
                           filterChart[groupBy].indexOf(d.name) < 0
                         }
-                        stroke={d.color || colorArray[i % colorArray.length]}
+                        stroke={
+                          d.isThreshold
+                            ? d.color || "gray"
+                            : colorArray[i % colorArray.length]
+                        }
                         strokeWidth={d.name === highlight[groupBy] ? 3 : 1.5}
                         name={d.name}
                         dot={false}
@@ -494,16 +483,15 @@ export const TimeSeriesChart = ({
                   })}
                 </LineChart>
               </ResponsiveContainer>
-              <div>
+              <div style={{ fontSize: "12px" }}>
                 <label>
-                  Display Thresholds:
+                  showThresholds:
                   <input
                     type="checkbox"
                     checked={showThreshold}
                     onChange={handleCheckboxChange}
                   />
                 </label>
-                <p>{showThreshold ? 'checked' : 'not checked'}</p>
               </div>
             </>
           ) : (
@@ -538,6 +526,7 @@ export const TimeSeriesChart = ({
       highlight,
       groupBy,
       filterChart,
+      showThreshold,
     ]
   );
 };

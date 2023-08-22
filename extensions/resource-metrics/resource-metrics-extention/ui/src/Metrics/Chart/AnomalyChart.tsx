@@ -325,9 +325,6 @@ interface AnomalyChartProps {
   setHighlight: (arg0: {} | any) => any;
   labelKey: string;
   events: any;
-  subMetrics: any;
-  unit: string;
-
 }
 
 export const AnomalyChart = ({
@@ -344,12 +341,10 @@ export const AnomalyChart = ({
   setHighlight,
   labelKey,
   events,
-  subMetrics,
-  unit
 }: AnomalyChartProps) => {
   const formatChartData = (data: any) => {
     const formattedData: any = [];
-    data?.map((obj: any) => {
+    data?.data?.map((obj: any) => {
       const metricObj: any = {
         ...obj,
         name: obj?.metric && Object.values(obj?.metric).join(":"),
@@ -515,7 +510,6 @@ export const AnomalyChart = ({
     });
     return uEvents;
   };
-  // const thisChartData = formatChartData(exampleData);
   const thisChartData = formatChartData(chartData);
 
   const scaleGradient = (

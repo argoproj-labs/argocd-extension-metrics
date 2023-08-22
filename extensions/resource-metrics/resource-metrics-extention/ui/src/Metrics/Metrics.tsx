@@ -14,12 +14,14 @@ export const Metrics = ({
   setHasMetrics,
   isLoading,
   setIsLoading,
-  setIntervals
+  setIntervals,
 }: any) => {
   const resourceName =
     resource.kind === "Application" ? "" : resource?.metadata?.name;
   const [dashboard, setDashboard] = useState<any>({});
+  const [filterChart, setFilterChart] = useState<any>({});
   const [highlight, setHighlight] = useState<any>({});
+
   const [selectedTab, setSelectedTab] = useState<string>("");
 
   const namespace = resource?.metadata?.namespace || "";
@@ -33,9 +35,9 @@ export const Metrics = ({
       applicationName,
       applicationNamespace,
       resourceType: resource.kind,
-      project
+      project,
     })
-      .then(response => {
+      .then((response) => {
         if (response.status > 399) {
           throw new Error("No metrics");
         }
@@ -50,7 +52,7 @@ export const Metrics = ({
           setSelectedTab(data.tabs[0]);
         }
       })
-      .catch(err => {
+      .catch((err) => {
         setHasMetrics(false);
         setIsLoading(false);
         console.error("res.data", err);
@@ -123,8 +125,8 @@ export const Metrics = ({
                 return (
                   <ChartWrapper
                     applicationName={applicationName}
-                    // filterChart={filterChart}
-                    // setFilterChart={setFilterChart}
+                    filterChart={filterChart}
+                    setFilterChart={setFilterChart}
                     highlight={highlight}
                     setHighlight={setHighlight}
                     events={events}
@@ -140,8 +142,6 @@ export const Metrics = ({
                     project={project}
                     applicationNamespace={applicationNamespace}
                     title={graph.title}
-                    subMetrics={graph?.subMetricsExpression}
-                    unit={graph.unit}
                   />
                 );
               })}

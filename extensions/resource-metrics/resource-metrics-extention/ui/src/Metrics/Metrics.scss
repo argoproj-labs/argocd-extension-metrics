@@ -1,132 +1,136 @@
-@import 'node_modules/argo-ui/src/styles/config';
+@import "node_modules/argo-ui/src/styles/config";
 
 .application-metrics {
-    &__Tabs {
-        margin-bottom: 2em;
-        text-transform: uppercase;
-        font-size: 13px;
-        font-weight: 500;
-        border-bottom: 1px solid #ccd6dd;
+  &__Tabs {
+    margin-bottom: 2em;
+    text-transform: uppercase;
+    font-size: 13px;
+    font-weight: 500;
+    border-bottom: 1px solid #ccd6dd;
+  }
+
+  &__RowTitle {
+    text-transform: uppercase;
+    font-size: 14px;
+    font-weight: 400;
+    padding: 0px 0px 4px;
+    display: block;
+  }
+
+  &__indicator {
+    position: absolute;
+    bottom: 0;
+    height: 2px;
+    background: #ccc;
+
+    &.to-left {
+      transition: left 0.4s, right 0.4s 0.1s;
     }
 
-    &__RowTitle {
-        text-transform: uppercase;
-        font-size: 14px;
-        font-weight: 400;
-        padding: 0px 0px 4px;
-        display: block;
+    &.to-right {
+      transition: left 0.4s 0.1s, right 0.4s;
+    }
+  }
+
+  &__Tab {
+    display: inline-block;
+    margin: 0px 10px 0px 0px;
+    padding: 0.8em 1.6em 0.5em;
+    background-color: transparent;
+    transition: 0.3s;
+    border-radius: 6px 6px 0px 0px;
+    cursor: pointer;
+    &.active,
+    &:hover {
+      background-color: #e3e7e9;
+    }
+  }
+
+  &__labels {
+    line-height: 28px;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    flex-wrap: wrap;
+    padding-top: 0.5em;
+  }
+
+  &__ChartContainerFlex {
+    display: flex;
+    background-color: #fff;
+    border-radius: 6px;
+    box-shadow: 1px 2px 3px rgb(0 0 0 / 10%);
+    margin-bottom: 2.2em;
+    margin-top: 4px;
+    padding: 1em 1.5em 1em 0em;
+    clear: both;
+    &:last-child {
+      margin-bottom: 210px;
+    }
+  }
+
+  &__label {
+    background-color: $argo-color-gray-5;
+    color: white;
+    border-radius: 5px;
+    padding: 4px;
+    line-height: 14px;
+    margin: 0.3em 0;
+    margin-right: 2px;
+  }
+
+  &__sort-icon {
+    cursor: pointer;
+    position: absolute;
+    font-size: 1.3em;
+    left: -1em;
+
+    &.fa-sort-up {
+      top: 10px;
     }
 
-    &__indicator {
-        position: absolute;
-        bottom: 0;
-        height: 2px;
-        background: #ccc;
+    &.fa-sort-down {
+      bottom: 10px;
+    }
+  }
+  &__remove-icon {
+    cursor: pointer;
+    position: absolute;
+    top: 1em;
+    right: 1em;
+  }
 
-        &.to-left {
-            transition: left .4s, right .4s .1s;
-        }
+  .argo-field {
+    line-height: 1.15;
+  }
 
-        &.to-right {
-            transition: left .4s .1s, right .4s;
-        }
+  .white-box__details p {
+    font-weight: 500;
+    color: $argo-color-gray-7;
+  }
+
+  .white-box__details-row .row {
+    padding-left: 1em;
+    padding-right: 1em;
+  }
+
+  .white-box__details-row .row .columns:last-child {
+    padding-left: 1em;
+  }
+
+  .select {
+    padding-bottom: 0;
+  }
+
+  .row.application-retry-options {
+    .columns.application-retry-options__item {
+      padding-left: 0;
+      padding-right: 10px;
     }
 
-    &__Tab {
-        display: inline-block;
-        margin: 0px 10px 0px 0px;
-        padding: .8em 1.6em .5em;
-        background-color: transparent;
-        transition: .3s;
-        border-radius: 6px 6px 0px 0px;
-        cursor: pointer;
-        &.active, &:hover {
-            background-color: #e3e7e9;
-        }
+    .argo-form-row__error-msg {
+      position: static;
+      line-height: 1;
     }
-
-    &__labels {
-        line-height: 28px;
-        display: flex;
-        align-items: center;
-        height: 100%;
-        flex-wrap: wrap;
-        padding-top: 0.5em;
-    }
-
-    &__ChartContainerFlex {
-        display: flex;
-        background-color: #fff;
-        border-radius: 6px;
-        box-shadow: 1px 2px 3px rgb(0 0 0 / 10%);
-        margin-bottom: 2.2em;
-        margin-top: 4px;
-        padding: 1em 1.5em 1em 0em;
-        clear: both;
-    }
-
-    &__label {
-        background-color: $argo-color-gray-5;
-        color: white;
-        border-radius: 5px;
-        padding: 4px;
-        line-height: 14px;
-        margin: 0.3em 0;
-        margin-right: 2px;
-    }
-
-    &__sort-icon {
-        cursor: pointer;
-        position: absolute;
-        font-size: 1.3em;
-        left: -1em;
-
-        &.fa-sort-up {
-            top: 10px;
-        }
-
-        &.fa-sort-down {
-            bottom: 10px;
-        }
-    }
-    &__remove-icon {
-        cursor: pointer;
-        position: absolute;
-        top: 1em;
-        right: 1em;
-    }
-
-    .argo-field {
-        line-height: 1.15;
-    }
-
-    .white-box__details p {
-        font-weight: 500;
-        color: $argo-color-gray-7;
-    }
-
-    .white-box__details-row .row {
-        padding-left: 1em;
-        padding-right: 1em;
-    }
-
-    .white-box__details-row .row .columns:last-child {
-        padding-left: 1em;
-    }
-
-    .select {
-        padding-bottom: 0;
-    }
-
-    .row.application-retry-options {
-        .columns.application-retry-options__item{
-            padding-left: 0;
-            padding-right: 10px;
-        }
-
-        .argo-form-row__error-msg {
-            position: static;
-            line-height: 1;
-        }
-    }
+  }
 }

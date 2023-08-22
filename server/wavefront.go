@@ -60,6 +60,7 @@ func (wf *WaveFrontProvider) getType() string {
 	return WAVEFRONT_TYPE
 }
 
+// This one is part of alpha, needs to be tested
 func ExecuteWavefrontGraphQuery(queryExpression string, env map[string][]string, duration time.Duration, wf *WaveFrontProvider) (*wavefront.QueryResponse, error) {
 	tmpl, err := template.New("query").Parse(queryExpression)
 	if err != nil {
@@ -92,6 +93,7 @@ func ExecuteWavefrontGraphQuery(queryExpression string, env map[string][]string,
 	return result, nil
 }
 
+// This one is part of alpha, needs to be tested
 func (wf *WaveFrontProvider) execute(ctx *gin.Context) {
 	app := ctx.Param("application")
 	groupKind := ctx.Param("groupkind")
@@ -146,7 +148,13 @@ func (wf *WaveFrontProvider) execute(ctx *gin.Context) {
 		if graph.Thresholds != nil {
 
 			for _, threshold := range graph.Thresholds {
-				result, err := ExecuteWavefrontGraphQuery(threshold.QueryExpression, env, duration, wf)
+				var result *wavefront.QueryResponse
+				var err error
+				if threshold.Value != "" {
+					result, err = ExecuteWavefrontGraphQuery(threshold.Value, env, duration, wf)
+				} else {
+					result, err = ExecuteWavefrontGraphQuery(threshold.QueryExpression, env, duration, wf)
+				}
 				if err != nil {
 					ctx.JSON(http.StatusBadRequest, err)
 					return
