@@ -76,16 +76,16 @@
                     "queryExpression": "sum by(pod) (namespace_argocd_pod_container_cpu_usage_seconds_total {pod=~\"falco-daemonset-.*\"})",
                     "thresholds": [
                       {
-                        "queryExpression":"sum (namespace_argocd_pod_cpu_resource_requests {pod=~\"falco-daemonset-.*\"})/count(count by(pod) (namespace_argocd_pod_cpu_resource_requests {pod=~\"falco-daemonset-.*\"}))",
-                        "name": "CPU Request",
-                        "unit": "cores",
-                        "color": "green"
-                      },
-                      {
                         "queryExpression":"sum(namespace_argocd_pod_cpu_resource_limits {pod=~\"falco-daemonset-.*\"})/count(count by(pod) (namespace_argocd_pod_cpu_resource_limits {pod=~\"falco-daemonset-.*\"}))",
                         "name": "CPU Limit",
                         "unit": "cores",
                         "color": "red"
+                      },
+                      {
+                        "queryExpression":"sum (namespace_argocd_pod_cpu_resource_requests {pod=~\"falco-daemonset-.*\"})/count(count by(pod) (namespace_argocd_pod_cpu_resource_requests {pod=~\"falco-daemonset-.*\"}))",
+                        "name": "CPU Request",
+                        "unit": "cores",
+                        "color": "green"
                       },
                       {
                         "name": "dummy",
@@ -112,16 +112,16 @@
                     "queryExpression": "sum by(pod) (namespace_argocd_pod_memory_usage_mebibyte {pod=~\"falco-daemonset-.*\"})",
                     "thresholds": [
                       {
-                        "queryExpression": "sum(namespace_argocd_pod_memory_resource_requests {pod=~\"falco-daemonset-.*\"})/count(count by(pod) (namespace_argocd_pod_memory_resource_requests {pod=~\"falco-daemonset-.*\"}))",
-                        "name": "Memory Request",
-                        "unit": "mib",
-                        "color": "blue"
-                      },
-                      {
                         "queryExpression": "sum(namespace_argocd_pod_memory_resource_limits {pod=~\"falco-daemonset-.*\"})/count(count by(pod) (namespace_argocd_pod_memory_resource_limits {pod=~\"falco-daemonset-.*\"}))",
                         "name": "Memory Limit",
                         "unit": "mib",
                         "color": "red"
+                      },
+                      {
+                        "queryExpression": "sum(namespace_argocd_pod_memory_resource_requests {pod=~\"falco-daemonset-.*\"})/count(count by(pod) (namespace_argocd_pod_memory_resource_requests {pod=~\"falco-daemonset-.*\"}))",
+                        "name": "Memory Request",
+                        "unit": "mib",
+                        "color": "blue"
                       }
                     ]
                   },

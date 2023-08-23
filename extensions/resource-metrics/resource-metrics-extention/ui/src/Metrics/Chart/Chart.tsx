@@ -192,7 +192,7 @@ export const TimeSeriesChart = ({
   };
 
   const concatenatedData = useMemo(() => {
-    if (chartData) return [...chartData?.data, ...chartData?.thresholds] || [];
+    if (chartData) return [...chartData?.thresholds, ...chartData?.data] || [];
   }, [chartData]);
 
   const data = showThreshold ? concatenatedData : chartData?.data || [];
