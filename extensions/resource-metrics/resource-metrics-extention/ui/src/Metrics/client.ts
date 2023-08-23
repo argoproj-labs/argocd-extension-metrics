@@ -46,5 +46,3 @@ export function getHeaders({
     "Argocd-Project-Name": `${project}`,
   };
 }
-
-
