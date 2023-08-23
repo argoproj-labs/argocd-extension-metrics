@@ -403,11 +403,12 @@ export const TimeSeriesChart = ({
             alignItems: "center",
             width: "100%",
             flexDirection: "column",
+            margin: "0px 5px",
           }}
         >
           {concatenatedData?.length > 0 ? (
             <>
-              <ResponsiveContainer debounce={150} width="100%" height={height}>
+              <ResponsiveContainer debounce={150} width="100%" height={height} className="graph-container">
                 <LineChart
                   width={800}
                   height={500}
@@ -424,6 +425,7 @@ export const TimeSeriesChart = ({
                     left: 40,
                     bottom: 5,
                   }}
+
                 >
                   <CartesianGrid strokeDasharray="3 3" />
                   {Object.keys(uniqueEvents(events))?.map(
@@ -483,14 +485,15 @@ export const TimeSeriesChart = ({
                   })}
                 </LineChart>
               </ResponsiveContainer>
-              {(chartData?.thresholds.length > 0) && (<div style={{ fontSize: "12px" }}>
-                <label>
-                  showThresholds:
+              {(chartData?.thresholds.length > 0) && (<div style={{ fontSize: "16px", marginTop: '5px', letterSpacing: "0.5px" }}>
+                <label className="label-container">
                   <input
                     type="checkbox"
                     checked={showThreshold}
                     onChange={handleCheckboxChange}
+                    className="checkbox-container"
                   />
+                  Show thresholds
                 </label>
               </div>)
               }

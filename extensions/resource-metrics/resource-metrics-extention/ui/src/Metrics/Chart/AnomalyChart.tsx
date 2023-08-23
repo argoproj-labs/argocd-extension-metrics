@@ -536,7 +536,7 @@ export const AnomalyChart = ({
   return useMemo(
     () => (
       <>
-        <div style={{ display: "block", width: "100%" }}>
+        <div style={{ display: "block", width: "100%", margin: "0px 5px" }}>
           <div>
             <strong>{title}</strong>
           </div>
@@ -558,6 +558,7 @@ export const AnomalyChart = ({
                 left: 40,
                 bottom: 5,
               }}
+              style={{ border: '1px dashed #DEE6EB' }}
             >
               {/* <CartesianGrid strokeDasharray="3 3" /> */}
               {Object.keys(uniqueEvents(events))?.map(

@@ -20,7 +20,7 @@
                     "description": "",
                     "graphType": "line",
                     "metricName": "__name__",
-                    "queryExpression": "namespace_argocd_app_pod_http_server_requests_latency {namespace=\"{{.namespace}}\"}"
+                    "queryExpression": "namespace_argocd_app_pod_http_server_requests_latency {namespace=\"app-albcanary-base\"}"
                   }
                 ]
               },
@@ -35,7 +35,7 @@
                     "description": "",
                     "graphType": "line",
                     "metricName": "__name__",
-                    "queryExpression": "namespace_argocd_app_pod_http_server_requests_errors_5xx {namespace=\"{{.namespace}}\"}"
+                    "queryExpression": "namespace_argocd_app_pod_http_server_requests_errors_5xx {namespace=\"app-albcanary-base\"}"
                   },
                   {
                     "name": "http_error_rate_400",
@@ -43,7 +43,7 @@
                     "description": "",
                     "graphType": "line",
                     "metricName": "__name__",
-                    "queryExpression": "namespace_argocd_app_pod_http_server_requests_errors_4xx {namespace=\"{{.namespace}}\"}"
+                    "queryExpression": "namespace_argocd_app_pod_http_server_requests_errors_4xx {namespace=\"app-albcanary-base\"}"
                   }
                 ]
               },
@@ -58,7 +58,7 @@
                     "description": "",
                     "graphType": "line",
                     "metricName": "__name__",
-                    "queryExpression": "namespace_argocd_app_pod_http_server_requests_count {namespace=\"{{.namespace}}\"}"
+                    "queryExpression": "namespace_argocd_app_pod_http_server_requests_count {namespace=\"app-albcanary-base\"}"
                   }
                 ]
               },
@@ -77,13 +77,13 @@
                     "thresholds": [
                       {
                         "queryExpression":"sum (namespace_argocd_pod_cpu_resource_requests {pod=~\"falco-daemonset-.*\"})/count(count by(pod) (namespace_argocd_pod_cpu_resource_requests {pod=~\"falco-daemonset-.*\"}))",
-                        "name": "CPU_REQUESTS",
+                        "name": "CPU Request",
                         "unit": "cores",
                         "color": "green"
                       },
                       {
                         "queryExpression":"sum(namespace_argocd_pod_cpu_resource_limits {pod=~\"falco-daemonset-.*\"})/count(count by(pod) (namespace_argocd_pod_cpu_resource_limits {pod=~\"falco-daemonset-.*\"}))",
-                        "name": "CPU_LIMITS",
+                        "name": "CPU Limit",
                         "unit": "cores",
                         "color": "red"
                       },
@@ -113,13 +113,13 @@
                     "thresholds": [
                       {
                         "queryExpression": "sum(namespace_argocd_pod_memory_resource_requests {pod=~\"falco-daemonset-.*\"})/count(count by(pod) (namespace_argocd_pod_memory_resource_requests {pod=~\"falco-daemonset-.*\"}))",
-                        "name": "MEMORY_REQUESTS",
+                        "name": "Memory Request",
                         "unit": "mib",
                         "color": "blue"
                       },
                       {
                         "queryExpression": "sum(namespace_argocd_pod_memory_resource_limits {pod=~\"falco-daemonset-.*\"})/count(count by(pod) (namespace_argocd_pod_memory_resource_limits {pod=~\"falco-daemonset-.*\"}))",
-                        "name": "MEMORY_LIMITS",
+                        "name": "Memory Limit",
                         "unit": "mib",
                         "color": "red"
                       }

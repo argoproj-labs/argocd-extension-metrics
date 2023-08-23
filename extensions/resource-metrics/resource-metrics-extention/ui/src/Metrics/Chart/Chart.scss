@@ -21,7 +21,21 @@
   .legend-content {
     overflow-y: auto;
     max-height: 220px;
-    padding-right: 10px;
+    padding-right: 15px;
+
+    //&::-webkit-scrollbar {
+    //  width: 0.5em;
+    //  height: 0.5em;
+    //}
+    //
+    //&::-webkit-scrollbar-thumb {
+    //  background-color: rgba(255,255,255,.4);
+    //  border-radius: 3px;
+    //
+    //  &:hover {
+    //    background: rgba(255,255,255,.6);
+    //  }
+    //}
   }
   .l-content {
     display: flex;
@@ -151,4 +165,19 @@ div:hover > div > .metrics-charts__legend_wrapper {
   border-right: 7px solid transparent;
   border-left: 7px solid transparent;
   border-bottom: 7px solid rgba(0, 0, 0, 0.8);
+}
+
+.label-container {
+  display: flex;
+  align-items: center;
+}
+
+.checkbox-container{
+  vertical-align: middle;
+  margin-right:5px;
+}
+
+.graph-container{
+  border: 1px dashed #DEE6EB;
+  margin: 2px 0;
 }

@@ -86,7 +86,7 @@ export const CustomPie = ({
   return useMemo(
     () => (
       <div className="metrics-pie__wrapper">
-        <PieChart width={80} height={100}>
+        <PieChart width={80} height={100} >
           <Pie
             dataKey="value"
             startAngle={0}
