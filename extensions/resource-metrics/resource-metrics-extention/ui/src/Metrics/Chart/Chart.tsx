@@ -189,8 +189,8 @@ export const TimeSeriesChart = ({
     chartData?.map((data: any) => {
       newFilter.push(data.name);
     });
-    if (filterChart?.length > 0) {
-      setFilterChart({ ...filterChart, [groupBy]: newFilter });
+    if (Object.keys(filterChart)?.length > 0) {
+      setFilterChart({ ...filterChart, [groupBy]: (filterChart[groupBy] || []).concat(newFilter) });
     } else {
       setFilterChart({ [groupBy]: newFilter });
     }
