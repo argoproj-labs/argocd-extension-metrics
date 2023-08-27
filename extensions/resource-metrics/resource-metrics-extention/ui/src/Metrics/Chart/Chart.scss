@@ -23,19 +23,19 @@
     max-height: 220px;
     padding-right: 15px;
 
-    //&::-webkit-scrollbar {
-    //  width: 0.5em;
-    //  height: 0.5em;
-    //}
-    //
-    //&::-webkit-scrollbar-thumb {
-    //  background-color: rgba(255,255,255,.4);
-    //  border-radius: 3px;
-    //
-    //  &:hover {
-    //    background: rgba(255,255,255,.6);
-    //  }
-    //}
+    &::-webkit-scrollbar {
+      width: 0.5em;
+      height: 0.5em;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: rgba(255,255,255,.4);
+      border-radius: 3px;
+
+      &:hover {
+        background: rgba(255,255,255,.6);
+      }
+    }
   }
   .l-content {
     display: flex;

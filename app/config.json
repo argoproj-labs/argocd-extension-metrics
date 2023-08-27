@@ -2,146 +2,66 @@
   "prometheus": {
     "applications": [
       {
-        "name": "default",
-        "default": true,
+        "name": "demo-app-ai-ops",
         "dashboards": [
           {
-            "groupKind": "rollout",
-            "tabs": ["Golden Signal"],
+            "groupKind": "deployment",
+            "tabs": ["GoldenSignal"],
             "rows": [
               {
                 "name": "httplatency",
                 "title": "HTTP Latency",
-                "tab": "Golden Signal",
+                "tab": "GoldenSignal",
                 "graphs": [
                   {
                     "name": "http_200_latency",
                     "title": "Latency",
                     "description": "",
                     "graphType": "line",
-                    "metricName": "__name__",
-                    "queryExpression": "namespace_argocd_app_pod_http_server_requests_latency {namespace=\"app-albcanary-base\"}"
+                    "metricName": "pod_template_hash",
+                    "queryExpression": "sum(rate(http_server_requests_seconds_sum {namespace=\"{{.namespace}}\", status=\"200\"} [1m])) by (namespace,  pod_template_hash)"
                   }
                 ]
               },
               {
                 "name": "httperrortate",
                 "title": "HTTP Error Rate",
-                "tab": "Golden Signal",
+                "tab": "GoldenSignal",
                 "graphs": [
                   {
                     "name": "http_error_rate_500",
                     "title": "HTTP Error 500",
                     "description": "",
                     "graphType": "line",
-                    "metricName": "__name__",
-                    "queryExpression": "namespace_argocd_app_pod_http_server_requests_errors_5xx {namespace=\"app-albcanary-base\"}"
+                    "metricName": "pod_template_hash",
+                    "queryExpression": "sum(rate(http_server_requests_seconds_count {namespace=\"{{.namespace}}\", status=\"500\"} [1m])) by (namespace,  pod_template_hash)"
                   },
                   {
                     "name": "http_error_rate_400",
                     "title": "HTTP Error 400",
                     "description": "",
                     "graphType": "line",
-                    "metricName": "__name__",
-                    "queryExpression": "namespace_argocd_app_pod_http_server_requests_errors_4xx {namespace=\"app-albcanary-base\"}"
+                    "metricName": "pod_template_hash",
+                    "queryExpression": "sum(rate(http_server_requests_seconds_count {namespace=\"{{.namespace}}\", status=\"404\"} [1m])) by (namespace, pod_template_hash)"
                   }
                 ]
               },
               {
                 "name": "httptraffic",
                 "title": "HTTP Traffic",
-                "tab": "Golden Signal",
+                "tab": "GoldenSignal",
                 "graphs": [
                   {
                     "name": "http_traffic",
                     "title": "Traffic",
                     "description": "",
                     "graphType": "line",
-                    "metricName": "__name__",
-                    "queryExpression": "namespace_argocd_app_pod_http_server_requests_count {namespace=\"app-albcanary-base\"}"
+                    "metricName": "pod_template_hash",
+                    "queryExpression": "sum(rate(http_server_requests_seconds_count {namespace=\"{{.namespace}}\"} [1m])) by (namespace, pod_template_hash)"
                   }
                 ]
               },
-              {
-                "name": "pod",
-                "title": "Pods",
-                "tab": "Golden Signal",
-                "graphs": [
-                  {
-                    "name": "pod_cpu_line",
-                    "title": "CPU (cores)",
-                    "description": "",
-                    "graphType": "line",
-                    "metricName": "pod",
-                    "queryExpression": "sum by(pod) (namespace_argocd_pod_container_cpu_usage_seconds_total {pod=~\"falco-daemonset-.*\"})",
-                    "thresholds": [
-                      {
-                        "queryExpression":"sum(namespace_argocd_pod_cpu_resource_limits {pod=~\"falco-daemonset-.*\"})/count(count by(pod) (namespace_argocd_pod_cpu_resource_limits {pod=~\"falco-daemonset-.*\"}))",
-                        "name": "CPU Limit",
-                        "unit": "cores",
-                        "color": "red"
-                      },
-                      {
-                        "queryExpression":"sum (namespace_argocd_pod_cpu_resource_requests {pod=~\"falco-daemonset-.*\"})/count(count by(pod) (namespace_argocd_pod_cpu_resource_requests {pod=~\"falco-daemonset-.*\"}))",
-                        "name": "CPU Request",
-                        "unit": "cores",
-                        "color": "green"
-                      },
-                      {
-                        "name": "dummy",
-                        "unit": "cores",
-                        "value": "50",
-                        "color": "grey"
-                      }
-                    ]
-                  },
-                  {
-                    "name": "pod_cpu_pie",
-                    "title": "CPU Avg",
-                    "description": "",
-                    "graphType": "pie",
-                    "metricName": "pod",
-                    "queryExpression": "sum by(pod) (namespace_argocd_pod_container_cpu_usage_seconds_total {pod=~\"falco-daemonset-.*\"})"
-                  },
-                  {
-                    "name": "pod_memory_line",
-                    "title": "Memory (mib)",
-                    "description": "",
-                    "graphType": "line",
-                    "metricName": "pod",
-                    "queryExpression": "sum by(pod) (namespace_argocd_pod_memory_usage_mebibyte {pod=~\"falco-daemonset-.*\"})",
-                    "thresholds": [
-                      {
-                        "queryExpression": "sum(namespace_argocd_pod_memory_resource_limits {pod=~\"falco-daemonset-.*\"})/count(count by(pod) (namespace_argocd_pod_memory_resource_limits {pod=~\"falco-daemonset-.*\"}))",
-                        "name": "Memory Limit",
-                        "unit": "mib",
-                        "color": "red"
-                      },
-                      {
-                        "queryExpression": "sum(namespace_argocd_pod_memory_resource_requests {pod=~\"falco-daemonset-.*\"})/count(count by(pod) (namespace_argocd_pod_memory_resource_requests {pod=~\"falco-daemonset-.*\"}))",
-                        "name": "Memory Request",
-                        "unit": "mib",
-                        "color": "blue"
-                      }
-                    ]
-                  },
-                  {
-                    "name": "pod_memory_pie",
-                    "title": "Mem Avg",
-                    "description": "",
-                    "graphType": "pie",
-                    "metricName": "pod",
-                    "queryExpression": "sum by(pod) (namespace_argocd_pod_memory_usage_mebibyte {pod=~\"falco-daemonset-.*\"})"
-                  }
-                ]
-              }
-            ],
-            "intervals": ["1h", "2h", "6h"]
-          },
-          {
-            "groupKind": "pod",
-            "tabs": ["GoldenSignal"],
-            "rows": [
+
               {
                 "name": "pod",
                 "title": "Pods",
@@ -152,8 +72,8 @@
                     "title": "CPU",
                     "description": "",
                     "graphType": "line",
-                    "metricName": "container",
-                    "queryExpression": "namespace_argocd_pod_container_cpu_usage_seconds_total {pod=\"mayally0328-rollout-789c75b5d9-5m9q9\"}"
+                    "metricName": "pod",
+                    "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"POD\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
                   },
                   {
                     "name": "pod_cpu_pie",
@@ -161,7 +81,7 @@
                     "description": "",
                     "graphType": "pie",
                     "metricName": "pod",
-                    "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"chaos-agent-6786db5456-dqvkh\", container!=\"POD\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                    "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", container!=\"POD\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
                   },
                   {
                     "name": "pod_memory_line",
@@ -169,7 +89,7 @@
                     "description": "",
                     "graphType": "line",
                     "metricName": "pod",
-                    "queryExpression": "namespace_argocd_pod_memory_usage_mebibyte {pod=\"mayally0328-rollout-789c75b5d9-5m9q9\"}"
+                    "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", container!=\"POD\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
                   },
                   {
                     "name": "pod_memory_pie",
@@ -177,121 +97,103 @@
                     "description": "",
                     "graphType": "pie",
                     "metricName": "pod",
-                    "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"chaos-agent-6786db5456-dqvkh\", container!=\"POD\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                    "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", container!=\"POD\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
                   }
                 ]
               }
-                ]
-          },
+            ],
+            "intervals": [
+              "1h",
+              "2h",
+              "6h",
+              "12h",
+              "24h"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "default",
+        "default": true,
+        "dashboards": [
           {
-            "groupKind": "deployment",
-            "tabs": ["Golden Signal"],
+            "groupKind": "pod",
+            "tabs": ["GoldenSignal"],
+            "intervals": [
+              "1h",
+              "2h",
+              "6h",
+              "12h",
+              "24h"
+            ],
             "rows": [
               {
-                "name": "httplatency",
-                "title": "HTTP Latency",
-                "tab": "Golden Signal",
+                "name": "container",
+                "title": "Containers",
+                "tab": "GoldenSignal",
                 "graphs": [
                   {
-                    "name": "http_200_latency",
-                    "title": "Latency",
+                    "name": "container_cpu_line",
+                    "title": "CPU",
                     "description": "",
                     "graphType": "line",
-                    "metricName": "__name__",
-                    "queryExpression": "namespace_argocd_app_pod_http_server_requests_latency {namespace=\"{{.namespace}}\"}"
-                  }
-                ]
-              },
-              {
-                "name": "httperrortate",
-                "title": "HTTP Error Rate",
-                "tab": "Golden Signal",
-                "graphs": [
-                  {
-                    "name": "http_error_rate_500",
-                    "title": "HTTP Error 500",
-                    "description": "",
-                    "graphType": "line",
-                    "metricName": "__name__",
-                    "queryExpression": "namespace_argocd_app_pod_http_server_requests_errors_5xx {namespace=\"{{.namespace}}\"}"
+                    "metricName": "container",
+                    "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"POD\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
                   },
                   {
-                    "name": "http_error_rate_400",
-                    "title": "HTTP Error 400",
+                    "name": "container_cpu_pie",
+                    "title": "CPU Avg",
                     "description": "",
-                    "graphType": "line",
-                    "metricName": "__name__",
-                    "queryExpression": "namespace_argocd_app_pod_http_server_requests_errors_4xx {namespace=\"{{.namespace}}\"}"
-                  }
-                ]
-              },
-              {
-                "name": "httptraffic",
-                "title": "HTTP Traffic",
-                "tab": "Golden Signal",
-                "graphs": [
+                    "graphType": "pie",
+                    "metricName": "container",
+                    "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\",container!=\"POD\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
+                  },
                   {
-                    "name": "http_traffic",
-                    "title": "Traffic",
+                    "name": "container_memory_line",
+                    "title": "Memory",
                     "description": "",
                     "graphType": "line",
-                    "metricName": "__name__",
-                    "queryExpression": "namespace_argocd_app_pod_http_server_requests_count {namespace=\"{{.namespace}}\"}"
+                    "metricName": "container",
+                    "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"POD\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
+                  },
+                  {
+                    "name": "container_memory_pie",
+                    "title": "Mem Avg",
+                    "description": "",
+                    "graphType": "pie",
+                    "metricName": "container",
+                    "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"POD\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
                   }
                 ]
               },
               {
                 "name": "pod",
                 "title": "Pods",
-                "tab": "Golden Signal",
+                "tab": "GoldenSignal",
                 "graphs": [
-                {
-                  "name": "pod_cpu_line",
-                  "title": "CPU (cores)",
-                  "description": "",
-                  "graphType": "line",
-                  "metricName": "pod",
-                  "queryExpression": "{__name__=~\"namespace_argocd_pod_container_cpu_usage_seconds_total\",  pod=~\"chaos-agent-6786db5456-vf8z8\"}",
-                  "thresholds": [
-                    {
-                      "value":"{__name__=~\"namespace_argocd_pod_cpu_resource_requests\",  pod=~\"chaos-agent-6786db5456-vf8z8\"}",
-                      "name": "CPU_REQUESTS",
-                      "unit": "cores"
-                    },
-                    {
-                      "value":"{__name__=~\"namespace_argocd_pod_cpu_resource_limits\",  pod=~\"chaos-agent-6786db5456-vf8z8\"}",
-                      "name": "CPU_LIMITS",
-                      "unit": "cores"
-                    }
-                  ]
-                },
-                {
-                  "name": "pod_cpu_pie",
-                  "title": "CPU Avg",
-                  "description": "",
-                  "graphType": "pie",
-                  "metricName": "pod",
-                  "queryExpression": "namespace_argocd_pod_container_cpu_usage_seconds_total { pod=~\"chaos-agent-6786db5456-dqvkh\"}"
-                },
-                {
-                  "name": "pod_memory_line",
-                  "title": "Memory (mib)",
-                  "description": "",
-                  "graphType": "line",
-                  "metricName": "pod",
-                  "queryExpression": "{__name__=~\"namespace_argocd_pod_memory_usage_mebibyte\" , pod=~\"chaos-agent-6786db5456-vf8z8\"}",
-                  "thresholds": [
-                    {
-                      "value": "{__name__=~\"namespace_argocd_pod_memory_resource_requests\",  pod=~\"chaos-agent-6786db5456-vf8z8\"}",
-                      "name": "MEMORY_REQUESTS",
-                      "unit": "mib"
-                    },
-                    {
-                      "value": "{__name__=~\"namespace_argocd_pod_memory_resource_limits\",  pod=~\"chaos-agent-6786db5456-vf8z8\"}",
-                      "name": "MEMORY_LIMITS",
-                      "unit": "mib"
-                    }
-                    ]
+                  {
+                    "name": "pod_cpu_line",
+                    "title": "CPU",
+                    "description": "",
+                    "graphType": "line",
+                    "metricName": "pod",
+                    "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"POD\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                  },
+                  {
+                    "name": "pod_cpu_pie",
+                    "title": "CPU Avg",
+                    "description": "",
+                    "graphType": "pie",
+                    "metricName": "pod",
+                    "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", container!=\"POD\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                  },
+                  {
+                    "name": "pod_memory_line",
+                    "title": "Memory",
+                    "description": "",
+                    "graphType": "line",
+                    "metricName": "pod",
+                    "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", container!=\"POD\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
                   },
                   {
                     "name": "pod_memory_pie",
@@ -299,20 +201,137 @@
                     "description": "",
                     "graphType": "pie",
                     "metricName": "pod",
-                    "queryExpression": "namespace_argocd_pod_memory_usage_mebibyte { pod=~\"chaos-agent-6786db5456-dqvkh\"}"
+                    "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", container!=\"POD\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
                   }
                 ]
               }
+            ]
+          },
+          {
+            "groupKind": "deployment",
+            "intervals": [
+              "1h",
+              "2h",
+              "6h",
+              "12h",
+              "24h"
             ],
-            "intervals": ["1h", "2h", "6h"]
+            "rows": [
+              {
+                "name": "httpaggrigatedanomaly",
+                "title": "Unified Anomaly",
+                "graphs": [
+                  {
+                    "name": "application_aggrigate_anomaly",
+                    "title": "Anomaly",
+                    "description": "",
+                    "graphType": "line",
+                    "metricName": "namespace",
+                    "queryExpression": "sum by (namespace) (namespace_app_pod_unified_anomaly{namespace = \"{{.namespace}}\", app=\"\"})"
+                  }
+                ]
+              },
+              {
+                "name": "httplatency",
+                "title": "HTTP Latency",
+                "graphs": [
+                  {
+                    "name": "http_200_latency",
+                    "title": "Latency",
+                    "description": "",
+                    "graphType": "line",
+                    "metricName": "pod_template_hash",
+                    "queryExpression": "sum(rate(http_server_requests_seconds_sum {namespace=\"{{.namespace}}\", status=\"200\"} [1m])) by (namespace,  pod_template_hash)"
+                  }
+                ]
+              },
+              {
+                "name": "httperrortate",
+                "title": "HTTP Error Rate",
+                "graphs": [
+                  {
+                    "name": "http_error_rate_500",
+                    "title": "HTTP Error 500",
+                    "description": "",
+                    "graphType": "line",
+                    "metricName": "pod_template_hash",
+                    "queryExpression": "sum(rate(http_server_requests_seconds_count {namespace=\"{{.namespace}}\", status=\"500\"} [1m])) by (namespace,  pod_template_hash)"
+                  },
+                  {
+                    "name": "http_error_rate_400",
+                    "title": "HTTP Error 400",
+                    "description": "",
+                    "graphType": "line",
+                    "metricName": "pod_template_hash",
+                    "queryExpression": "sum(rate(http_server_requests_seconds_count {namespace=\"{{.namespace}}\", status=\"404\"} [1m])) by (namespace, pod_template_hash)"
+                  }
+                ]
+              },
+              {
+                "name": "httptraffic",
+                "title": "HTTP Traffic",
+                "graphs": [
+                  {
+                    "name": "http_traffic",
+                    "title": "Traffic",
+                    "description": "",
+                    "graphType": "line",
+                    "metricName": "pod_template_hash",
+                    "queryExpression": "sum(rate(http_server_requests_seconds_count {namespace=\"{{.namespace}}\"} [1m])) by (namespace, pod_template_hash)"
+                  }
+                ]
+              },
+
+              {
+                "name": "pod",
+                "title": "Pods",
+                "graphs": [
+                  {
+                    "name": "pod_cpu_line",
+                    "title": "CPU",
+                    "description": "",
+                    "graphType": "line",
+                    "metricName": "pod",
+                    "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", image!=\"\", container!=\"POD\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                  },
+                  {
+                    "name": "pod_cpu_pie",
+                    "title": "CPU Avg",
+                    "description": "",
+                    "graphType": "pie",
+                    "metricName": "pod",
+                    "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\", container!=\"POD\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                  },
+                  {
+                    "name": "pod_memory_line",
+                    "title": "Memory",
+                    "description": "",
+                    "graphType": "line",
+                    "metricName": "pod",
+                    "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", container!=\"POD\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                  },
+                  {
+                    "name": "pod_memory_pie",
+                    "title": "Mem Avg",
+                    "description": "",
+                    "graphType": "pie",
+                    "metricName": "pod",
+                    "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", container!=\"POD\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                  }
+                ]
+              }
+            ]
+
           }
         ]
       }
     ],
-    "provider": {
+
+    "provider":
+    {
       "Name": "default",
       "default": true,
-      "address": "http://localhost:9090"
+      "address": "http://prometheus-service.monitoring.svc.cluster.local:8080"
     }
   }
 }

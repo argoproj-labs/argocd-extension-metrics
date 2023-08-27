@@ -485,7 +485,7 @@ export const TimeSeriesChart = ({
                   })}
                 </LineChart>
               </ResponsiveContainer>
-              {(chartData?.thresholds.length > 0) && (<div style={{ fontSize: "16px", marginTop: '5px', letterSpacing: "0.5px" }}>
+              {(chartData?.thresholds.length > 0) && (<div style={{ display: "flex", justifyContent: "flex-start", fontSize: "16px", marginTop: '5px', letterSpacing: "0.5px" }}>
                 <label className="label-container">
                   <input
                     type="checkbox"

@@ -21,7 +21,7 @@ export interface PrometheusThresholdResponse {
   unit: string;
 }
 
-//This one is part of alpha, needs to be tested
+//This code is in the alpha phase and requires thorough testing.
 export interface WavefrontThresholdResponse {
   data: WavefrontResponse;
   key: string;
@@ -36,7 +36,7 @@ export interface CustomPrometheusResponse {
   thresholds: Array<PrometheusThresholdResponse>;
 }
 
-//This one is part of alpha, needs to be tested
+//This code is in the alpha phase and requires thorough testing.
 export interface CustomWavefrontResponse {
   data: WavefrontResponse;
   thresholds: Array<WavefrontThresholdResponse>;
@@ -148,7 +148,7 @@ export const ChartWrapper = ({
         // TODO: move this into another abstracted functionality
         if (data?.data?.granularity) {
           // Wavefront Data
-          //This one is part of alpha, needs to be tested
+          //This code is in the alpha phase and requires thorough testing.
           data?.data?.timeseries?.map((obj: WavefrontTS) => {
             if (!obj?.tags?.[groupBy] && !obj?.data?.length) {
               return false;
@@ -188,7 +188,6 @@ export const ChartWrapper = ({
           });
         } else {
           // Prometheus Data
-
           data?.data?.map((obj: PrometheusResponse) => {
             if (!obj?.["metric"]?.[groupBy] && !obj?.values?.length) {
               return false;

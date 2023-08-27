@@ -16,6 +16,7 @@ import (
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 )
 
+// ThresholdResponse represents the response format for a threshold.
 type ThresholdResponse struct {
 	Data  json.RawMessage `json:"data"`
 	Key   string          `json:"key"`
@@ -25,6 +26,7 @@ type ThresholdResponse struct {
 	Unit  string          `json:"unit"`
 }
 
+// AggregatedResponse represents the final output response structure returned by execute function
 type AggregatedResponse struct {
 	Data       json.RawMessage     `json:"data"`
 	Thresholds []ThresholdResponse `json:"thresholds,omitempty"`
@@ -40,6 +42,7 @@ func (pp *PrometheusProvider) getType() string {
 	return PROMETHEUS_TYPE
 }
 
+// getDashboard returns the dashboard configuration for the specified application
 func (pp *PrometheusProvider) getDashboard(ctx *gin.Context) {
 	appName := ctx.Param("application")
 	groupKind := ctx.Param("groupkind")
@@ -74,10 +77,11 @@ func (pp *PrometheusProvider) init() error {
 	return nil
 }
 
-func ExecuteGraphQuery(ctx *gin.Context, queryExpression string, env map[string][]string, duration time.Duration, pp *PrometheusProvider) (model.Value, v1.Warnings, error) {
+// executeGraphQuery executes a prometheus query and returns the result.
+func executeGraphQuery(ctx *gin.Context, queryExpression string, env map[string][]string, duration time.Duration, pp *PrometheusProvider) (model.Value, v1.Warnings, error) {
 	tmpl, err := template.New("query").Parse(queryExpression)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("error parsing query template: %s", err)
 	}
 
 	env1 := make(map[string]string)
@@ -88,7 +92,7 @@ func ExecuteGraphQuery(ctx *gin.Context, queryExpression string, env map[string]
 	buf := new(bytes.Buffer)
 	err = tmpl.Execute(buf, env1)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("error executing template: %s", err)
 	}
 
 	strQuery := buf.String()
@@ -101,16 +105,17 @@ func ExecuteGraphQuery(ctx *gin.Context, queryExpression string, env map[string]
 	result, warnings, err := pp.provider.QueryRange(ctx, strQuery, r)
 
 	if err != nil {
-		return nil, warnings, err
+		return nil, warnings, fmt.Errorf("error querying prometheus: %s", err)
 	}
 
 	if len(warnings) > 0 {
-		return result, warnings, err
+		return result, warnings, fmt.Errorf("query warnings: %s", err)
 	}
 
 	return result, nil, nil
 }
 
+// execute handles the execution of a graph queryExpression and graph thresholds
 func (pp *PrometheusProvider) execute(ctx *gin.Context) {
 	app := ctx.Param("application")
 	groupKind := ctx.Param("groupkind")
@@ -147,21 +152,20 @@ func (pp *PrometheusProvider) execute(ctx *gin.Context) {
 	if graph != nil {
 
 		var data AggregatedResponse
-		result, warnings, err := ExecuteGraphQuery(ctx, graph.QueryExpression, env, duration, pp)
+		result, warnings, err := executeGraphQuery(ctx, graph.QueryExpression, env, duration, pp)
 
 		if err != nil {
-			fmt.Printf("Warnings: %v\n", warnings)
 			ctx.JSON(http.StatusBadRequest, err)
 			return
 		}
 		if len(warnings) > 0 {
-			fmt.Printf("Warnings: %v\n", warnings)
-			ctx.JSON(http.StatusBadRequest, warnings)
+			warningMsg := fmt.Errorf("query warnings: %s", warnings)
+			ctx.JSON(http.StatusBadRequest, warningMsg.Error())
 			return
 		}
 		data.Data, err = json.Marshal(result)
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, err)
+			ctx.JSON(http.StatusBadRequest, fmt.Errorf("error marshaling the data: %s", err))
 			return
 		}
 		var finalResultArr []ThresholdResponse
@@ -172,19 +176,19 @@ func (pp *PrometheusProvider) execute(ctx *gin.Context) {
 				var warnings v1.Warnings
 				var err error
 
+				//If threshold.value present, threshold.value gets executed else,threshold.queryExpression gets executed.
 				if threshold.Value != "" {
-					result, warnings, err = ExecuteGraphQuery(ctx, threshold.Value, env, duration, pp)
+					result, warnings, err = executeGraphQuery(ctx, threshold.Value, env, duration, pp)
 				} else {
-					result, warnings, err = ExecuteGraphQuery(ctx, threshold.QueryExpression, env, duration, pp)
+					result, warnings, err = executeGraphQuery(ctx, threshold.QueryExpression, env, duration, pp)
 				}
 				if err != nil {
-					fmt.Printf("Warnings: %v\n", warnings)
 					ctx.JSON(http.StatusBadRequest, err)
 					return
 				}
 				if len(warnings) > 0 {
-					fmt.Printf("Warnings: %v\n", warnings)
-					ctx.JSON(http.StatusBadRequest, warnings)
+					warningMsg := fmt.Errorf("query warnings: %s", warnings)
+					ctx.JSON(http.StatusBadRequest, warningMsg.Error())
 					return
 				}
 				var temp ThresholdResponse
@@ -195,7 +199,7 @@ func (pp *PrometheusProvider) execute(ctx *gin.Context) {
 				temp.Color = threshold.Color
 				temp.Data, err = json.Marshal(result)
 				if err != nil {
-					ctx.JSON(http.StatusBadRequest, err)
+					ctx.JSON(http.StatusBadRequest, fmt.Errorf("error marshaling the threshold response: %s", err))
 					return
 				}
 

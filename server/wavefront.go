@@ -3,6 +3,7 @@ package server
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"go.uber.org/zap"
 	"html/template"
 	"net/http"
@@ -21,6 +22,7 @@ type WaveFrontProvider struct {
 	token    string
 }
 
+// getDashboard returns the dashboard configuration for the specified application
 func (wf *WaveFrontProvider) getDashboard(ctx *gin.Context) {
 	appName := ctx.Param("application")
 	groupKind := ctx.Param("groupkind")
@@ -60,11 +62,12 @@ func (wf *WaveFrontProvider) getType() string {
 	return WAVEFRONT_TYPE
 }
 
-// This one is part of alpha, needs to be tested
-func ExecuteWavefrontGraphQuery(queryExpression string, env map[string][]string, duration time.Duration, wf *WaveFrontProvider) (*wavefront.QueryResponse, error) {
+// This function is still in development(alpha phase) and should be tested extensively before being used in the production environment.
+// executeGraphQuery executes a wavefront query and returns the result.
+func executeWavefrontGraphQuery(queryExpression string, env map[string][]string, duration time.Duration, wf *WaveFrontProvider) (*wavefront.QueryResponse, error) {
 	tmpl, err := template.New("query").Parse(queryExpression)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error parsing query template: %s", err)
 	}
 
 	env1 := make(map[string]string)
@@ -75,7 +78,7 @@ func ExecuteWavefrontGraphQuery(queryExpression string, env map[string][]string,
 	buf := new(bytes.Buffer)
 	err = tmpl.Execute(buf, env1)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error executing template: %s", err)
 	}
 
 	strQuery := buf.String()
@@ -87,13 +90,14 @@ func ExecuteWavefrontGraphQuery(queryExpression string, env map[string][]string,
 	query := wf.provider.NewQuery(wfQuery)
 	result, err := query.Execute()
 	if err != nil {
-		wf.logger.Errorw("Error in query execution ", zap.Error(err))
-		return nil, err
+		wf.logger.Errorw("error in query execution on wavefront", zap.Error(err))
+		return nil, fmt.Errorf("error in query execution on wavefront: %s", err)
 	}
 	return result, nil
 }
 
-// This one is part of alpha, needs to be tested
+// This function is still in development(alpha phase) and should be tested extensively before being used in the production environment.
+// execute handles the execution of a graph queryExpression and graph thresholds
 func (wf *WaveFrontProvider) execute(ctx *gin.Context) {
 	app := ctx.Param("application")
 	groupKind := ctx.Param("groupkind")
@@ -130,17 +134,17 @@ func (wf *WaveFrontProvider) execute(ctx *gin.Context) {
 		wf.logger.Infow("Query execution", zap.Any("query", graph.QueryExpression), zap.Any("graphName", graph.Name), zap.Any("rowName", row.Name))
 
 		var data AggregatedResponse
-		result, err := ExecuteWavefrontGraphQuery(graph.QueryExpression, env, duration, wf)
+		result, err := executeWavefrontGraphQuery(graph.QueryExpression, env, duration, wf)
 
 		if err != nil {
-			wf.logger.Errorw("Error in query execution ", zap.Error(err))
+			wf.logger.Errorw("Error in query execution on wavefront", zap.Error(err))
 			ctx.JSON(http.StatusBadRequest, err)
 			return
 		}
 
 		data.Data, err = json.Marshal(result)
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, err)
+			ctx.JSON(http.StatusBadRequest, fmt.Errorf("error marshaling the data: %s", err))
 			return
 		}
 
@@ -150,10 +154,12 @@ func (wf *WaveFrontProvider) execute(ctx *gin.Context) {
 			for _, threshold := range graph.Thresholds {
 				var result *wavefront.QueryResponse
 				var err error
+
+				//If threshold.value present, threshold.value gets executed else,threshold.queryExpression gets executed.
 				if threshold.Value != "" {
-					result, err = ExecuteWavefrontGraphQuery(threshold.Value, env, duration, wf)
+					result, err = executeWavefrontGraphQuery(threshold.Value, env, duration, wf)
 				} else {
-					result, err = ExecuteWavefrontGraphQuery(threshold.QueryExpression, env, duration, wf)
+					result, err = executeWavefrontGraphQuery(threshold.QueryExpression, env, duration, wf)
 				}
 				if err != nil {
 					ctx.JSON(http.StatusBadRequest, err)
@@ -167,7 +173,7 @@ func (wf *WaveFrontProvider) execute(ctx *gin.Context) {
 				temp.Color = threshold.Color
 				temp.Data, err = json.Marshal(result)
 				if err != nil {
-					ctx.JSON(http.StatusBadRequest, err)
+					ctx.JSON(http.StatusBadRequest, fmt.Errorf("error marshaling the threshold response: %s", err))
 					return
 				}
 
