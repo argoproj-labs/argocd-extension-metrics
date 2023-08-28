@@ -400,7 +400,7 @@ export const TimeSeriesChart = ({
         <div
           style={{
             display: "flex",
-            alignItems: "center",
+            alignItems: "start",
             width: "100%",
             flexDirection: "column",
             margin: "0px 5px",
@@ -485,7 +485,7 @@ export const TimeSeriesChart = ({
                   })}
                 </LineChart>
               </ResponsiveContainer>
-              {(chartData?.thresholds.length > 0) && (<div style={{ display: "flex", justifyContent: "flex-start", fontSize: "16px", marginTop: '5px', letterSpacing: "0.5px" }}>
+              {(chartData?.thresholds.length > 0) && (<div className="input-container">
                 <label className="label-container">
                   <input
                     type="checkbox"

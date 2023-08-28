@@ -29,11 +29,11 @@
     }
 
     &::-webkit-scrollbar-thumb {
-      background-color: rgba(255,255,255,.4);
+      background-color: rgba(255, 255, 255, 0.4);
       border-radius: 3px;
 
       &:hover {
-        background: rgba(255,255,255,.6);
+        background: rgba(255, 255, 255, 0.6);
       }
     }
   }
@@ -172,12 +172,20 @@ div:hover > div > .metrics-charts__legend_wrapper {
   align-items: center;
 }
 
-.checkbox-container{
+.checkbox-container {
   vertical-align: middle;
-  margin-right:5px;
+  margin-right: 5px;
 }
 
-.graph-container{
-  border: 1px dashed #DEE6EB;
+.graph-container {
+  border: 1px dashed #dee6eb;
   margin: 2px 0;
+}
+
+.input-container {
+  display: flex;
+  font-size: 16px;
+  margin-left: 50px;
+  margin-top: 5px;
+  letter-spacing: 0.5px;
 }
