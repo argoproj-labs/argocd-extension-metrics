@@ -106,6 +106,12 @@ export const CustomPie = ({
             fill={`${colorArray[0]}`}
           >
             {formattedData?.map((d: any, index: number) => {
+              if (
+                !filterChart[groupBy] ||
+                filterChart[groupBy]?.indexOf(d.name) < 0
+              ) {
+                return;
+              }
               return (
                 <Cell
                   opacity={d.name == highlight[groupBy] ? 1 : 0.7}
