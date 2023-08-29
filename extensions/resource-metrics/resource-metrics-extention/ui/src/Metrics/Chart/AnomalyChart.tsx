@@ -15,7 +15,7 @@ import * as moment from "moment";
 import "./Chart.scss";
 import * as React from "react";
 import { roundNumber } from "../..";
-import { ChartDataProps } from "./ChartWrapper";
+import { ChartDataProps } from "./types";
 
 // const exampleData: any = [
 //   {
