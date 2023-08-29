@@ -46,9 +46,8 @@ export const Extension = (props: any) => {
             intervals?.map((hasDuration: string) => (
               <a
                 href={`${loc}`}
-                className={`application-metrics__MetricsDuration ${
-                  duration === hasDuration ? "active" : ""
-                }`}
+                className={`application-metrics__MetricsDuration ${duration === hasDuration ? "active" : ""
+                  }`}
                 key={hasDuration}
                 onClick={e => {
                   updateDuration(e, hasDuration);
@@ -83,4 +82,6 @@ export const component = Extension;
     "Metrics",
     { icon: "fa fa-chart-area" }
   );
+  window?.extensionsAPI?.registerResourceExtension(component, '', 'Pod', 'Metrics', { icon: "fa fa-chart-area" });
+  window?.extensionsAPI?.registerResourceExtension(component, '*', 'Deployment', 'Metrics', { icon: "fa fa-chart-area" });
 })(window);

@@ -4,48 +4,15 @@ import { apiCall, getHeaders } from "../client";
 import CustomPie from "../Pie/Pie";
 import AnomalyChart from "./AnomalyChart";
 import TimeSeriesChart from "./Chart";
-
-export interface PrometheusResponse {
-  metric: {
-    [key: string]: string | [string];
-  };
-  values: [[number, number]];
-}
-
-export interface WavefrontTS {
-  label: string;
-  tags: {
-    [key: string]: string;
-  };
-  data: [[number, number]];
-}
-export interface WavefrontResponse {
-  query: string;
-  name: string;
-  granularity: number;
-  traceDimensions: any;
-  timeseries: [WavefrontTS];
-}
-
-export interface ChartDataProps {
-  name?: string;
-  metrics?: {
-    [key: string]: string;
-  };
-  values?: [[string | number, string | number]];
-  data?:
-    | [
-        {
-          x: number | string;
-          y: number | string;
-        }
-      ]
-    | any[];
-}
-
-export interface AllChartDataProps {
-  [key: string]: ChartDataProps;
-}
+import type {
+  AllChartDataProps,
+  ChartDataProps,
+  CustomPrometheusResponse,
+  CustomWavefrontResponse,
+  PrometheusResponse,
+  WavefrontThresholdResponse,
+  WavefrontTS,
+} from "./types";
 
 export const colorArray = [
   "#00A2B3",
@@ -72,10 +39,6 @@ export const colorArray = [
 export const ChartWrapper = ({
   applicationName,
   resource,
-  filterChart,
-  setFilterChart,
-  highlight,
-  setHighlight,
   labelKey,
   groupBy,
   name,
@@ -89,6 +52,10 @@ export const ChartWrapper = ({
   queryPath,
   project,
   applicationNamespace,
+  filterChart,
+  setFilterChart,
+  highlight,
+  setHighlight,
 }: any) => {
   const [chartsData, setChartsData] = useState<AllChartDataProps>({});
 
@@ -100,17 +67,18 @@ export const ChartWrapper = ({
         yFormatter = (y: any): number => y * 1,
         xFormatter = (x: any): number => Math.floor(x * 1),
       }: {
-        data: [PrometheusResponse] & WavefrontResponse;
+        data: CustomPrometheusResponse & CustomWavefrontResponse;
         groupBy: string;
         yFormatter?: (arg0: number) => number;
         xFormatter?: (arg0: number) => number;
       }) => {
         const formattedData: Array<ChartDataProps> = [];
-
+        const formattedThresholdData: Array<ChartDataProps> = [];
         // TODO: move this into another abstracted functionality
-        if (data?.granularity) {
+        if (data?.data?.granularity) {
           // Wavefront Data
-          data?.timeseries?.map((obj: WavefrontTS) => {
+          //This code is in the alpha phase and requires thorough testing.
+          data?.data?.timeseries?.map((obj: WavefrontTS) => {
             if (!obj?.tags?.[groupBy] && !obj?.data?.length) {
               return false;
             }
@@ -118,13 +86,38 @@ export const ChartWrapper = ({
               ...obj,
               name: obj?.tags && Object.values(obj?.tags).join(":"),
               data: [],
+              key: "",
+              color: "",
+              unit: "",
+              value: "",
+              isThreshold: false,
             };
             metricObj.data = obj?.data;
             formattedData.push(metricObj);
           });
+
+          data?.thresholds?.map((temp: WavefrontThresholdResponse) => {
+            temp?.data?.timeseries?.map((obj: WavefrontTS) => {
+              if (!obj?.tags?.[groupBy] && !obj?.data?.length) {
+                return false;
+              }
+              const metricObj: ChartDataProps = {
+                ...obj,
+                name: temp.name,
+                data: [],
+                key: temp?.key,
+                value: temp?.value,
+                color: temp?.color,
+                unit: temp?.unit,
+                isThreshold: true,
+              };
+              metricObj.data = obj?.data;
+              formattedData.push(metricObj);
+            });
+          });
         } else {
           // Prometheus Data
-          data?.map((obj: PrometheusResponse) => {
+          data?.data?.map((obj: PrometheusResponse) => {
             if (!obj?.["metric"]?.[groupBy] && !obj?.values?.length) {
               return false;
             }
@@ -135,6 +128,11 @@ export const ChartWrapper = ({
                   ? (obj?.metric?.[groupBy] as string)
                   : Object.values(obj?.metric).join(":"),
               data: [],
+              key: "",
+              color: "",
+              unit: "",
+              value: "",
+              isThreshold: false,
             };
             obj?.values?.map((kp: [any, any], i: number) => {
               if (
@@ -154,9 +152,44 @@ export const ChartWrapper = ({
             });
             formattedData.push(metricObj);
           });
+
+          data?.thresholds?.map((temp) => {
+            temp?.data?.map((obj: PrometheusResponse) => {
+              if (!obj?.["metric"]?.[groupBy] && !obj?.values?.length) {
+                return false;
+              }
+              const metricObj: ChartDataProps = {
+                ...obj,
+                name: temp?.name,
+                data: [],
+                key: temp?.key,
+                value: temp?.value,
+                color: temp?.color,
+                unit: temp?.unit,
+                isThreshold: true,
+              };
+              obj?.values?.map((kp: [any, any], i: number) => {
+                if (
+                  obj?.values?.length &&
+                  metricObj.data?.[i - 1]?.[0] < kp[0] - 61
+                ) {
+                  metricObj.data.push({
+                    x: (obj?.values?.[i - 1]?.[0] || 0) + 60,
+                    y: null,
+                  });
+                  return;
+                }
+                metricObj.data.push({
+                  x: xFormatter(kp[0]),
+                  y: yFormatter(kp[1]),
+                });
+              });
+              formattedThresholdData.push(metricObj);
+            });
+          });
         }
 
-        return formattedData;
+        return { data: formattedData, thresholds: formattedThresholdData };
       },
     [labelKey, groupBy, name, title, metric, yUnit]
   );

@@ -15,7 +15,7 @@ import * as moment from "moment";
 import "./Chart.scss";
 import * as React from "react";
 import { roundNumber } from "../..";
-import { ChartDataProps } from "./ChartWrapper";
+import { ChartDataProps } from "./types";
 
 // const exampleData: any = [
 //   {
@@ -344,7 +344,7 @@ export const AnomalyChart = ({
 }: AnomalyChartProps) => {
   const formatChartData = (data: any) => {
     const formattedData: any = [];
-    data?.map((obj: any) => {
+    data?.data?.map((obj: any) => {
       const metricObj: any = {
         ...obj,
         name: obj?.metric && Object.values(obj?.metric).join(":"),
@@ -510,7 +510,6 @@ export const AnomalyChart = ({
     });
     return uEvents;
   };
-  // const thisChartData = formatChartData(exampleData);
   const thisChartData = formatChartData(chartData);
 
   const scaleGradient = (
@@ -537,7 +536,7 @@ export const AnomalyChart = ({
   return useMemo(
     () => (
       <>
-        <div style={{ display: "block", width: "100%" }}>
+        <div style={{ display: "block", width: "100%", margin: "0px 5px" }}>
           <div>
             <strong>{title}</strong>
           </div>
@@ -549,7 +548,7 @@ export const AnomalyChart = ({
               syncId={"o11yCharts"}
               syncMethod={"value"}
               layout={"horizontal"}
-              onMouseMove={(e: any) => {}}
+              onMouseMove={(e: any) => { }}
               onMouseLeave={() => {
                 setHighlight({ ...highlight, [groupBy]: "" });
               }}
@@ -559,6 +558,7 @@ export const AnomalyChart = ({
                 left: 40,
                 bottom: 5,
               }}
+              style={{ border: '1px dashed #DEE6EB' }}
             >
               {/* <CartesianGrid strokeDasharray="3 3" /> */}
               {Object.keys(uniqueEvents(events))?.map(
