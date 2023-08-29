@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   CartesianGrid,
   Line,
@@ -12,11 +12,12 @@ import {
   ReferenceLine,
 } from "../../utils/recharts";
 import Tippy from "@tippy.js/react";
-import * as moment from "moment";
+
 import { colorArray } from "./ChartWrapper";
 import "./Chart.scss";
 import * as React from "react";
 import { roundNumber } from "../..";
+import moment from "moment";
 
 const height = 150;
 
@@ -184,22 +185,42 @@ export const TimeSeriesChart = ({
   labelKey,
   events,
 }: any) => {
+  const [showThreshold, setShowThreshold] = useState(false);
+
+  const handleCheckboxChange = (event: any) => {
+    setShowThreshold(!showThreshold);
+  };
+
+  const concatenatedData = useMemo(() => {
+    if (chartData) return [...chartData?.thresholds, ...chartData?.data] || [];
+  }, [chartData]);
+
+  const data = showThreshold ? concatenatedData : chartData?.data || [];
+
   useEffect(() => {
     const newFilter: any = [];
-    chartData?.map((data: any) => {
-      newFilter.push(data.name);
-    });
+    if (chartData) {
+      Object.keys(chartData)?.forEach((key) => {
+        chartData[key]?.map((data: any) => {
+          newFilter.push(data?.name);
+        });
+      });
+    }
+
     if (Object.keys(filterChart)?.length > 0) {
-      setFilterChart({ ...filterChart, [groupBy]: (filterChart[groupBy] || []).concat(newFilter) });
+      setFilterChart({
+        ...filterChart,
+        [groupBy]: (filterChart[groupBy] || []).concat(newFilter),
+      });
     } else {
       setFilterChart({ [groupBy]: newFilter });
     }
-  }, [chartData, groupBy]);
+  }, [chartData, groupBy, showThreshold]);
 
   const LegendMemo = useMemo(() => {
     return (
       <Legend
-        layout="horizontal"
+        layout="vertical"
         content={
           <RenderLegend
             chartHeight={50}
@@ -222,6 +243,7 @@ export const TimeSeriesChart = ({
     highlight,
     filterChart,
     setFilterChart,
+    showThreshold,
   ]);
 
   const TooltipMemo = useMemo(() => {
@@ -244,7 +266,7 @@ export const TimeSeriesChart = ({
         allowEscapeViewBox={{ x: false, y: true }}
       />
     );
-  }, [chartData, filterChart]);
+  }, [chartData, filterChart, showThreshold]);
 
   const YAxisMemo = useMemo(() => {
     return (
@@ -375,80 +397,107 @@ export const TimeSeriesChart = ({
   return useMemo(
     () => (
       <>
-        <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
-          {chartData?.length > 0 ? (
-            <ResponsiveContainer debounce={150} width="100%" height={height}>
-              <LineChart
-                width={800}
-                height={500}
-                syncId={"o11yCharts"}
-                syncMethod={"value"}
-                layout={"horizontal"}
-                onMouseMove={(e: any) => {}}
-                onMouseLeave={() => {
-                  setHighlight({ ...highlight, [groupBy]: "" });
-                }}
-                margin={{
-                  top: 30,
-                  right: 30,
-                  left: 40,
-                  bottom: 5,
-                }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                {Object.keys(uniqueEvents(events))?.map(
-                  (eventKey: any, i: number) => {
-                    const event = uniqueEvents(events)[eventKey];
-                    if (!eventKey || !event) {
-                      return;
-                    }
+        <div
+          style={{
+            display: "flex",
+            alignItems: "start",
+            width: "100%",
+            flexDirection: "column",
+            margin: "0px 5px",
+          }}
+        >
+          {concatenatedData?.length > 0 ? (
+            <>
+              <ResponsiveContainer debounce={150} width="100%" height={height} className="graph-container">
+                <LineChart
+                  width={800}
+                  height={500}
+                  syncId={"o11yCharts"}
+                  syncMethod={"value"}
+                  layout={"horizontal"}
+                  onMouseMove={(e: any) => { }}
+                  onMouseLeave={() => {
+                    setHighlight({ ...highlight, [groupBy]: "" });
+                  }}
+                  margin={{
+                    top: 30,
+                    right: 30,
+                    left: 40,
+                    bottom: 5,
+                  }}
 
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  {Object.keys(uniqueEvents(events))?.map(
+                    (eventKey: any, i: number) => {
+                      const event = uniqueEvents(events)[eventKey];
+                      if (!eventKey || !event) {
+                        return;
+                      }
+
+                      return (
+                        <ReferenceLine
+                          key={eventKey + i}
+                          isFront
+                          x={moment(eventKey).unix()}
+                          stroke="#e96d76"
+                          strokeWidth={2}
+                          strokeDasharray={"3 2"}
+                          label={
+                            <Label
+                              position="center"
+                              content={(p: any) => renderEventContent(p, event)}
+                            />
+                          }
+                        />
+                      );
+                    }
+                  )}
+                  {XAxisMemo}
+                  {YAxisMemo}
+                  {TooltipMemo}
+                  {data?.length > 0 ? LegendMemo : null}
+                  {data?.map((d: any, i: number) => {
                     return (
-                      <ReferenceLine
-                        key={eventKey + i}
-                        isFront
-                        x={moment(eventKey).unix()}
-                        stroke="#e96d76"
-                        strokeWidth={2}
-                        strokeDasharray={"3 2"}
-                        label={
-                          <Label
-                            position="center"
-                            content={(p: any) => renderEventContent(p, event)}
-                          />
+                      <Line
+                        strokeDasharray={d.isThreshold ? "3 3" : ""}
+                        isAnimationActive={false}
+                        dataKey="y"
+                        data={d.data}
+                        connectNulls={false}
+                        hide={
+                          filterChart[groupBy] &&
+                          filterChart[groupBy].indexOf(d.name) < 0
                         }
+                        stroke={
+                          d.isThreshold
+                            ? d.color || "gray"
+                            : colorArray[i % colorArray.length]
+                        }
+                        strokeWidth={d.name === highlight[groupBy] ? 3 : 1.5}
+                        name={d.name}
+                        dot={false}
+                        key={d.name}
+                        animationDuration={200}
+                        style={{ zIndex: highlight[groupBy] ? 100 : 1 }}
                       />
                     );
-                  }
-                )}
-                {XAxisMemo}
-                {YAxisMemo}
-                {TooltipMemo}
-                {chartData?.length > 0 ? LegendMemo : null}
-                {chartData?.map((d: any, i: number) => {
-                  return (
-                    <Line
-                      // strokeDasharray={`${strokeArray(i)}`}
-                      isAnimationActive={false}
-                      dataKey="y"
-                      data={d.data}
-                      connectNulls={false}
-                      hide={
-                        filterChart[groupBy] &&
-                        filterChart[groupBy].indexOf(d.name) < 0
-                      }
-                      stroke={colorArray[i % colorArray.length]}
-                      strokeWidth={d.name === highlight[groupBy] ? 3 : 1.5}
-                      name={d.name}
-                      dot={false}
-                      key={d.name}
-                      animationDuration={200}
-                      style={{ zIndex: highlight[groupBy] ? 100 : 1 }}
-                    />
-                  );
-                })}
-              </LineChart>
-            </ResponsiveContainer>
+                  })}
+                </LineChart>
+              </ResponsiveContainer>
+              {(chartData?.thresholds.length > 0) && (<div className="input-container">
+                <label className="label-container">
+                  <input
+                    type="checkbox"
+                    checked={showThreshold}
+                    onChange={handleCheckboxChange}
+                    className="checkbox-container"
+                  />
+                  Show thresholds
+                </label>
+              </div>)
+              }
+            </>
           ) : (
             <div
               style={{
@@ -481,6 +530,7 @@ export const TimeSeriesChart = ({
       highlight,
       groupBy,
       filterChart,
+      showThreshold,
     ]
   );
 };

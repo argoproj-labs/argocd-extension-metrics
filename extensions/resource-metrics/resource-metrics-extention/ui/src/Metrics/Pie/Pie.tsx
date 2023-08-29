@@ -61,7 +61,7 @@ export const CustomPie = ({
 
   useEffect(() => {
     const data: any = [];
-    chartData?.map((d: any) => {
+    chartData?.data.map((d: any) => {
       let total = 0;
       d?.data?.map((a: any) => {
         total = total + a.y;
@@ -72,6 +72,7 @@ export const CustomPie = ({
         value: ave,
       });
     });
+    // console.log("data in pie is ", data);
     setFormattedData(data);
   }, [chartData, highlight, filterChart[groupBy]]);
 
@@ -85,7 +86,7 @@ export const CustomPie = ({
   return useMemo(
     () => (
       <div className="metrics-pie__wrapper">
-        <PieChart width={80} height={100}>
+        <PieChart width={80} height={100} >
           <Pie
             dataKey="value"
             startAngle={0}
@@ -105,12 +106,6 @@ export const CustomPie = ({
             fill={`${colorArray[0]}`}
           >
             {formattedData?.map((d: any, index: number) => {
-              if (
-                !filterChart[groupBy] ||
-                filterChart[groupBy]?.indexOf(d.name) < 0
-              ) {
-                return;
-              }
               return (
                 <Cell
                   opacity={d.name == highlight[groupBy] ? 1 : 0.7}

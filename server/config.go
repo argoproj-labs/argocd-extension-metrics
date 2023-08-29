@@ -2,14 +2,17 @@ package server
 
 import (
 	"fmt"
+
 	"github.com/prometheus/common/config"
 )
 
 type Threshold struct {
-	Key   string `json:"key"`
-	Name  string `json:"name"`
-	Color string `json:"color"`
-	Value string `json:"value"`
+	Key             string `json:"key"`
+	Name            string `json:"name"`
+	Color           string `json:"color"`
+	Value           string `json:"value"`
+	Unit            string `json:"unit"`
+	QueryExpression string `json:"queryExpression"`
 }
 
 type Graph struct {
