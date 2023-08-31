@@ -64,7 +64,7 @@ export const ChartWrapper = ({
       ({
         data,
         groupBy,
-        yFormatter = (y: any): number => y * 1,
+        yFormatter = (y: any): number => { return (isNaN(y) ? 0 : (y * 1)) },
         xFormatter = (x: any): number => Math.floor(x * 1),
       }: {
         data: CustomPrometheusResponse & CustomWavefrontResponse;
