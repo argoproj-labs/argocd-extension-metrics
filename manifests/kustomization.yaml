@@ -3,6 +3,6 @@ kind: Kustomization
 
 resources:
 - configmap.yaml
-- install.yaml
-- extension.yaml
+- deployment.yaml
+- service.yaml
 

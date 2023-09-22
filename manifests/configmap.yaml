@@ -1,4 +1,7 @@
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-metrics-server-configmap
 data:
   config.json: |
     {
@@ -300,6 +303,3 @@ data:
       }
     }
     }
-kind: ConfigMap
-metadata:
-  name: argocd-metrics-server-configmap
