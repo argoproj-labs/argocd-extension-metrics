@@ -55,15 +55,7 @@ clean-ui:
 
 .PHONY: test
 test:
-	go test -v ./server
-
-$(GOPATH)/bin/golangci-lint:
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b `go env GOPATH`/bin v1.46.2
-
-.PHONY: lint
-lint: $(GOPATH)/bin/golangci-lint
-	go mod tidy
-	golangci-lint run --fix --verbose --concurrency 4 --timeout 5m
+	go test -v ./...
 
 .PHONY: image
 image: build

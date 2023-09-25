@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/argoproj-labs/argocd-metric-ext-server/server"
-	"github.com/argoproj-labs/argocd-metric-ext-server/shared/logging"
+	"github.com/argoproj-labs/argocd-metric-ext-server/internal/logging"
+	"github.com/argoproj-labs/argocd-metric-ext-server/internal/server"
 )
 
 func main() {

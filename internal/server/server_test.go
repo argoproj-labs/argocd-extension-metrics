@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/argoproj-labs/argocd-metric-ext-server/shared/logging"
+	"github.com/argoproj-labs/argocd-metric-ext-server/internal/logging"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
