@@ -3,53 +3,30 @@
 The project introduces the ArgoCD extension to enable Metrics on Resource tab.
 ![](./docs/images/screenshot.png)
 
-# Quick Start
+This extension is composed by 2 components:
+- `argocd-metrics-server` is a backend service that queries and expose
+  prometheus metrics to the UI extension
+- UI extension render graphs based on metrics returned by the `argocd-metrics-server`
 
-- Install Argo CD and Argo CD Extensions Controller: https://github.com/argoproj-labs/argocd-extensions
-- Create `argocd-metrics-server` deployment in `argocd` namespace
+## Prerequisites
+
+- Argo CD version 2.6+
+- Prometheus
+
+## Quick Start
+
+### Install `argocd-metrics-server`
 
 ```sh
-kubectl apply -n argocd \
-    -f https://raw.githubusercontent.com/argoproj-labs/argocd-extension-metrics/main/manifests/install.yaml
-
-kubectl apply -n argocd https://raw.githubusercontent.com/argoproj-labs/argocd-extension-metrics/main/manifests/configmap.yaml
-
+git clone https://github.com/argoproj-labs/argocd-extension-metrics.git
+cd argocd-extension-metrics
+kustomize build ./manifests | kubectl apply -f -
 ```
 
-- Create `argocd-extension-metrics` extension in `argocd` namespace
+### Install UI extension
 
-```
-kubectl apply -n argocd \
-    -f https://raw.githubusercontent.com/argoproj-labs/argocd-extension-metrics/main/manifests/extension.yaml
-```
+TODO
 
-# Enable the Argo UI to access the ArgoCD Metrics Server.
+## Contributing
 
-## ArgoCD < v2.7
-
-ArgoCD version less than v2.7 doesn't support the `Backend Proxy`. You have to configure the Ingress to deviate the API calls between ArgoCD server and ArgoCD metrics Server
-
-```yaml
-spec:
-  rules:
-    - http:
-        paths:
-          - backend:
-              service:
-                name: argocd-o11y-server
-                port:
-                  number: 9003
-            path: /extensions/metrics
-            pathType: Prefix
-          - backend:
-              service:
-                name: argocd-server
-                port:
-                  number: 80
-            path: /
-            pathType: Prefix
-```
-
-## ArgoCD >= v2.7
-
-ArgoCD Team is working to implemented backend proxy [proposal](https://github.com/argoproj/argo-cd/blob/master/docs/proposals/proxy-extensions.md)
+TODO
