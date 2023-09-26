@@ -1,6 +1,6 @@
 module github.com/argoproj-labs/argocd-metric-ext-server
 
-go 1.18
+go 1.21
 
 require (
 	github.com/WavefrontHQ/go-wavefront-management-api v1.15.0

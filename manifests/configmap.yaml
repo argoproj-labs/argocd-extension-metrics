@@ -95,7 +95,6 @@ data:
                 }
               ]
             },
-    
             {
               "groupKind": "deployment",
               "tabs": ["Golden Signal"],
@@ -299,7 +298,7 @@ data:
       {
         "Name": "default",
         "default": true,
-        "address": "http://prometheus-service.monitoring.svc.cluster.local:8080"
+        "address": "http://prometheus-operated.monitoring.svc.cluster.local:9090"
       }
     }
     }
