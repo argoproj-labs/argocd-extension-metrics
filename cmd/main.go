@@ -15,7 +15,6 @@ func main() {
 	flag.Parse()
 	logger := logging.NewLogger().Named("metric-sever")
 	ctx := context.Background()
-	ctx = context.Background()
 	defer ctx.Done()
 
 	metricsServer := server.NewO11yServer(logger, port, enableTLS)

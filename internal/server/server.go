@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -225,7 +224,7 @@ func (ms *O11yServer) dashboardConfig(ctx *gin.Context) {
 }
 
 func (ms *O11yServer) readConfig() error {
-	yamlFile, err := ioutil.ReadFile("app/config.json")
+	yamlFile, err := os.ReadFile("app/config.json")
 	if err != nil {
 		fmt.Printf("yamlFile.Get err   #%v ", err)
 	}
