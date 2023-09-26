@@ -4,3 +4,4 @@ dist/
 bin/
 extensions/resource-metrics/resource-metrics-extention/ui/dist
 extensions/resource-metrics/resource-metrics-extention/ui/package-lock.json
+extensions/resource-metrics/resource-metrics-extention/ui/extension.tar

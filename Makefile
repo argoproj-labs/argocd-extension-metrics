@@ -12,7 +12,7 @@ GIT_TAG=$(shell if [ -z "`git status --porcelain`" ]; then git describe --exact-
 GIT_TREE_STATE=$(shell if [ -z "`git status --porcelain`" ]; then echo "clean" ; else echo "dirty"; fi)
 
 DOCKER_PUSH?=false
-IMAGE_NAMESPACE?=docker.io/argoproj
+IMAGE_NAMESPACE?=quay.io/argoprojlabs
 VERSION?=latest
 BASE_VERSION:=latest
 
@@ -58,7 +58,7 @@ test:
 	go test -v ./...
 
 .PHONY: image
-image: build
+image:
 	DOCKER_BUILDKIT=1 docker build  -t $(IMAGE_NAMESPACE)/$(BINARY_NAME):$(VERSION)  -f $(DOCKERFILE) .
 	@if [ "$(DOCKER_PUSH)" = "true" ]; then docker push $(IMAGE_NAMESPACE)/$(BINARY_NAME):$(VERSION); fi
 
