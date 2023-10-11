@@ -4,6 +4,7 @@ import { PieChart, Pie, Tooltip, Cell } from "../../utils/recharts";
 import { roundNumber } from "../..";
 import { colorArray } from "../Chart/ChartWrapper";
 import "./Pie.scss";
+import Tippy from "@tippy.js/react";
 
 const CustomTooltip = ({
   active,
@@ -55,6 +56,7 @@ export const CustomPie = ({
   highlight,
   groupBy,
   setHighlight,
+  description
 }: any) => {
   const [formattedData, setFormattedData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -138,7 +140,9 @@ export const CustomPie = ({
             allowEscapeViewBox={{ x: true, y: true }}
           />
         </PieChart>
+        <Tippy content={description} arrow={true} animation="fade">
         <div className="metrics-pie__chart-label">{labelKey}</div>
+        </Tippy>
       </div>
     ),
     [
