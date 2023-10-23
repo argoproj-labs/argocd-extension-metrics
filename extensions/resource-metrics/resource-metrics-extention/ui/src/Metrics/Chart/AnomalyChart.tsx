@@ -631,7 +631,7 @@ export const AnomalyChart = ({
               />
               {YAxisMemo}
               {TooltipMemo}
-              {thisChartData?.[0]?.data.length >0 ? !isLabelHovered ? LegendMemo : null : null}
+{thisChartData?.[0]?.data.length > 0 && !isLabelHovered && LegendMemo}
               <defs>
                 <linearGradient
                   // gradientUnits="userSpaceOnUse"
