@@ -485,7 +485,7 @@ export const TimeSeriesChart = ({
                   {XAxisMemo}
                   {YAxisMemo}
                   {TooltipMemo}
-                  {(data?.length > 0 && !isLabelHovered) ? LegendMemo : null}
+                  {((data?.length > 0) && !isLabelHovered) ? LegendMemo : null}
                   {data?.map((d: any, i: number) => {
                     return (
                       <Line
