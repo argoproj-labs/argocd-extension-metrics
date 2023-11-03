@@ -16,6 +16,8 @@ spec:
       containers:
         - image: quay.io/argoprojlabs/argocd-extension-metrics:latest
           imagePullPolicy: IfNotPresent
+          args:
+            - '-enableTLS=false'
           name: argocd-metrics-server
           ports:
             - containerPort: 9003
