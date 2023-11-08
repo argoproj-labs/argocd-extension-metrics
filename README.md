@@ -54,7 +54,7 @@ spec:
     spec:
       initContainers:
         - name: extension-metrics
-          image: ext-installer:local
+          image: quay.io/argoprojlabs/argocd-extension-installer:v0.0.1
           env:
           - name: EXTENSION_URL
             value: https://github.com/argoproj-labs/argocd-extension-metrics/releases/download/v1.0.0/extension.tar.gz
