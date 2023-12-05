@@ -76,6 +76,44 @@ spec:
           emptyDir: {}
 ```
 
+### Enabling the Metrics extension in Argo CD
+
+Argo CD needs to have the proxy extension feature enabled for the
+metrics extension to work. In order to do so add the following entry
+in the `argocd-cmd-params-cm`:
+
+```
+server.enable.proxy.extension: "true"
+```
+
+The metrics extension needs to be authorized in Argo CD API server. To
+enable it for all users add the following entry in `argocd-rbac-cm`:
+
+```
+policy.csv: |-
+  p, role:readonly, extensions, invoke, httpbin, allow
+```
+
+**Note**: make sure to assign a proper role to the extension policy if you
+want to restrict users.
+
+Finally Argo CD needs to be configured so it knows how to reach the
+metrics server. In order to do so, add the following section in the
+`argocd-cd`.
+
+```
+extension.config: |-
+  extensions:
+    - name: metrics
+      backend:
+        services:
+          - url: <METRICS_SERVER_URL>
+```
+
+**Attention**: Make sure to change the `METRICS_SERVER_URL` to the URL
+where argocd-metrics-server is configured. The metrics server URL
+needs to be reacheable by the Argo CD API server.
+
 ## Contributing
 
 TODO
