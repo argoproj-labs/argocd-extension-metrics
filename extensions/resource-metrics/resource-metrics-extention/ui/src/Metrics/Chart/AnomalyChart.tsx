@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import {useMemo, useState} from "react";
 import {
   Area,
   AreaChart,
@@ -325,6 +325,7 @@ interface AnomalyChartProps {
   setHighlight: (arg0: {} | any) => any;
   labelKey: string;
   events: any;
+  description: string
 }
 
 export const AnomalyChart = ({
@@ -341,7 +342,9 @@ export const AnomalyChart = ({
   setHighlight,
   labelKey,
   events,
+  description
 }: AnomalyChartProps) => {
+  const [isLabelHovered, setIsLabelHovered] = useState(false);
   const formatChartData = (data: any) => {
     const formattedData: any = [];
     data?.data?.map((obj: any) => {
@@ -375,7 +378,7 @@ export const AnomalyChart = ({
         }
       />
     );
-  }, [groupBy, metric, labelKey]);
+  }, [groupBy, metric, labelKey,isLabelHovered]);
 
   const TooltipMemo = useMemo(() => {
     return (
@@ -397,7 +400,33 @@ export const AnomalyChart = ({
         allowEscapeViewBox={{ x: false, y: true }}
       />
     );
-  }, [labelKey, metric, yFormatter]);
+  }, [labelKey, metric, yFormatter,isLabelHovered]);
+
+  const CustomYLabel = ({ x, y, value, tooltipContent }: any) => {
+    const handleMouseEnter = (e: React.MouseEvent) => {
+      setIsLabelHovered(true)
+    }
+
+    const handleMouseLeave = (e: React.MouseEvent) => {
+      setIsLabelHovered(false)
+    }
+    return (
+        <Tippy content={tooltipContent} arrow={true} animation="fade">
+          <text
+              x={x}
+              y={y}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+              style={{ transform: "rotate(-90deg)", opacity: 0.3, fontSize: "15px", textAnchor: "middle" }}
+          >
+            {value}
+          </text>
+        </Tippy>
+    );
+  };
+
+
+
 
   const YAxisMemo = useMemo(() => {
     return (
@@ -414,11 +443,12 @@ export const AnomalyChart = ({
           value={labelKey}
           offset={15}
           angle={-90}
-          position="left"
+          position="insideLeft"
+          content={<CustomYLabel x="-70" y="30" tooltipContent={description} />}
         />
       </YAxis>
     );
-  }, [labelKey]);
+  }, [labelKey,isLabelHovered]);
 
   const renderEventContent = ({ viewBox: { x, y } }: any, event: any) => {
     const d: number = 20;
@@ -601,7 +631,7 @@ export const AnomalyChart = ({
               />
               {YAxisMemo}
               {TooltipMemo}
-              {LegendMemo}
+{thisChartData?.[0]?.data.length > 0 && !isLabelHovered && LegendMemo}
               <defs>
                 <linearGradient
                   // gradientUnits="userSpaceOnUse"
@@ -702,6 +732,7 @@ export const AnomalyChart = ({
       setHighlight,
       highlight,
       groupBy,
+      isLabelHovered
     ]
   );
 };
