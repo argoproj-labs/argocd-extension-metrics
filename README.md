@@ -99,7 +99,7 @@ want to restrict users.
 
 Finally Argo CD needs to be configured so it knows how to reach the
 metrics server. In order to do so, add the following section in the
-`argocd-cd`.
+`argocd-cm`.
 
 ```
 extension.config: |-
