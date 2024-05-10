@@ -91,7 +91,7 @@ enable it for all users add the following entry in `argocd-rbac-cm`:
 
 ```
 policy.csv: |-
-  p, role:readonly, extensions, invoke, httpbin, allow
+  p, role:readonly, extensions, invoke, metrics, allow
 ```
 
 **Note**: make sure to assign a proper role to the extension policy if you
@@ -99,7 +99,7 @@ want to restrict users.
 
 Finally Argo CD needs to be configured so it knows how to reach the
 metrics server. In order to do so, add the following section in the
-`argocd-cd`.
+`argocd-cm`.
 
 ```
 extension.config: |-
