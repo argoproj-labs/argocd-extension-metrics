@@ -1,4 +1,4 @@
-import {useMemo, useState} from "react";
+import { useMemo, useState } from "react";
 import {
   Area,
   AreaChart,
@@ -215,6 +215,9 @@ import { ChartDataProps } from "./types";
 //   },
 // ];
 
+const highLine = 7;
+const medLine = 4;
+
 const height = 180;
 
 const colorGrades = {
@@ -225,6 +228,20 @@ const colorGrades = {
 
 const truncate = (str: string, n: number): string => {
   return str.length > n ? str.slice(0, n - 1) + "..." : str;
+};
+
+const CustomDot = (props: any) => {
+  const { cx, cy, payload } = props;
+  if (payload.hide) {
+    return null;
+  }
+  let color = colorGrades.low;
+  if (payload?.y > highLine) {
+    color = colorGrades.high;
+  } else if (payload?.y > medLine) {
+    color = colorGrades.medium;
+  }
+  return <circle cx={cx} cy={cy} r={4} stroke="white" fill={color} />;
 };
 
 const CustomTooltip = ({
@@ -242,15 +259,17 @@ const CustomTooltip = ({
       .forEach((el) => (el.innerHTML = "--"));
 
     payload?.map((p: any, i: any) => {
-      document.getElementById(`valueId_${metric}_${p.name}`).innerText =
-        roundNumber(yFormatter(p.value), valueRounding) + ` ${yUnit}`;
-      document.getElementById(`labelId_${metric}`).textContent = moment
-        .unix(label)
-        .format("MMM D, HH:mm");
-      document.getElementById(`circle_${metric}`).style.fill =
-        ((p?.payload?.y || 0) >= 7 && colorGrades.high) ||
-        ((p?.payload?.y || 0) >= 3 && colorGrades.medium) ||
-        colorGrades.low;
+      if (!p?.payload?.hide) {
+        document.getElementById(`valueId_${metric}_${p.name}`).innerText =
+          roundNumber(yFormatter(p.value), valueRounding) + ` ${yUnit}`;
+        document.getElementById(`labelId_${metric}`).textContent = moment
+          .unix(label)
+          .format("MMM D, HH:mm");
+        document.getElementById(`circle_${metric}`).style.fill =
+          ((p?.payload?.y || 0) >= highLine && colorGrades.high) ||
+          ((p?.payload?.y || 0) >= medLine && colorGrades.medium) ||
+          colorGrades.low;
+      }
     });
     return (
       <div className="metrics-charts__tooltip" style={{ display: "none" }}>
@@ -311,6 +330,35 @@ const RenderLegend = ({ payload, metric }: any) => {
   );
 };
 
+const formatChartData = (data: any) => {
+  const formattedData: any = [];
+  data?.data?.map((obj: any) => {
+    const metricObj: any = {
+      ...obj,
+      name: obj?.metric && Object.values(obj?.metric).join(":"),
+      data: [],
+    };
+    obj?.values?.map((kp: any, i: any) => {
+      metricObj.data.push({
+        x: Math.floor(kp[0] * 1),
+        y: kp[1],
+      });
+    });
+    metricObj.data.unshift({
+      x: metricObj.data[0].x - 1,
+      y: 0,
+      hide: true,
+    });
+    metricObj.data.unshift({
+      x: metricObj.data[0].x - 1,
+      y: 10,
+      hide: true,
+    });
+    formattedData.push(metricObj);
+  });
+  return formattedData;
+};
+
 interface AnomalyChartProps {
   chartData: ChartDataProps;
   title: string;
@@ -325,7 +373,7 @@ interface AnomalyChartProps {
   setHighlight: (arg0: {} | any) => any;
   labelKey: string;
   events: any;
-  description: string
+  description: string;
 }
 
 export const AnomalyChart = ({
@@ -342,27 +390,9 @@ export const AnomalyChart = ({
   setHighlight,
   labelKey,
   events,
-  description
+  description,
 }: AnomalyChartProps) => {
   const [isLabelHovered, setIsLabelHovered] = useState(false);
-  const formatChartData = (data: any) => {
-    const formattedData: any = [];
-    data?.data?.map((obj: any) => {
-      const metricObj: any = {
-        ...obj,
-        name: obj?.metric && Object.values(obj?.metric).join(":"),
-        data: [],
-      };
-      obj?.values?.map((kp: any, i: any) => {
-        metricObj.data.push({
-          x: Math.floor(kp[0] * 1),
-          y: kp[1],
-        });
-      });
-      formattedData.push(metricObj);
-    });
-    return formattedData;
-  };
 
   const LegendMemo = useMemo(() => {
     return (
@@ -378,7 +408,7 @@ export const AnomalyChart = ({
         }
       />
     );
-  }, [groupBy, metric, labelKey,isLabelHovered]);
+  }, [groupBy, metric, labelKey, isLabelHovered]);
 
   const TooltipMemo = useMemo(() => {
     return (
@@ -400,33 +430,35 @@ export const AnomalyChart = ({
         allowEscapeViewBox={{ x: false, y: true }}
       />
     );
-  }, [labelKey, metric, yFormatter,isLabelHovered]);
+  }, [labelKey, metric, yFormatter, isLabelHovered]);
 
   const CustomYLabel = ({ x, y, value, tooltipContent }: any) => {
     const handleMouseEnter = (e: React.MouseEvent) => {
-      setIsLabelHovered(true)
-    }
+      setIsLabelHovered(true);
+    };
 
     const handleMouseLeave = (e: React.MouseEvent) => {
-      setIsLabelHovered(false)
-    }
+      setIsLabelHovered(false);
+    };
     return (
-        <Tippy content={tooltipContent} arrow={true} animation="fade">
-          <text
-              x={x}
-              y={y}
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
-              style={{ transform: "rotate(-90deg)", opacity: 0.3, fontSize: "15px", textAnchor: "middle" }}
-          >
-            {value}
-          </text>
-        </Tippy>
+      <Tippy content={tooltipContent} arrow={true} animation="fade">
+        <text
+          x={x}
+          y={y}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          style={{
+            transform: "rotate(-90deg)",
+            opacity: 0.3,
+            fontSize: "15px",
+            textAnchor: "middle",
+          }}
+        >
+          {value}
+        </text>
+      </Tippy>
     );
   };
-
-
-
 
   const YAxisMemo = useMemo(() => {
     return (
@@ -434,7 +466,7 @@ export const AnomalyChart = ({
         domain={[0, 10]}
         unit={` ${yUnit}`}
         tickFormatter={(y: any) => roundNumber(y, valueRounding) + ``}
-        ticks={[0, 3, 7, 10]}
+        ticks={[0, medLine, highLine, 10]}
         style={{ fontSize: ".9em" }}
       >
         <Label
@@ -448,7 +480,7 @@ export const AnomalyChart = ({
         />
       </YAxis>
     );
-  }, [labelKey,isLabelHovered]);
+  }, [labelKey, isLabelHovered]);
 
   const renderEventContent = ({ viewBox: { x, y } }: any, event: any) => {
     const d: number = 20;
@@ -542,198 +574,149 @@ export const AnomalyChart = ({
   };
   const thisChartData = formatChartData(chartData);
 
-  const scaleGradient = (
-    perc: number,
-    max: number,
-    min: number = 0
-  ): number => {
-    return (perc - (1 - max / 10)) / ((max - min) / 10);
-  };
+  if (!thisChartData?.[0]?.data?.length) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          border: "1px dashed #eee",
+          padding: "16px 16 16px 16px",
+          width: "calc(100% - 2em)",
+          height: "100%",
+          minHeight: "4em",
+          margin: "1.5em 1em 0em",
+          color: "#b4b4b4",
+        }}
+      >
+        Metric {title} not available
+      </div>
+    );
+  }
 
-  const maxVal = Math.max.apply(
-    Math,
-    thisChartData?.[0]?.data?.map(function (o: any) {
-      return o.y;
-    })
-  );
-  const minVal = Math.min.apply(
-    Math,
-    thisChartData?.[0]?.data?.map(function (o: any) {
-      return o.y;
-    })
-  );
-
-  return useMemo(
-    () => (
-      <>
-        <div style={{ display: "block", width: "100%", margin: "0px 5px" }}>
-          <div>
-            <strong>{title}</strong>
-          </div>
-          <ResponsiveContainer debounce={150} width="100%" height={height}>
-            <AreaChart
-              width={800}
-              height={500}
-              data={thisChartData?.[0]?.data}
-              syncId={"o11yCharts"}
-              syncMethod={"value"}
-              layout={"horizontal"}
-              onMouseMove={(e: any) => { }}
-              onMouseLeave={() => {
-                setHighlight({ ...highlight, [groupBy]: "" });
-              }}
-              margin={{
-                top: 30,
-                right: 30,
-                left: 40,
-                bottom: 5,
-              }}
-              style={{ border: '1px dashed #DEE6EB' }}
-            >
-              {/* <CartesianGrid strokeDasharray="3 3" /> */}
-              {Object.keys(uniqueEvents(events))?.map(
-                (eventKey: any, i: number) => {
-                  const event = uniqueEvents(events)[eventKey];
-                  if (!eventKey || !event) {
-                    return;
-                  }
-
-                  return (
-                    <ReferenceLine
-                      key={eventKey + i}
-                      isFront
-                      x={moment(eventKey).unix()}
-                      stroke={colorGrades.high}
-                      strokeWidth={2}
-                      strokeDasharray={"3 2"}
-                      label={
-                        <Label
-                          position="center"
-                          content={(p: any) => renderEventContent(p, event)}
-                        />
-                      }
-                    />
-                  );
-                }
-              )}
-              <XAxis
-                dataKey="x"
-                domain={["dataMin", "dataMax"]}
-                name="Time"
-                minTickGap={0}
-                allowDuplicatedCategory={false}
-                style={{ fontSize: ".9em" }}
-                tickCount={12}
-                tickFormatter={(unixTime: number) =>
-                  moment(unixTime * 1000).format("HH:mm")
-                }
-                type="number"
-              />
-              {YAxisMemo}
-              {TooltipMemo}
-{thisChartData?.[0]?.data.length > 0 && !isLabelHovered && LegendMemo}
-              <defs>
-                <linearGradient
-                  // gradientUnits="userSpaceOnUse"
-                  id="colorUv"
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop offset={0} stopColor={colorGrades.high} />
-                  <stop
-                    offset={scaleGradient(0.3, maxVal)}
-                    stopColor={colorGrades.high}
-                  />
-                  <stop
-                    offset={scaleGradient(0.3, maxVal)}
-                    stopColor={colorGrades.medium}
-                  />
-                  <stop
-                    offset={scaleGradient(0.7, maxVal)}
-                    stopColor={colorGrades.medium}
-                  />
-                  <stop
-                    offset={scaleGradient(0.7, maxVal)}
-                    stopColor={colorGrades.low}
-                  />
-                  <stop offset="1" stopColor="#18be94" />
-                </linearGradient>
-                <linearGradient
-                  // gradientUnits="userSpaceOnUse"
-                  id="colorUvLine"
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop offset={0} stopColor={colorGrades.high} />
-                  <stop
-                    offset={scaleGradient(0.3, maxVal, minVal)}
-                    stopColor={colorGrades.high}
-                  />
-                  <stop
-                    offset={scaleGradient(0.3, maxVal, minVal)}
-                    stopColor={colorGrades.medium}
-                  />
-                  <stop
-                    offset={scaleGradient(0.7, maxVal, minVal)}
-                    stopColor={colorGrades.medium}
-                  />
-                  <stop
-                    offset={scaleGradient(0.7, maxVal, minVal)}
-                    stopColor="#18be94"
-                  />
-                  <stop offset="1" stopColor="#18be94" />
-                </linearGradient>
-              </defs>
-              <Area
-                // strokeDasharray={`${strokeArray(i)}`}
-                isAnimationActive={false}
-                dataKey="y"
-                connectNulls={false}
-                stroke="url(#colorUvLine)"
-                fill="url(#colorUv)"
-                strokeWidth={2}
-                name={thisChartData?.[0]?.name}
-                activeDot={{
-                  stroke: "white",
-                  strokeWidth: 2,
-                  r: 4,
-                  fill: "#666",
-                }}
-                key={thisChartData?.[0]?.name}
-                animationDuration={200}
-              />
-              <ReferenceLine
-                y={7}
-                strokeWidth={1}
-                strokeDasharray={4}
-                stroke={colorGrades.high}
-              />
-              <ReferenceLine
-                y={3}
-                strokeWidth={1}
-                strokeDasharray={4}
-                stroke={colorGrades.medium}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+  return (
+    <>
+      <div style={{ display: "block", width: "100%", margin: "0px 5px" }}>
+        <div>
+          <strong>{title}</strong>
         </div>
-      </>
-    ),
-    [
-      title,
-      events,
-      YAxisMemo,
-      TooltipMemo,
-      LegendMemo,
-      setHighlight,
-      highlight,
-      groupBy,
-      isLabelHovered
-    ]
+        <ResponsiveContainer debounce={150} width="100%" height={height}>
+          <AreaChart
+            width={800}
+            height={500}
+            data={thisChartData?.[0]?.data}
+            syncId={"o11yCharts"}
+            syncMethod={"value"}
+            layout={"horizontal"}
+            onMouseMove={(e: any) => {}}
+            onMouseLeave={() => {
+              setHighlight({ ...highlight, [groupBy]: "" });
+            }}
+            margin={{
+              top: 30,
+              right: 30,
+              left: 20,
+              bottom: 5,
+            }}
+            style={{ border: "1px dashed #DEE6EB" }}
+          >
+            {/* <CartesianGrid strokeDasharray="3 3" /> */}
+            {Object.keys(uniqueEvents(events))?.map(
+              (eventKey: any, i: number) => {
+                const event = uniqueEvents(events)[eventKey];
+                if (!eventKey || !event) {
+                  return;
+                }
+
+                return (
+                  <ReferenceLine
+                    key={eventKey + i}
+                    isFront
+                    x={moment(eventKey).unix()}
+                    stroke={colorGrades.high}
+                    strokeWidth={2}
+                    strokeDasharray={"3 2"}
+                    label={
+                      <Label
+                        position="center"
+                        content={(p: any) => renderEventContent(p, event)}
+                      />
+                    }
+                  />
+                );
+              }
+            )}
+            <XAxis
+              dataKey="x"
+              domain={["dataMin", "dataMax"]}
+              name="Time"
+              minTickGap={0}
+              allowDuplicatedCategory={false}
+              style={{ fontSize: ".9em" }}
+              tickCount={12}
+              tickFormatter={(unixTime: number) =>
+                moment(unixTime * 1000).format("HH:mm")
+              }
+              type="number"
+            />
+            {YAxisMemo}
+            {TooltipMemo}
+            {thisChartData?.[0]?.data.length > 0 &&
+              !isLabelHovered &&
+              LegendMemo}
+            <defs>
+              <linearGradient
+                // gradientUnits="userSpaceOnUse"
+                id="colorUv"
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
+                <stop offset={0} stopColor={colorGrades.high} />
+                <stop offset={1 - highLine / 10} stopColor={colorGrades.high} />
+                <stop
+                  offset={1 - highLine / 10}
+                  stopColor={colorGrades.medium}
+                />
+                <stop
+                  offset={1 - medLine / 10}
+                  stopColor={colorGrades.medium}
+                />
+                <stop offset={1 - medLine / 10} stopColor={colorGrades.low} />
+                <stop offset="1" stopColor="#18be94" />
+              </linearGradient>
+            </defs>
+            <Area
+              // strokeDasharray={`${strokeArray(i)}`}
+              isAnimationActive={false}
+              dataKey="y"
+              connectNulls={false}
+              stroke="url(#colorUv)"
+              fill="url(#colorUv)"
+              strokeWidth={2}
+              name={thisChartData?.[0]?.name}
+              activeDot={<CustomDot />}
+              key={thisChartData?.[0]?.name}
+              animationDuration={200}
+            />
+            <ReferenceLine
+              y={highLine}
+              strokeWidth={1}
+              strokeDasharray={4}
+              stroke={colorGrades.high}
+            />
+            <ReferenceLine
+              y={medLine}
+              strokeWidth={1}
+              strokeDasharray={4}
+              stroke={colorGrades.medium}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+    </>
   );
 };
 
