@@ -393,24 +393,6 @@ export const AnomalyChart = ({
   description,
 }: AnomalyChartProps) => {
   const [isLabelHovered, setIsLabelHovered] = useState(false);
-  // const formatChartData = (data: any) => {
-  //   const formattedData: any = [];
-  //   data?.data?.map((obj: any) => {
-  //     const metricObj: any = {
-  //       ...obj,
-  //       name: obj?.metric && Object.values(obj?.metric).join(":"),
-  //       data: [],
-  //     };
-  //     obj?.values?.map((kp: any, i: any) => {
-  //       metricObj.data.push({
-  //         x: Math.floor(kp[0] * 1),
-  //         y: kp[1],
-  //       });
-  //     });
-  //     formattedData.push(metricObj);
-  //   });
-  //   return formattedData;
-  // };
 
   const LegendMemo = useMemo(() => {
     return (
