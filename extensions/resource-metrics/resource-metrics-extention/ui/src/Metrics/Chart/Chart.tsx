@@ -533,12 +533,12 @@ export const TimeSeriesChart = ({
               style={{
                 display: "flex",
                 justifyContent: "center",
-                alignItems: "flex-end",
-                border: "1px solid #ccc",
+                alignItems: "center",
+                border: "1px dashed #eee",
                 padding: "16px 16 16px 16px",
                 width: "calc(100% - 2em)",
-                height: "50px",
-                margin: "1em",
+                height: "100%",
+                margin: "0em",
                 color: "#b4b4b4",
               }}
             >
