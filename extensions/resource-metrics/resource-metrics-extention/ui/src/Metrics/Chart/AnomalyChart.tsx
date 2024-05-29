@@ -232,7 +232,6 @@ const truncate = (str: string, n: number): string => {
 
 const CustomDot = (props: any) => {
   const { cx, cy, payload } = props;
-  console.log("props", props);
   if (payload.hide) {
     return null;
   }
