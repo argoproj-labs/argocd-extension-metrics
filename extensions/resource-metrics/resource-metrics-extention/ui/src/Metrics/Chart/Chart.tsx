@@ -515,7 +515,7 @@ export const TimeSeriesChart = ({
 
                 </LineChart>
               </ResponsiveContainer>
-              {(chartData?.thresholds.length > 0) && (<div className="input-container">
+              {(chartData?.thresholds.length > 0) && (<div className="chart-input-container">
                 <label className="label-container">
                   <input
                     type="checkbox"
