@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/argoproj-labs/argocd-metric-ext-server/internal/config"
 	"github.com/prometheus/common/model"
 	"go.uber.org/zap"
 
@@ -36,7 +37,7 @@ type AggregatedResponse struct {
 type PrometheusProvider struct {
 	logger   *zap.SugaredLogger
 	provider v1.API
-	config   *MetricsConfigProvider
+	config   *config.MetricsConfigProvider
 }
 
 func (pp *PrometheusProvider) getType() string {
@@ -47,12 +48,12 @@ func (pp *PrometheusProvider) getType() string {
 func (pp *PrometheusProvider) getDashboard(ctx *gin.Context) {
 	appName := ctx.Param("application")
 	groupKind := ctx.Param("groupkind")
-	app := pp.config.getApp(appName)
+	app := pp.config.GetApp(appName)
 	if app == nil {
 		ctx.JSON(http.StatusBadRequest, "Requested/Default Application not found")
 		return
 	}
-	dash := app.getDashBoard(groupKind)
+	dash := app.GetDashBoard(groupKind)
 
 	if dash == nil {
 		ctx.JSON(http.StatusBadRequest, "Requested/Default Dashboard not found")
@@ -62,7 +63,7 @@ func (pp *PrometheusProvider) getDashboard(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, dash)
 }
 
-func NewPrometheusProvider(prometheusConfig *MetricsConfigProvider, logger *zap.SugaredLogger) *PrometheusProvider {
+func NewPrometheusProvider(prometheusConfig *config.MetricsConfigProvider, logger *zap.SugaredLogger) *PrometheusProvider {
 	return &PrometheusProvider{config: prometheusConfig, logger: logger}
 }
 
@@ -134,22 +135,22 @@ func (pp *PrometheusProvider) execute(ctx *gin.Context) {
 
 	env := ctx.Request.URL.Query()
 
-	application := pp.config.getApp(app)
+	application := pp.config.GetApp(app)
 	if application == nil {
 		ctx.JSON(http.StatusBadRequest, "Requested/Default Application not found")
 		return
 	}
-	dashboard := application.getDashBoard(groupKind)
+	dashboard := application.GetDashBoard(groupKind)
 	if dashboard == nil {
 		ctx.JSON(http.StatusBadRequest, "Requested/Default Dashboard not found")
 		return
 	}
-	row := dashboard.getRow(rowName)
+	row := dashboard.GetRow(rowName)
 	if row == nil {
 		ctx.JSON(http.StatusBadRequest, "Requested Row not found")
 		return
 	}
-	graph := row.getGraph(graphName)
+	graph := row.GetGraph(graphName)
 	if graph != nil {
 
 		var data AggregatedResponse

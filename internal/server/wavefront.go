@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/argoproj-labs/argocd-metric-ext-server/internal/config"
 	"go.uber.org/zap"
 
 	wavefront "github.com/WavefrontHQ/go-wavefront-management-api"
@@ -19,7 +20,7 @@ import (
 type WaveFrontProvider struct {
 	logger   *zap.SugaredLogger
 	provider *wavefront.Client
-	config   *MetricsConfigProvider
+	config   *config.MetricsConfigProvider
 	token    string
 }
 
@@ -27,12 +28,12 @@ type WaveFrontProvider struct {
 func (wf *WaveFrontProvider) getDashboard(ctx *gin.Context) {
 	appName := ctx.Param("application")
 	groupKind := ctx.Param("groupkind")
-	app := wf.config.getApp(appName)
+	app := wf.config.GetApp(appName)
 	if app == nil {
 		ctx.JSON(http.StatusBadRequest, "Requested/Default Application not found")
 		return
 	}
-	dash := app.getDashBoard(groupKind)
+	dash := app.GetDashBoard(groupKind)
 	if dash == nil {
 		ctx.JSON(http.StatusBadRequest, "Requested/Default Dashboard not found")
 		return
@@ -41,7 +42,7 @@ func (wf *WaveFrontProvider) getDashboard(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, dash)
 }
 
-func NewWavefrontProvider(waveFrontConfig *MetricsConfigProvider, token string, logger *zap.SugaredLogger) *WaveFrontProvider {
+func NewWavefrontProvider(waveFrontConfig *config.MetricsConfigProvider, token string, logger *zap.SugaredLogger) *WaveFrontProvider {
 	return &WaveFrontProvider{config: waveFrontConfig, token: token, logger: logger}
 }
 
@@ -115,22 +116,22 @@ func (wf *WaveFrontProvider) execute(ctx *gin.Context) {
 	}
 	env := ctx.Request.URL.Query()
 
-	application := wf.config.getApp(app)
+	application := wf.config.GetApp(app)
 	if application == nil {
 		ctx.JSON(http.StatusBadRequest, "Requested/Default Application not found")
 		return
 	}
-	dashboard := application.getDashBoard(groupKind)
+	dashboard := application.GetDashBoard(groupKind)
 	if dashboard == nil {
 		ctx.JSON(http.StatusBadRequest, "Requested/Default Dashboard not found")
 		return
 	}
-	row := dashboard.getRow(rowName)
+	row := dashboard.GetRow(rowName)
 	if row == nil {
 		ctx.JSON(http.StatusBadRequest, "Requested Row not found")
 		return
 	}
-	graph := row.getGraph(graphName)
+	graph := row.GetGraph(graphName)
 	if graph != nil {
 		wf.logger.Infow("Query execution", zap.Any("query", graph.QueryExpression), zap.Any("graphName", graph.Name), zap.Any("rowName", row.Name))
 

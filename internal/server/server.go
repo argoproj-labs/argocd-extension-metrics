@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"crypto/tls"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -11,6 +10,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/argoproj-labs/argocd-metric-ext-server/internal/config"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
@@ -22,7 +22,7 @@ const WAVEFRONT_TYPE = "wavefront"
 
 type O11yServer struct {
 	logger    *zap.SugaredLogger
-	config    O11yConfig
+	config    config.O11yConfig
 	provider  MetricsProvider
 	port      int
 	enableTLS bool
@@ -72,7 +72,6 @@ func NewO11yServer(logger *zap.SugaredLogger, port int, enableTLS bool) O11yServ
 	}
 }
 func (ms *O11yServer) Run(ctx context.Context) {
-
 	err := ms.readConfig()
 
 	if err != nil {
@@ -224,13 +223,13 @@ func (ms *O11yServer) dashboardConfig(ctx *gin.Context) {
 }
 
 func (ms *O11yServer) readConfig() error {
-	yamlFile, err := os.ReadFile("app/config.json")
+	jsonFile, err := os.ReadFile("app/config.json")
 	if err != nil {
-		fmt.Printf("yamlFile.Get err   #%v ", err)
+		fmt.Printf("JsonFile.Get err   #%v ", err)
 	}
 	//var configData map[string]string
-	fmt.Println(string(yamlFile))
-	err = json.Unmarshal(yamlFile, &ms.config)
+	ms.logger.Debugln(string(jsonFile))
+	ms.config, err = config.LoadConfigs(ms.logger, jsonFile)
 
 	if err != nil {
 		log.Fatalf("Unmarshal: %v", err)
