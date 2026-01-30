@@ -185,7 +185,8 @@ export const TimeSeriesChart = ({
   setHighlight,
   labelKey,
   events,
-  description
+  description,
+  duration
 }: any) => {
   const [showThreshold, setShowThreshold] = useState(false);
   const [isLabelHovered, setIsLabelHovered] = useState(false);
@@ -316,6 +317,25 @@ export const TimeSeriesChart = ({
     );
   }, [chartData, isLabelHovered]);
 
+  const getTickFormatter = (durationStr: string) => {
+    // Parse duration string (e.g., "1h", "24h", "30m")
+    if (!durationStr) return (unixTime: number) => moment(unixTime * 1000).format("HH:mm");
+    
+    const match = durationStr.match(/(\d+)([hmd])/);
+    if (!match) return (unixTime: number) => moment(unixTime * 1000).format("HH:mm");
+    
+    const value = parseInt(match[1]);
+    const unit = match[2];
+    
+    // For 24h or longer durations, include date
+    if ((unit === 'h' && value >= 24) || unit === 'd') {
+      return (unixTime: number) => moment(unixTime * 1000).format("MMM D, HH:mm");
+    }
+    
+    // For shorter durations (1h, etc), just show time
+    return (unixTime: number) => moment(unixTime * 1000).format("HH:mm");
+  };
+
   const XAxisMemo = useMemo(() => {
     return (
       <XAxis
@@ -324,13 +344,11 @@ export const TimeSeriesChart = ({
         name="Time"
         allowDuplicatedCategory={false}
         style={{ fontSize: ".9em" }}
-        tickFormatter={(unixTime: number) =>
-          moment(unixTime * 1000).format("HH:mm")
-        }
+        tickFormatter={getTickFormatter(duration)}
         type="number"
       />
     );
-  }, []);
+  }, [duration]);
 
   const renderEventContent = ({ viewBox: { x, y } }: any, event: any) => {
     const d: number = 20;

@@ -56,7 +56,8 @@ export const ChartWrapper = ({
   setFilterChart,
   highlight,
   setHighlight,
-  description
+  description,
+  duration
 }: any) => {
   const [chartsData, setChartsData] = useState<AllChartDataProps>({});
 
@@ -254,6 +255,7 @@ export const ChartWrapper = ({
             highlight={highlight}
             setHighlight={setHighlight}
             description={description}
+            duration={duration}
           />
         )}
         {graphType === "pie" && (

@@ -143,6 +143,7 @@ export const Metrics = ({
                     applicationNamespace={applicationNamespace}
                     title={graph.title}
                     description={graph.description}
+                    duration={duration}
                   />
                 );
               })}
