@@ -9,7 +9,7 @@ export const roundNumber = (num: number, dig: number): number => {
 
 export const Extension = (props: any) => {
   const [events, setEvents] = useState([]);
-  const [duration, setDuration] = useState<string>("");
+  const [duration, setDuration] = useState<string>("24h");
   const [hasMetrics, setHasMetrics] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [intervals, setIntervals] = useState<string[]>([]);
@@ -25,7 +25,7 @@ export const Extension = (props: any) => {
 
   // Set default duration from intervals when they are loaded
   useEffect(() => {
-    if (intervals?.length > 0 && !duration) {
+    if (intervals?.length > 0 && duration === "24h") {
       setDuration(intervals[0]);
     }
   }, [intervals]);
