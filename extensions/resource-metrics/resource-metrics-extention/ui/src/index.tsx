@@ -22,7 +22,7 @@ export const memoryFormatter = (value: number): number => {
 
 export const Extension = (props: any) => {
   const [events, setEvents] = useState([]);
-  const [duration, setDuration] = useState("1h");
+  const [duration, setDuration] = useState<string>("24h");
   const [hasMetrics, setHasMetrics] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [intervals, setIntervals] = useState<string[]>([]);
@@ -35,6 +35,14 @@ export const Extension = (props: any) => {
     e.preventDefault();
     setDuration(dur);
   };
+
+  // Set default duration from intervals when they are loaded
+  useEffect(() => {
+    if (intervals?.length > 0 && duration === "24h") {
+      setDuration(intervals[0]);
+    }
+  }, [intervals]);
+
   useEffect(() => {
     let url = `/api/v1/applications/${application_name}/events?resourceUID=${resource.metadata.uid}&resourceNamespace=${resource.metadata.namespace}&resourceName=${resource.metadata.name}&duration=${duration}`;
     if (resource.kind === "Application") {
