@@ -50,11 +50,18 @@ const CustomTooltip = ({
       .forEach((el) => (el.innerHTML = "--"));
 
     payload?.map((p: any, i: any) => {
-      document.getElementById(`valueId_${metric}_${p.name}`).innerText =
-        roundNumber(yFormatter(p.value), valueRounding) + ` ${yUnit}`;
-      document.getElementById(`labelId_${metric}`).textContent = moment
-        .unix(label)
-        .format("MMM D, HH:mm");
+      const valueElement = document.getElementById(`valueId_${metric}_${p.name}`);
+      if (valueElement) {
+        valueElement.innerText =
+          roundNumber(yFormatter(p.value), valueRounding) + ` ${yUnit}`;
+      }
+      
+      const labelElement = document.getElementById(`labelId_${metric}`);
+      if (labelElement) {
+        labelElement.textContent = moment
+          .unix(label)
+          .format("MMM D, HH:mm");
+      }
     });
     return (
       <div className="metrics-charts__tooltip" style={{ display: "none" }}>
