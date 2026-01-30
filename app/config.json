@@ -89,7 +89,8 @@
                     "description": "",
                     "graphType": "line",
                     "metricName": "pod",
-                    "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", container!=\"POD\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                    "yAxisUnit": "MB",
+                    "queryExpression": "sum(container_memory_usage_bytes{pod=~\"{{.name}}\", container!=\"POD\", image!=\"\", container!=\"\", container_name!=\"POD\"}) by (pod) / 1024 / 1024"
                   },
                   {
                     "name": "pod_memory_pie",
@@ -97,7 +98,8 @@
                     "description": "",
                     "graphType": "pie",
                     "metricName": "pod",
-                    "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", container!=\"POD\", image!=\"\", container!=\"\", container_name!=\"POD\"}[5m])) by (pod)"
+                    "yAxisUnit": "MB",
+                    "queryExpression": "sum(container_memory_usage_bytes{pod=~\"{{.name}}\", container!=\"POD\", image!=\"\", container!=\"\", container_name!=\"POD\"}) by (pod) / 1024 / 1024"
                   }
                 ]
               }
@@ -154,7 +156,8 @@
                     "description": "",
                     "graphType": "line",
                     "metricName": "container",
-                    "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"POD\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
+                    "yAxisUnit": "MB",
+                    "queryExpression": "sum(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"POD\", container!=\"\", container_name!=\"POD\"}) by (container) / 1024 / 1024"
                   },
                   {
                     "name": "container_memory_pie",
@@ -162,7 +165,8 @@
                     "description": "",
                     "graphType": "pie",
                     "metricName": "container",
-                    "queryExpression": "sum(rate(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"POD\", container!=\"\", container_name!=\"POD\"}[5m])) by (container)"
+                    "yAxisUnit": "MB",
+                    "queryExpression": "sum(container_memory_usage_bytes{pod=~\"{{.name}}\", image!=\"\", container!=\"POD\", container!=\"\", container_name!=\"POD\"}) by (container) / 1024 / 1024"
                   }
                 ]
               },

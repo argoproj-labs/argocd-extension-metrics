@@ -7,6 +7,19 @@ export const roundNumber = (num: number, dig: number): number => {
   return Math.round(num * 10 ** dig) / 10 ** dig;
 };
 
+export const formatMemory = (bytes: number): string => {
+  if (bytes === 0) return "0 B";
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  const k = 1024;
+  const i = Math.floor(Math.log(Math.abs(bytes)) / Math.log(k));
+  return roundNumber(bytes / Math.pow(k, i), 2) + " " + units[i];
+};
+
+export const memoryFormatter = (value: number): number => {
+  // This formatter is used when values are already in MB from Prometheus
+  return roundNumber(value, 2);
+};
+
 export const Extension = (props: any) => {
   const [events, setEvents] = useState([]);
   const [duration, setDuration] = useState<string>("24h");
