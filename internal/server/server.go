@@ -6,10 +6,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -82,7 +82,7 @@ func (ms *O11yServer) Run(ctx context.Context) {
 		ms.provider = NewPrometheusProvider(ms.config.Prometheus, ms.logger)
 		err := ms.provider.init()
 		if err != nil {
-			log.Panic(err)
+			ms.logger.Panic(err)
 		}
 	} else if ms.config.Wavefront != nil {
 		token, found := os.LookupEnv("WAVEFRONT_TOKEN")
@@ -92,10 +92,14 @@ func (ms *O11yServer) Run(ctx context.Context) {
 		ms.provider = NewWavefrontProvider(ms.config.Wavefront, token, ms.logger)
 		err := ms.provider.init()
 		if err != nil {
-			log.Panic(err)
+			ms.logger.Panic(err)
 		}
 	}
-	handler := gin.Default()
+	// Release mode skips the [GIN-debug] route listing. Access lines go through
+	// zap so they are JSON on the same stdout stream as the rest of the server.
+	gin.SetMode(gin.ReleaseMode)
+	handler := gin.New()
+	handler.Use(ms.accessLog(), gin.Recovery())
 	handler.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "healthy")
 	})
@@ -114,6 +118,30 @@ func (ms *O11yServer) Run(ctx context.Context) {
 		ms.run(address, handler)
 	}
 }
+func (ms *O11yServer) accessLog() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		start := time.Now()
+		c.Next()
+
+		path := c.Request.URL.Path
+		if query := c.Request.URL.RawQuery; query != "" {
+			path = path + "?" + query
+		}
+		fields := []interface{}{
+			"status", c.Writer.Status(),
+			"method", c.Request.Method,
+			"path", path,
+			"latency_ms", float64(time.Since(start).Microseconds()) / 1000,
+			"client_ip", c.ClientIP(),
+			"body_size", c.Writer.Size(),
+		}
+		if errMsg := c.Errors.String(); errMsg != "" {
+			fields = append(fields, "error", errMsg)
+		}
+		ms.logger.Infow("request", fields...)
+	}
+}
+
 func (ms *O11yServer) run(address string, handler *gin.Engine) {
 	ms.logger.Infof("Starting Argo Metrics Server.. %s", address)
 	server := http.Server{
@@ -226,15 +254,11 @@ func (ms *O11yServer) dashboardConfig(ctx *gin.Context) {
 func (ms *O11yServer) readConfig() error {
 	yamlFile, err := os.ReadFile("app/config.json")
 	if err != nil {
-		fmt.Printf("yamlFile.Get err   #%v ", err)
+		return fmt.Errorf("read config: %w", err)
 	}
-	//var configData map[string]string
-	fmt.Println(string(yamlFile))
 	err = json.Unmarshal(yamlFile, &ms.config)
-
 	if err != nil {
-		log.Fatalf("Unmarshal: %v", err)
-		return err
+		return fmt.Errorf("unmarshal config: %w", err)
 	}
 	return nil
 }

@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -10,6 +11,10 @@ import (
 	"github.com/argoproj-labs/argocd-metric-ext-server/internal/logging"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+	"go.uber.org/zap/zaptest/observer"
 )
 
 type MockO11yServer struct {
@@ -115,7 +120,7 @@ func TestQueryMetrics(t *testing.T) {
 func createContextAndNewO11yServer(w *httptest.ResponseRecorder) (ctx *gin.Context, ms O11yServer) {
 	var port int
 	var enableTLS bool
-	logger := logging.NewLogger().Named("metric-sever")
+	logger := logging.NewLogger().Named("metric-server")
 	ms = NewO11yServer(logger, port, enableTLS)
 	var temp MetricsProvider = MockO11yServer{}
 	ms.provider = temp
@@ -192,6 +197,38 @@ func TestDashboardConfig(t *testing.T) {
 			assert.EqualValues(t, validTest.expectedResult, w.Code)
 		})
 	}
+}
+
+func TestAccessLogIsOneJSONEvent(t *testing.T) {
+	core, recorded := observer.New(zapcore.InfoLevel)
+	logger := zap.New(core).Sugar().Named("metric-server")
+	ms := NewO11yServer(logger, 0, false)
+
+	gin.SetMode(gin.TestMode)
+	handler := gin.New()
+	handler.Use(ms.accessLog())
+	handler.GET("/api/applications/:application/groupkinds/:groupkind/dashboards", func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	})
+
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/api/applications/demo/groupkinds/pod/dashboards?project=default", nil)
+	handler.ServeHTTP(w, req)
+
+	require.Equal(t, http.StatusOK, w.Code)
+	entries := recorded.All()
+	require.Len(t, entries, 1)
+	assert.Equal(t, "request", entries[0].Message)
+
+	encoded, err := json.Marshal(entries[0].ContextMap())
+	require.NoError(t, err)
+	var fields map[string]interface{}
+	require.NoError(t, json.Unmarshal(encoded, &fields))
+	assert.EqualValues(t, http.StatusOK, fields["status"])
+	assert.Equal(t, http.MethodGet, fields["method"])
+	assert.Equal(t, "/api/applications/demo/groupkinds/pod/dashboards?project=default", fields["path"])
+	assert.Contains(t, fields, "latency_ms")
+	assert.Contains(t, fields, "client_ip")
 }
 
 // mock gin context

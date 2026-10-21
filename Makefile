@@ -25,7 +25,7 @@ override LDFLAGS += \
 ifeq (${DOCKER_PUSH},true)
     PUSH_OPTION="--push"
     ifndef IMAGE_NAMESPACE
-        $(error IMAGE_NAMESPACE must be set to push images (e.g. IMAGE_NAMESPACE=quay.io/numaproj))
+        $(error IMAGE_NAMESPACE must be set to push images (e.g. IMAGE_NAMESPACE=quay.io/argoprojlabs))
     endif
 endif
 
@@ -39,7 +39,7 @@ build:
 
 .PHONY: test-coverage
 test-coverage:
-	go test -covermode=atomic -coverprofile=test/profile.cov.tmp $(shell go list ./... | grep -v /vendor/ | grep -v /numaflow/test/ | grep -v /pkg/client/ | grep -v /pkg/proto/ | grep -v /hack/)
+	go test -covermode=atomic -coverprofile=test/profile.cov.tmp $(shell go list ./... | grep -v /vendor/ | grep -v /pkg/client/ | grep -v /pkg/proto/ | grep -v /hack/)
 	cat test/profile.cov.tmp | grep -v v1alpha1/zz_generated | grep -v v1alpha1/generated > test/profile.cov
 	rm test/profile.cov.tmp
 	go tool cover -func=test/profile.cov
