@@ -1,3 +1,5 @@
+version: 2
+
 project_name: argocd-extension-metrics
 
 before:
@@ -21,6 +23,7 @@ builds:
       - linux
     goarch:
       - amd64
+      - arm64
     ignore:
       - goos: darwin
         goarch: s390x
@@ -33,25 +36,30 @@ builds:
       - goos: windows
         goarch: arm64
 
-dockers:
-  - image_templates:
-    - quay.io/argoprojlabs/argocd-extension-metrics:latest
-    - quay.io/argoprojlabs/argocd-extension-metrics:{{ .Tag }}
-    dockerfile: release.Dockerfile
-    build_flag_templates:
-    - "--pull"
-    - "--label=org.opencontainers.image.created={{.Date}}"
-    - "--label=org.opencontainers.image.title={{.ProjectName}}"
-    - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-    - "--label=org.opencontainers.image.version={{.Version}}"
-    - "--platform=linux/amd64"
+dockers_v2:
+  - dockerfile: release.Dockerfile
+    ids:
+      - metrics-server
+    images:
+      - quay.io/argoprojlabs/argocd-extension-metrics
+    tags:
+      - "{{ .Tag }}"
+      - latest
+    platforms:
+      - linux/amd64
+      - linux/arm64
+    labels:
+      org.opencontainers.image.created: "{{ .Date }}"
+      org.opencontainers.image.title: "{{ .ProjectName }}"
+      org.opencontainers.image.revision: "{{ .FullCommit }}"
+      org.opencontainers.image.version: "{{ .Version }}"
 
 archives:
-  - format: tar.gz
+  - formats: [tar.gz]
     id: binary
-    builds:
-    - metrics-server
-  - format: gz
+    ids:
+      - metrics-server
+  - formats: [gz]
     id: ui-extension
     name_template: extension.tar
     meta: true
