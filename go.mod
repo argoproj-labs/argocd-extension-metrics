@@ -1,6 +1,13 @@
 module github.com/argoproj-labs/argocd-metric-ext-server
 
+// Language version the code requires. Only bump when a feature needs it.
 go 1.21
+
+// Exact Go release used to build and test. It does not affect language
+// semantics or impose a minimum on importers; it only pins the toolchain
+// (locally via GOTOOLCHAIN=auto, and in CI via setup-go go-version-file).
+// Bump freely with: go get toolchain@go1.X.Y
+toolchain go1.27.3
 
 require (
 	github.com/WavefrontHQ/go-wavefront-management-api v1.16.0
