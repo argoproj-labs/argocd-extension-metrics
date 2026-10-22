@@ -48,6 +48,12 @@ dockers_v2:
     platforms:
       - linux/amd64
       - linux/arm64
+    # The default Docker driver on GitHub-hosted runners cannot attach
+    # SBOM or provenance attestations. The two platforms still publish
+    # as one multi-arch index.
+    sbom: false
+    flags:
+      - "--provenance=false"
     labels:
       org.opencontainers.image.created: "{{ .Date }}"
       org.opencontainers.image.title: "{{ .ProjectName }}"
