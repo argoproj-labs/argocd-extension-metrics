@@ -3,7 +3,7 @@ module github.com/argoproj-labs/argocd-metric-ext-server
 go 1.21
 
 require (
-	github.com/WavefrontHQ/go-wavefront-management-api v1.15.0
+	github.com/WavefrontHQ/go-wavefront-management-api v1.16.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/prometheus/client_golang v1.13.0
 	github.com/prometheus/common v0.37.0
