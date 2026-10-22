@@ -2,6 +2,7 @@ package server
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -39,6 +40,11 @@ type PrometheusProvider struct {
 	config   *MetricsConfigProvider
 }
 
+type headerRoundTripper struct {
+	headers http.Header
+	rt      http.RoundTripper
+}
+
 func (pp *PrometheusProvider) getType() string {
 	return PROMETHEUS_TYPE
 }
@@ -66,9 +72,36 @@ func NewPrometheusProvider(prometheusConfig *MetricsConfigProvider, logger *zap.
 	return &PrometheusProvider{config: prometheusConfig, logger: logger}
 }
 
+// RoundTrip adds custom headers to each HTTP request before forwarding it.
+// Acts like middleware for injecting headers into Prometheus API calls.
+// Implements the http.RoundTripper interface.
+func (h *headerRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	for key, values := range h.headers {
+		for _, value := range values {
+			if len(value) > 0 {
+				req.Header.Add(key, value)
+			}
+		}
+	}
+
+	return h.rt.RoundTrip(req)
+}
+
 func (pp *PrometheusProvider) init() error {
+	additionalHeaders := pp.config.Provider.Headers
+	var rt http.RoundTripper = http.DefaultTransport
+	if pp.config.Provider.TLSConfig.InsecureSkipVerify {
+		rt = &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+	}
+
 	client, err := api.NewClient(api.Config{
 		Address: pp.config.Provider.Address,
+		RoundTripper: &headerRoundTripper{
+			headers: additionalHeaders,
+			rt:      rt,
+		},
 	})
 	if err != nil {
 		pp.logger.Errorf("Error creating client: %v\n", err)
