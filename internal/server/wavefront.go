@@ -33,6 +33,7 @@ func (wf *WaveFrontProvider) getDashboard(ctx *gin.Context) {
 		return
 	}
 	dash := app.getDashBoard(groupKind)
+	wf.logger.Debugw("dashboard lookup", "application", app.Name, "groupKind", groupKind, "found", dash != nil)
 	if dash == nil {
 		ctx.JSON(http.StatusBadRequest, "Requested/Default Dashboard not found")
 		return
@@ -121,6 +122,7 @@ func (wf *WaveFrontProvider) execute(ctx *gin.Context) {
 		return
 	}
 	dashboard := application.getDashBoard(groupKind)
+	wf.logger.Debugw("dashboard lookup", "application", application.Name, "groupKind", groupKind, "found", dashboard != nil)
 	if dashboard == nil {
 		ctx.JSON(http.StatusBadRequest, "Requested/Default Dashboard not found")
 		return
