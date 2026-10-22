@@ -7,7 +7,7 @@
     "@types/recharts": "^1.8.23",
     "recharts": "^2.1.9",
     "resize-observer-polyfill": "^1.5.1",
-    "web-vitals": "^1.0.1"
+    "web-vitals": "^6.2.3"
   },
   "peerDependencies": {
     "argo-ui": "git+https://github.com/argoproj/argo-ui.git",
