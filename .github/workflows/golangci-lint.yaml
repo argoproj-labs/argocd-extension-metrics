@@ -26,9 +26,9 @@ jobs:
         uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
         with:
           # Require: The version of golangci-lint to use.
-          # When `install-mode` is `binary` (default) the value can be v1.2 or v1.2.3 or `latest` to use the latest version.
-          # When `install-mode` is `goinstall` the value can be v1.2.3, `latest`, or the hash of a commit.
-          version: v1.54
+          # When `install-mode` is `binary` (default) the value can be v2.15 or v2.15.0 or `latest` to use the latest version.
+          # When `install-mode` is `goinstall` the value can be v2.15.0, `latest`, or the hash of a commit.
+          version: v2.15.0
           # Optional: working directory, useful for monorepos
           # working-directory: somedir
 
@@ -45,11 +45,5 @@ jobs:
           #           takes precedence over all other caching options.
           # skip-cache: true
 
-          # Optional: if set to true, then the action won't cache or restore ~/go/pkg.
-          # skip-pkg-cache: true
-
-          # Optional: if set to true, then the action won't cache or restore ~/.cache/go-build.
-          # skip-build-cache: true
-
-          # Optional: The mode to install golangci-lint. It can be 'binary' or 'goinstall'.
+          # Optional: The mode to install golangci-lint. It can be 'binary', 'goinstall', or 'none'.
           # install-mode: "goinstall"

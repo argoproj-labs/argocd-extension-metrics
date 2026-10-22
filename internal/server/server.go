@@ -177,18 +177,16 @@ func (ms *O11yServer) queryMetrics(ctx *gin.Context) {
 	}
 
 	if applicationNameHeader != applicationNameQueryParam {
-		msg := "Application name mismatch. Value from the header is different from the url."
-		err := errors.New(msg)
+		msg := "Application name mismatch. Value from the header is different from the url"
 		ms.logger.Warn(msg)
-		ctx.JSON(400, gin.H{"error": err.Error()})
+		ctx.JSON(400, gin.H{"error": msg})
 		return
 	}
 
 	if projectHeader != projectQueryParam {
-		msg := "Project mismatch. Value from the header is different from the url."
-		err := errors.New(msg)
+		msg := "Project mismatch. Value from the header is different from the url"
 		ms.logger.Warn(msg)
-		ctx.JSON(400, gin.H{"error": err.Error()})
+		ctx.JSON(400, gin.H{"error": msg})
 		return
 	}
 	ms.provider.execute(ctx)
@@ -214,10 +212,9 @@ func (ms *O11yServer) dashboardConfig(ctx *gin.Context) {
 		return
 	}
 	if applicationNameHeader != applicationNamePathParam {
-		msg := "Application name mismatch. Value from the header is different from the url."
-		err := errors.New(msg)
+		msg := "Application name mismatch. Value from the header is different from the url"
 		ms.logger.Warn(msg)
-		ctx.JSON(400, gin.H{"error": err.Error()})
+		ctx.JSON(400, gin.H{"error": msg})
 		return
 	}
 	ms.provider.getDashboard(ctx)
