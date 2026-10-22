@@ -1,21 +1,26 @@
 version: 2
 updates:
+  # One gomod entry per directory. Groups cannot select "indirect", so the
+  # direct modules are excluded by name and updated as individual PRs.
+  # Add new direct requirements to exclude-patterns.
   - package-ecosystem: gomod
     directory: /
     schedule:
       interval: weekly
     allow:
       - dependency-type: direct
-  - package-ecosystem: gomod
-    directory: /
-    schedule:
-      interval: weekly
-    allow:
       - dependency-type: indirect
     groups:
       go-indirect:
         patterns:
           - "*"
+        exclude-patterns:
+          - github.com/WavefrontHQ/go-wavefront-management-api
+          - github.com/gin-gonic/gin
+          - github.com/prometheus/client_golang
+          - github.com/prometheus/common
+          - github.com/stretchr/testify
+          - go.uber.org/zap
   - package-ecosystem: github-actions
     directory: /
     schedule:
@@ -24,3 +29,12 @@ updates:
       github-actions:
         patterns:
           - "*"
+  - package-ecosystem: npm
+    directory: /extensions/resource-metrics/resource-metrics-extention/ui
+    schedule:
+      interval: weekly
+    groups:
+      ui-minor-patch:
+        update-types:
+          - minor
+          - patch

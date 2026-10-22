@@ -1,0 +1,24 @@
+name: ui
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - "extensions/resource-metrics/resource-metrics-extention/ui/**"
+      - ".github/workflows/ui.yaml"
+jobs:
+  build:
+    name: Build UI
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: extensions/resource-metrics/resource-metrics-extention/ui
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 20
+          cache: yarn
+          cache-dependency-path: extensions/resource-metrics/resource-metrics-extention/ui/yarn.lock
+      - run: yarn install --frozen-lockfile
+      - run: yarn build
