@@ -29,8 +29,8 @@ kustomize build ./manifests | kubectl apply -f -
 All graphs are configured in the `argocd-metrics-server-configmap`.
 The example configmap provided in the `manifests` defines how to
 extract and query Prometheus to display the golden signal metrics in
-Argo CD UI. This configmap must be changed depending on the metrics
-available in your Prometheus instance.
+Argo CD UI. Replace those queries with ones that match the metrics in
+your Prometheus. See [Configuration](#configuration).
 
 
 ### Install UI extension
@@ -82,26 +82,27 @@ Argo CD needs to have the proxy extension feature enabled for the
 metrics extension to work. In order to do so add the following entry
 in the `argocd-cmd-params-cm`:
 
-```
+```yaml
 server.enable.proxy.extension: "true"
 ```
 
 The metrics extension needs to be authorized in Argo CD API server. To
 enable it for all users add the following entry in `argocd-rbac-cm`:
 
-```
+```yaml
 policy.csv: |-
   p, role:readonly, extensions, invoke, metrics, allow
 ```
 
-**Note**: make sure to assign a proper role to the extension policy if you
-want to restrict users.
+> [!IMPORTANT]
+> Make sure to assign a proper role to the extension policy if you
+> want to restrict users.
 
 Finally Argo CD needs to be configured so it knows how to reach the
 metrics server. In order to do so, add the following section in the
 `argocd-cm`.
 
-```
+```yaml
 extension.config: |-
   extensions:
     - name: metrics
@@ -110,9 +111,68 @@ extension.config: |-
           - url: <METRICS_SERVER_URL>
 ```
 
-**Attention**: Make sure to change the `METRICS_SERVER_URL` to the URL
-where argocd-metrics-server is configured. The metrics server URL
-needs to be reacheable by the Argo CD API server.
+> [!NOTE]
+> Make sure to change the `METRICS_SERVER_URL` to the URL
+> where argocd-metrics-server is configured. The metrics server URL
+> needs to be reacheable by the Argo CD API server.
+
+## Configuration
+
+After install, edit the `config.json` key of the `argocd-metrics-server-configmap` ConfigMap. A graph shows "Metric unavailable" when its query does not match anything in Prometheus.
+
+```json
+{
+  "prometheus": {
+    "applications": [
+      {
+        "name": "default",
+        "default": true,
+        "dashboards": [
+          {
+            "groupKind": "pod",
+            "tabs": ["Golden Signal"],
+            "rows": [
+              {
+                "name": "cpu",
+                "title": "CPU",
+                "tab": "Golden Signal",
+                "graphs": [
+                  {
+                    "name": "pod_cpu",
+                    "title": "CPU",
+                    "graphType": "line",
+                    "metricName": "pod",
+                    "queryExpression": "sum(rate(container_cpu_usage_seconds_total{pod=~\"{{.name}}\"}[5m])) by (pod)"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "provider": {
+      "name": "default",
+      "default": true,
+      "address": "http://prometheus-operated.monitoring.svc.cluster.local:9090"
+    }
+  }
+}
+```
+
+- `applications[].name` is an Argo CD application name. The entry with `"default": true` is used for every application that does not have its own entry.
+- `groupKind` selects the resource page. Use `pod`, `deployment`, or `rollout`. Those are the only kinds the UI extension registers, and the value must be lowercase.
+- `tabs` lists the tab names. Each row's `tab` must be one of them.
+- `graphType` is `line`, `pie`, or `anomaly`.
+- `metricName` is the Prometheus label used as the graph legend. Set it to the label in the query's `by (...)`.
+- `queryExpression` is PromQL. `{{.name}}`, `{{.namespace}}`, `{{.application_name}}`, `{{.project}}`, and `{{.duration}}` are filled in from the resource being viewed. `{{.name}}` is the resource name plus `.*`.
+- `provider.address` is the Prometheus URL reachable from the metrics server.
+
+The server reads `config.json` once at startup. The install manifest also mounts that file with `subPath`, so Kubernetes will not refresh it in a running container. After editing the ConfigMap, roll the server:
+
+```sh
+kubectl rollout restart deployment/argocd-metrics-server
+```
 
 ## Contributing
 
