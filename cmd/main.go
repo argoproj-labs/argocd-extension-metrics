@@ -13,7 +13,7 @@ func main() {
 	flag.IntVar(&port, "port", 9003, "Listening Port")
 	flag.BoolVar(&enableTLS, "enableTLS", true, "Run server with TLS (default true)")
 	flag.Parse()
-	logger := logging.NewLogger().Named("metric-sever")
+	logger := logging.NewLogger().Named("metric-server")
 	ctx := context.Background()
 	defer ctx.Done()
 
