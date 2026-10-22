@@ -103,7 +103,13 @@ func executeGraphQuery(ctx *gin.Context, queryExpression string, env map[string]
 		Step:  time.Minute,
 	}
 
-	result, warnings, err := pp.provider.QueryRange(ctx, strQuery, r)
+	result, warnings, infos, err := pp.provider.QueryRange(ctx, strQuery, r)
+
+	// Infos are informational notices from Prometheus (e.g. about query
+	// behavior). They are not errors, so log them and continue.
+	if len(infos) > 0 {
+		pp.logger.Infow("prometheus query infos", "query", strQuery, "infos", infos)
+	}
 
 	if err != nil {
 		return nil, warnings, fmt.Errorf("error querying prometheus: %s", err)
