@@ -36,5 +36,6 @@ RUN CGO_ENABLED=0 go build -o ./bin/metrics-server ./cmd/main.go
 FROM scratch
 
 COPY --from=builder /app/bin/metrics-server /
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 ENTRYPOINT [ "/metrics-server" ]
