@@ -1,8 +1,6 @@
 package server
 
 import (
-	"fmt"
-
 	"github.com/prometheus/common/config"
 )
 
@@ -72,7 +70,6 @@ type Application struct {
 
 func (a Application) getDashBoard(groupKind string) *Dashboard {
 	for _, dash := range a.Dashboards {
-		fmt.Println(dash.GroupKind, groupKind)
 		if dash.GroupKind == groupKind {
 			return dash
 		}

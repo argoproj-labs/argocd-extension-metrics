@@ -53,7 +53,7 @@ func (pp *PrometheusProvider) getDashboard(ctx *gin.Context) {
 		return
 	}
 	dash := app.getDashBoard(groupKind)
-
+	pp.logger.Debugw("dashboard lookup", "application", app.Name, "groupKind", groupKind, "found", dash != nil)
 	if dash == nil {
 		ctx.JSON(http.StatusBadRequest, "Requested/Default Dashboard not found")
 		return
@@ -146,6 +146,7 @@ func (pp *PrometheusProvider) execute(ctx *gin.Context) {
 		return
 	}
 	dashboard := application.getDashBoard(groupKind)
+	pp.logger.Debugw("dashboard lookup", "application", application.Name, "groupKind", groupKind, "found", dashboard != nil)
 	if dashboard == nil {
 		ctx.JSON(http.StatusBadRequest, "Requested/Default Dashboard not found")
 		return
