@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/prometheus/common/config"
 )
@@ -85,6 +86,7 @@ type provider struct {
 	Address   string           `json:"address"`
 	Default   bool             `json:"default"`
 	TLSConfig config.TLSConfig `json:"TLSConfig"`
+	Headers   http.Header      `json:"headers"`
 }
 
 type MetricsConfigProvider struct {
